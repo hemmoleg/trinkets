@@ -29,7 +29,7 @@ function newGame()
     reset();
     triesLeft = 10;
     generateNewCode();
-
+    
     //document.getElementById("check").disabled = false;
     
     //show generated code and set values
@@ -117,16 +117,17 @@ function checkInputForEnableBtnCheck()
 function checkInput()
 {   
     var input = [];
-    var tempCode2 = code2;
+    var tempCode2 = code2.slice();
     var blackPins = 0;
     var grayPins = 0;
+    var blackPinAwardedForIndex = [false, false, false, false];
     for(var i = 0; i < 4; i++)
     {
         input[i] = currentRow.children[i].getAttribute("data-code");
     }
     
     console.log("input " + input);
-    
+   
     for(var i = 0; i < 4; i++)
     {
         if(input[i] == code[i])
@@ -134,18 +135,22 @@ function checkInput()
             //black pin
             tempCode2[input[i]]--;
             blackPins++;
+            blackPinAwardedForIndex[i] = true;
             continue;
         }
     }
     
     for(var i = 0; i < 4; i++)
     {
+        if(blackPinAwardedForIndex[i])
+            continue;
+        
         if(tempCode2[input[i]] > 0)
-            {
-                //gray pin        
-                tempCode2[input[i]]--;
-                grayPins++;
-            }
+        {
+            //gray pin        
+            tempCode2[input[i]]--;
+            grayPins++;
+        }
     }
     console.log("back pins: " + blackPins + " " + "gray pins: " + grayPins);
     
