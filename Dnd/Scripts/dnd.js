@@ -1,10 +1,26 @@
+var slotsUnordered = [];
 var slots = [];
-var pieces = [];
+var pieces = []; 
 var dragSrcElement = null;
 
 window.onload = function () 
 {   
+    slotsUnordered = document.querySelectorAll('.slot');
     pieces = document.querySelectorAll('.piece');
+    
+    var row = [];
+    for(var i = 0; i < slotsUnordered.length; i++)
+    {
+        console.log("slot " + i);
+        row[i % 3] = slotsUnordered[i];
+    
+        if(i % 3 == 2 && i != 0)
+        {
+            slots[slots.length] = row;
+            row = [];
+            console.log("new row");
+        }
+    }
     
     for(var i = 0; i < pieces.length; i++)
     {
@@ -16,17 +32,44 @@ window.onload = function ()
         pieces[i].addEventListener('dragend', handleDragEnd, false);
     }
     
-    slots = document.querySelectorAll('.slot');
-    
-    for(var i = 0; i < slots.length; i++)
+    for(var i = 0; i < slotsUnordered.length; i++)
     {
         //pieces[i].addEventListener('dragstart', handleDragStart, false);
-        slots[i].addEventListener('dragenter', handleDragEnter, false);
-        slots[i].addEventListener('dragover', handleDragOver, false);
-        slots[i].addEventListener('dragleave', handleDragLeave, false);
+        slotsUnordered[i].addEventListener('dragenter', handleDragEnter, false);
+        slotsUnordered[i].addEventListener('dragover', handleDragOver, false);
+        slotsUnordered[i].addEventListener('dragleave', handleDragLeave, false);
         //pieces[i].addEventListener('drop', handleDrop, false);
-        slots[i].addEventListener('dragend', handleDragEnd, false);
+        slotsUnordered[i].addEventListener('dragend', handleDragEnd, false);
         //.classList.add('over');
+    }
+    
+    document.body.addEventListener("keydown", processKey); 
+
+    slots[0][1].querySelector(".piece").style.visibility = "hidden";
+}
+
+/*
+    <- 37
+    ^  38
+    -> 39
+    d  40
+*/
+
+function processKey(e)
+{
+    console.log(String.fromCharCode(e.keyCode)+" --> "+e.keyCode);
+    if(e.keyCode == 39)
+    {
+        for(i = 0; i < slots.length; i++)
+        {
+            for(j = 0; j < slots[i].length; j++)
+            {
+                if(slots[i][j+1] != null && slots[i][j+1].querySelector(".piece").style.visibility == "hidden")
+                {
+                    slots[i][j+1].innerHTML == slots[i][j];
+                }
+            }
+        }
     }
 }
 
