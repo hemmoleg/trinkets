@@ -39,25 +39,42 @@
             margin-bottom: 5px;
             border-radius: 10px;
             box-shadow: inset 0 0 3px #000;
-            
-            display: table; 
+             
             padding: 10px;
+            
         }
 
         .piece {
-            display: table-cell;
+            display:block;
             vertical-align: middle;
             text-align: center;
-            
             cursor: move;
             background-color: #FF5300;
-    
+            
+            width: 100%;
+            height: 100%;
+            
+            transform: scale(1);
+            
+            line-height: 240%;
+            
             border-radius: 10px;
             font-size: 40px;
+        
+            
         }
         
         .slot.over{
             border: 2px dashed #000;
+        }
+        
+        .newPieceAnim{
+            animation: grow 0.5s;
+        }
+        
+        @keyframes grow{
+            0%{transform: scale(0);}
+            100%{transform: scale(1);}
         }
         
     </style>
@@ -115,6 +132,7 @@
           <!--<div class="piece" draggable="true" data-value="2">2</div>-->
       </div>
     </div>
+    <button type="button" id="btnReset">Reset</button>
 
 </body>
 </html>

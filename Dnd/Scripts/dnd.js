@@ -16,6 +16,7 @@ function Piece(initVal)
     this.GetY = function(){return y;}
     this.SetY = function(val){y = val;}
     
+    this.GetDivInit = function(){return "<div class='piece newPieceAnim'>"+initVal+"</div>"}
     this.GetDiv = function(){return Div;}
     
     this.GetValue = function(){return value;}
@@ -44,6 +45,8 @@ window.onload = function ()
             console.log("new row");
         }
     }
+    
+    document.getElementById("btnReset").onclick = reset;
     
     /*for(var i = 0; i < pieces.length; i++)
     {
@@ -315,7 +318,7 @@ function addRandomPiece()
 
     var newPiece = new Piece(1);
     pieces[pieces.length] = newPiece;
-    slots[x][y].innerHTML = newPiece.GetDiv();
+    slots[x][y].innerHTML = newPiece.GetDivInit();
     newPiece.SetX(x);
     newPiece.SetY(y);
 }
@@ -361,6 +364,16 @@ function getPieceByCoords(x, y)
             return pieces[i];
         }
     }
+}
+
+function reset()
+{
+    for(var i = 0; i < slotsUnordered.length; i++)
+    {
+        slotsUnordered[i].innerHTML = "";
+    }
+    pieces = [];
+    initDefaultSetup();
 }
 
 function handleDragStart(e) 
