@@ -100,6 +100,10 @@ function processKey(e)
 {
     console.log(String.fromCharCode(e.keyCode)+" --> "+e.keyCode);
     
+    if(e.keyCode != 37 && e.keyCode != 38 && e.keyCode != 39 &&
+       e.keyCode != 40)
+        return;
+    
     for(var i = 0; i < pieces.length; i++)
     {
         console.log("Piece: " + i + " x: " + pieces[i].GetX() + " y: " + pieces[i].GetY());   
