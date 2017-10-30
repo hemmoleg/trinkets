@@ -12,38 +12,32 @@
 
     <style type="text/css">
     
-        [draggable] {
-          -moz-user-select: none;
-          -khtml-user-select: none;
-          -webkit-user-select: none;
-          user-select: none;
-          /* Required to make elements draggable in old WebKit */
-          -khtml-user-drag: element;
-          -webkit-user-drag: element;
-        }
+        * {margin: 0; padding: 0;}
+
         
         #board{
             display: flex;
-            flex-wrap: wrap;
+            flex-flow: row wrap;
             
-            width: 600px;
+            width: 98vmin;
+            height: 98vmin;
+            
         }
         
-        .slot {
-            height: 100px;
-            width: 100px;
+        .slot {            
+            height: 20%;
+            width: 20%;
             
             border: 2px solid #666666;
             background-color: #FF874C;
-            margin-right: 5px;
-            margin-bottom: 5px;
+            margin-right: 1vmin;
+            margin-bottom: 1vmin;
             border-radius: 10px;
             box-shadow: inset 0 0 3px #000;
              
             padding: 10px;
-            
         }
-
+        
         .piece {
             display:block;
             vertical-align: middle;
@@ -56,16 +50,10 @@
             
             transform: scale(1);
             
-            line-height: 240%;
+            line-height: 290%;
             
             border-radius: 10px;
             font-size: 40px;
-        
-            
-        }
-        
-        .slot.over{
-            border: 2px dashed #000;
         }
         
         .newPieceAnim{
@@ -84,52 +72,52 @@
 
     <div id="board">
       <div class="slot">
-         <!--<div class="piece" draggable="true" data-value="2">2</div>-->
+         
       </div>
       <div class="slot">
-          <!--<div class="piece" draggable="true" data-value="2">2</div>-->
+          
       </div>
       <div class="slot">
-           <!--<div class="piece" draggable="true" data-value="2">2</div>-->
+          
       </div>
       <div class="slot">
-           <!--<div class="piece" draggable="true" data-value="2">2</div>-->
+           
       </div>
       <div class="slot">
-           <!--<div class="piece" draggable="true" data-value="2">2</div>-->
+           
       </div>
       <div class="slot">
-           <!--<div class="piece" draggable="true" data-value="2">2</div>-->
+           
       </div>
       <div class="slot">
-           <!--<div class="piece" draggable="true" data-value="2">2</div>-->
+           
       </div>
       <div class="slot">
-           <!--<div class="piece" draggable="true" data-value="2">2</div>-->
+          
       </div>
       <div class="slot">
-          <!--<div class="piece" draggable="true" data-value="2">2</div>-->
+          
       </div>
       <div class="slot">
-          <!--<div class="piece" draggable="true" data-value="2">2</div>-->
+          
       </div>
       <div class="slot">
-          <!--<div class="piece" draggable="true" data-value="2">2</div>-->
+          
       </div>
       <div class="slot">
-          <!--<div class="piece" draggable="true" data-value="2">2</div>-->
+         
       </div>
       <div class="slot">
-          <!--<div class="piece" draggable="true" data-value="2">2</div>-->
+          
       </div>
       <div class="slot">
-          <!--<div class="piece" draggable="true" data-value="2">2</div>-->
+         
       </div>
       <div class="slot">
-          <!--<div class="piece" draggable="true" data-value="2">2</div>-->
+          
       </div>
       <div class="slot">
-          <!--<div class="piece" draggable="true" data-value="2">2</div>-->
+          
       </div>
     </div>
     <button type="button" id="btnReset">Reset</button>

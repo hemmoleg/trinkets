@@ -48,27 +48,6 @@ window.onload = function ()
     
     document.getElementById("btnReset").onclick = reset;
     
-    /*for(var i = 0; i < pieces.length; i++)
-    {
-        pieces[i].addEventListener('dragstart', handleDragStart, false);
-        //pieces[i].addEventListener('dragenter', handleDragEnter, false);
-        //pieces[i].addEventListener('dragover', handleDragOver, false);
-        //pieces[i].addEventListener('dragleave', handleDragLeave, false);
-        pieces[i].addEventListener('drop', handleDrop, false);
-        pieces[i].addEventListener('dragend', handleDragEnd, false);
-    }
-    
-    for(var i = 0; i < slotsUnordered.length; i++)
-    {
-        //pieces[i].addEventListener('dragstart', handleDragStart, false);
-        slotsUnordered[i].addEventListener('dragenter', handleDragEnter, false);
-        slotsUnordered[i].addEventListener('dragover', handleDragOver, false);
-        slotsUnordered[i].addEventListener('dragleave', handleDragLeave, false);
-        //pieces[i].addEventListener('drop', handleDrop, false);
-        slotsUnordered[i].addEventListener('dragend', handleDragEnd, false);
-        //.classList.add('over');
-    }*/
-    
     initDefaultSetup();
     
     //initDebugingSetup();
@@ -333,8 +312,8 @@ function movePiece(x1, y1, x2, y2)
     piece.SetY(y2);
 }
 
-//xy1 = cords for piece to remove
-//xy2 = cords for resulting piece
+//xy1 = coords for piece to remove
+//xy2 = coords for resulting piece
 function mergePieces(x1, y1, x2, y2)
 {
     removePieceByCoords(x1, y1);
