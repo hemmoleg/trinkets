@@ -38,7 +38,6 @@ window.onload = function ()
     var row = [];
     for (var i = 0; i < slotsUnordered.length; i++)
     {
-        console.log("slot " + i);
         row[i % 4] = slotsUnordered[i];
         slotsUnordered[i].innerHTML = "";
 
@@ -46,7 +45,6 @@ window.onload = function ()
         {
             slots[slots.length] = row;
             row = [];
-            console.log("new row");
         }
     }
 
@@ -55,6 +53,13 @@ window.onload = function ()
     initDefaultSetup();
 
     //initDebugingSetup();
+
+    //hammertime.get('swipe').set({ direction: Hammer.DIRECTION_VERTICAL });
+    var hammertime = new Hammer(document.getElementById("table"));
+    hammertime.on('swipeleft swiperight', function (ev) {
+        console.log(ev);
+
+    });
 }
 
 function initDefaultSetup()
@@ -72,19 +77,19 @@ function initDebugingSetup()
     newPiece.SetX(1);
     newPiece.SetY(0);
 
-    var newPiece = new Piece(2);
+    newPiece = new Piece(2);
     pieces[pieces.length] = newPiece;
     slots[1][3].innerHTML = newPiece.GetDiv();
     newPiece.SetX(1);
     newPiece.SetY(3);
 
-    var newPiece = new Piece(4);
+    newPiece = new Piece(4);
     pieces[pieces.length] = newPiece;
     slots[3][3].innerHTML = newPiece.GetDiv();
     newPiece.SetX(3);
     newPiece.SetY(3);
 
-    var newPiece = new Piece(8);
+    newPiece = new Piece(8);
     pieces[pieces.length] = newPiece;
     slots[0][3].innerHTML = newPiece.GetDiv();
     newPiece.SetX(0);
