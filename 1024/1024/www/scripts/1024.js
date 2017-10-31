@@ -4,6 +4,8 @@ var pieces = [];
 var dragSrcElement = null;
 var hasMovedOrMerged = false;
 
+Direction = {UP:"up", DOWN:"down", LEFT:"left", RIGHT:"right"}
+
 function Piece(initVal)
 {
     var Div = "<div class='piece'>" + initVal + "</div>";
@@ -31,8 +33,6 @@ function Piece(initVal)
 
 window.onload = function ()
 {
-    document.body.addEventListener("keydown", onKeyDown);
-
     slotsUnordered = document.querySelectorAll('.slot');
 
     var row = [];
@@ -41,7 +41,7 @@ window.onload = function ()
         row[i % 4] = slotsUnordered[i];
         slotsUnordered[i].innerHTML = "";
 
-        if (i % 4 == 3 && i != 0)
+        if (i % 4 === 3 && i !== 0)
         {
             slots[slots.length] = row;
             row = [];
@@ -54,12 +54,44 @@ window.onload = function ()
 
     //initDebugingSetup();
 
-    //hammertime.get('swipe').set({ direction: Hammer.DIRECTION_VERTICAL });
-    var hammertime = new Hammer(document.getElementById("table"));
-    hammertime.on('swipeleft swiperight', function (ev) {
-        console.log(ev);
+    //keys input
+    document.body.addEventListener("keydown", onKeyDown);
 
+    //touch input
+    var hammertime = new Hammer(document.getElementById("table"));
+    
+    hammertime.get("swipe").set({ direction: Hammer.DIRECTION_ALL });
+    
+    hammertime.on("swipeleft swiperight swipeup swipedown", function (ev) {
+
+        if (ev.type === "swipeleft")
+        {
+            moveAndMerge(Direction.LEFT);
+            console.log("swipe left");
+        }
+        
+        if (ev.type === "swiperight")
+        {
+            moveAndMerge(Direction.RIGHT);
+            console.log("swipe right");
+        }
+       
+        if (ev.type === "swipeup")
+        {
+            moveAndMerge(Direction.UP);
+            console.log("swipe up");
+        }
+        
+        if (ev.type === "swipedown")
+        {
+            moveAndMerge(Direction.DOWN);
+            console.log("swipe down");
+        }
     });
+    
+    
+    
+    console.log("done");
 }
 
 function initDefaultSetup()
@@ -105,26 +137,41 @@ function initDebugingSetup()
 
 function onKeyDown(e)
 {
+    console.log(String.fromCharCode(e.keyCode) + " --> " + e.keyCode);
+
+    if (e.keyCode !== 37 && e.keyCode !== 38 && e.keyCode !== 39 &&
+        e.keyCode !== 40)
+        return;
+
+    if (e.keyCode === 39)
+        moveAndMerge(Direction.RIGHT)
+    
+    if (e.keyCode === 37)
+        moveAndMerge(Direction.LEFT)
+    
+    if (e.keyCode === 38)
+        moveAndMerge(Direction.UP)
+    
+    if (e.keyCode === 40)
+        moveAndMerge(Direction.DOWN)
+}
+
+function moveAndMerge(direction)
+{
     //set by movePiece and mergePieces
     hasMovedOrMerged = false;
 
     do
     {
-        processKey(e);
-    } while (checkMerge(e))
+        processKey(direction);
+    } while (checkMerge(direction))
 
     if (hasMovedOrMerged && pieces.length < 16)
         addRandomPiece();
 }
 
-function processKey(e)
+function processKey(direction)
 {
-    console.log(String.fromCharCode(e.keyCode) + " --> " + e.keyCode);
-
-    if (e.keyCode != 37 && e.keyCode != 38 && e.keyCode != 39 &&
-        e.keyCode != 40)
-        return;
-
     for (var i = 0; i < pieces.length; i++)
     {
         console.log("Piece: " + i + " x: " + pieces[i].GetX() + " y: " + pieces[i].GetY());
@@ -133,7 +180,7 @@ function processKey(e)
     var pieceMoved = true;
 
     // right
-    if (e.keyCode == 39)
+    if (direction === Direction.RIGHT)
     {
         console.log("Pieces: " + pieces.length);
 
@@ -155,7 +202,7 @@ function processKey(e)
     }
 
     // left
-    if (e.keyCode == 37)
+    if (direction === Direction.LEFT)
     {
         console.log("Pieces: " + pieces.length);
 
@@ -177,7 +224,7 @@ function processKey(e)
     }
 
     // up
-    if (e.keyCode == 38)
+    if (direction === Direction.UP)
     {
         console.log("Pieces: " + pieces.length);
 
@@ -199,7 +246,7 @@ function processKey(e)
     }
 
     // down
-    if (e.keyCode == 40)
+    if (direction === Direction.DOWN)
     {
         console.log("Pieces: " + pieces.length);
 
@@ -228,16 +275,17 @@ function processKey(e)
     }
 }
 
-function checkMerge(e) {
+function checkMerge(direction) 
+{
     var keepMoving = false;
     //check piece left
-    if (e.keyCode == 39) {
+    if (direction === Direction.RIGHT) {
         for (var i = 0; i < pieces.length; i++) {
             var piece = pieces[i];
 
             if (piece.GetY() - 1 >= 0 &&
-                slots[piece.GetX()][piece.GetY() - 1].innerHTML != "" &&
-                getPieceByCoords(piece.GetX(), piece.GetY() - 1).GetValue() == piece.GetValue()
+                slots[piece.GetX()][piece.GetY() - 1].innerHTML !== "" &&
+                getPieceByCoords(piece.GetX(), piece.GetY() - 1).GetValue() === piece.GetValue()
             ) {
                 mergePieces(piece.GetX(), piece.GetY() - 1, piece.GetX(), piece.GetY());
                 keepMoving = true;
@@ -246,13 +294,13 @@ function checkMerge(e) {
     }
 
     //check piece right
-    if (e.keyCode == 37) {
+    if (direction === Direction.LEFT) {
         for (var i = 0; i < pieces.length; i++) {
             var piece = pieces[i];
 
             if (piece.GetY() + 1 <= 3 &&
-                slots[piece.GetX()][piece.GetY() + 1].innerHTML != "" &&
-                getPieceByCoords(piece.GetX(), piece.GetY() + 1).GetValue() == piece.GetValue()
+                slots[piece.GetX()][piece.GetY() + 1].innerHTML !== "" &&
+                getPieceByCoords(piece.GetX(), piece.GetY() + 1).GetValue() === piece.GetValue()
             ) {
                 mergePieces(piece.GetX(), piece.GetY() + 1, piece.GetX(), piece.GetY());
                 keepMoving = true;
@@ -261,13 +309,13 @@ function checkMerge(e) {
     }
 
     // check piece down
-    if (e.keyCode == 38) {
+    if (direction === Direction.UP) {
         for (var i = 0; i < pieces.length; i++) {
             var piece = pieces[i];
 
             if (piece.GetX() + 1 <= 3 &&
-                slots[piece.GetX() + 1][piece.GetY()].innerHTML != "" &&
-                getPieceByCoords(piece.GetX() + 1, piece.GetY()).GetValue() == piece.GetValue()
+                slots[piece.GetX() + 1][piece.GetY()].innerHTML !== "" &&
+                getPieceByCoords(piece.GetX() + 1, piece.GetY()).GetValue() === piece.GetValue()
             ) {
                 mergePieces(piece.GetX() + 1, piece.GetY(), piece.GetX(), piece.GetY());
                 keepMoving = true;
@@ -276,15 +324,15 @@ function checkMerge(e) {
     }
 
     // check piece up
-    if (e.keyCode == 40)
+    if (direction === Direction.DOWN)
     {
         for (var i = 0; i < pieces.length; i++)
         {
             var piece = pieces[i];
 
             if (piece.GetX() - 1 >= 0 &&
-                slots[piece.GetX() - 1][piece.GetY()].innerHTML != "" &&
-                getPieceByCoords(piece.GetX() - 1, piece.GetY()).GetValue() == piece.GetValue()
+                slots[piece.GetX() - 1][piece.GetY()].innerHTML !== "" &&
+                getPieceByCoords(piece.GetX() - 1, piece.GetY()).GetValue() === piece.GetValue()
             ) {
                 mergePieces(piece.GetX() - 1, piece.GetY(), piece.GetX(), piece.GetY());
                 keepMoving = true;
@@ -293,11 +341,6 @@ function checkMerge(e) {
     }
 
     return keepMoving;
-
-    /*if (keepMoving)
-        processKey(e);
-    else
-        addRandomPiece()*/
 }
 
 function addRandomPiece()
@@ -315,7 +358,8 @@ function addRandomPiece()
     newPiece.SetY(y);
 }
 
-function movePiece(x1, y1, x2, y2) {
+function movePiece(x1, y1, x2, y2)
+{
     var piece = getPieceByCoords(x1, y1);
     slots[x2][y2].innerHTML = piece.GetDiv();
     slots[x1][y1].innerHTML = "";
@@ -328,7 +372,8 @@ function movePiece(x1, y1, x2, y2) {
 
 //xy1 = coords for piece to remove
 //xy2 = coords for resulting piece
-function mergePieces(x1, y1, x2, y2) {
+function mergePieces(x1, y1, x2, y2)
+{
     removePieceByCoords(x1, y1);
     slots[x1][y1].innerHTML = "";
     getPieceByCoords(x2, y2).SquareValue();
@@ -337,24 +382,27 @@ function mergePieces(x1, y1, x2, y2) {
     hasMovedOrMerged = true;
 }
 
-function removePieceByCoords(x, y) {
+function removePieceByCoords(x, y)
+{
     for (var i = 0; i < pieces.length; i++) {
-        if (pieces[i].GetX() == x && pieces[i].GetY() == y) {
+        if (pieces[i].GetX() === x && pieces[i].GetY() === y) {
             pieces.splice(i, 1);
             return;
         }
     }
 }
 
-function getPieceByCoords(x, y) {
+function getPieceByCoords(x, y)
+{
     for (var i = 0; i < pieces.length; i++) {
-        if (pieces[i].GetX() == x && pieces[i].GetY() == y) {
+        if (pieces[i].GetX() === x && pieces[i].GetY() === y) {
             return pieces[i];
         }
     }
 }
 
-function reset() {
+function reset()
+{
     for (var i = 0; i < slotsUnordered.length; i++) {
         slotsUnordered[i].innerHTML = "";
     }
