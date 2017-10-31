@@ -8,7 +8,7 @@ Direction = {UP:"up", DOWN:"down", LEFT:"left", RIGHT:"right"}
 
 function Piece(initVal)
 {
-    var Div = "<div class='piece'>" + initVal + "</div>";
+    var Div = "";
     var x;
     var y;
     var value = initVal;
@@ -19,7 +19,8 @@ function Piece(initVal)
     this.GetY = function () { return y; }
     this.SetY = function (val) { y = val; }
 
-    this.GetDivInit = function () { return "<div class='piece newPieceAnim'>" + initVal + "</div>" }
+    this.GetDivInit = function () { Div = "<div class='piece newPieceAnim'><b>" + initVal + "</b></div>";
+                                return Div;}
     this.GetDiv = function () { return Div; }
 
     this.GetValue = function () { return value; }
@@ -27,7 +28,7 @@ function Piece(initVal)
     this.SquareValue = function ()
     {
         value = parseInt(value) + parseInt(value);
-        Div = "<div class='piece'>" + value + "</div>";
+        Div = "<div class='piece'><b>" + value + "</b></div>";
     }
 }
 
@@ -41,6 +42,8 @@ window.onload = function ()
         row[i % 4] = slotsUnordered[i];
         slotsUnordered[i].innerHTML = "";
 
+        //slotsUnordered[i].addEventListener("click", debugAddPiece); 
+        
         if (i % 4 === 3 && i !== 0)
         {
             slots[slots.length] = row;
@@ -88,10 +91,11 @@ window.onload = function ()
             console.log("swipe down");
         }
     });
-    
-    
-    
-    console.log("done");
+}
+
+function debugAddPiece(e)
+{
+    e.target.innerHTML = new Piece(2).GetDiv();
 }
 
 function initDefaultSetup()
@@ -163,14 +167,14 @@ function moveAndMerge(direction)
 
     do
     {
-        processKey(direction);
+        movePieces(direction);
     } while (checkMerge(direction))
 
     if (hasMovedOrMerged && pieces.length < 16)
         addRandomPiece();
 }
 
-function processKey(direction)
+function movePieces(direction)
 {
     for (var i = 0; i < pieces.length; i++)
     {
