@@ -43,6 +43,15 @@ body {
     margin-right: auto;
 }
 
+#pieceContainer{
+    position: relative;
+    display: block;
+    top: -96vmin;
+    width: 100%;
+    min-height: 100%;
+    background-color: aqua;
+}
+
 #board {
     display: table;
     width: 90vmin;
@@ -68,7 +77,21 @@ body {
 
 .piece {
     /*display: block;*/
-    /*vertical-align: middle;*/
+    position: absolute;
+    
+    text-align: center;
+    background-color: #FF5300;
+    width: 20vmin;
+    height: 20vmin;
+    /*padding-top: 3px;*/
+    /*line-height: 20vmin;*/
+    border-radius: 1.5vmin;
+    font-size: 10vmin;
+    
+    transition: all 2.5s ease-in-out;
+}
+
+.pieceDebug {
     text-align: center;
     background-color: #FF5300;
     width: 100%;
@@ -96,6 +119,27 @@ body {
         transform: scale(1);
     }
 }
+
+.col0 {left: 2.4vmin;}
+.col1 {left: 27.2vmin;}
+.col2 {left: 52.2vmin;}
+.col3 {left: 77vmin;}
+
+.row0 {top: 0.2vmin;}
+.row1 {top: 24.7vmin;}
+.row2 {top: 49vmin;}
+.row3 {top: 73.7vmin;}
+
+
+
+/*.moveLeft{
+    animation: col0 3s;
+}
+
+@keyframes col0{
+    0%{left: 220%}
+    100%{left: 0px}
+}*/
 
 #btnReset {
     margin-top: 2vmin;

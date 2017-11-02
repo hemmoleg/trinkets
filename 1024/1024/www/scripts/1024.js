@@ -4,23 +4,34 @@ var pieces = [];
 var dragSrcElement = null;
 var hasMovedOrMerged = false;
 
+var cols = ["col0", "col1", "col2", "col3"];
+var rows = ["row0", "row1", "row2", "row3"]
+
 Direction = {UP:"up", DOWN:"down", LEFT:"left", RIGHT:"right"}
 
-function Piece(initVal)
+function Piece(x, y, initVal)
 {
     var Div = "";
     var x;
     var y;
     var value = initVal;
 
+    Div = document.createElement('div');
+    Div.innerHTML = "<b>" + initVal + "</b>";
+    Div.classList.add('piece');
+    Div.classList.add('newPieceAnim');
+    this.x = x;
+    this.y = y;
+    Div.classList.add(cols[x]);
+    Div.classList.add(rows[y]);
+    slots[x][y].value = initVal;
+    
     this.GetX = function () { return x; }
     this.SetX = function (val) { x = val; }
 
     this.GetY = function () { return y; }
     this.SetY = function (val) { y = val; }
-
-    this.GetDivInit = function () { Div = "<div class='piece newPieceAnim'><b>" + initVal + "</b></div>";
-                                return Div;}
+    
     this.GetDiv = function () { return Div; }
 
     this.GetValue = function () { return value; }
@@ -28,7 +39,7 @@ function Piece(initVal)
     this.SquareValue = function ()
     {
         value = parseInt(value) + parseInt(value);
-        Div = "<div class='piece'><b>" + value + "</b></div>";
+        Div.innerHTML = "<b>" + value + "</b>";
     }
 }
 
@@ -36,27 +47,24 @@ window.onload = function ()
 {
     slotsUnordered = document.querySelectorAll('.slot');
 
-    var row = [];
+    //var row = [];
+    var col0 = []; 
+    var col1 = [];
+    var col2 = [];
+    var col3 = [];
+    slots = [col0, col1, col2, col3];
     for (var i = 0; i < slotsUnordered.length; i++)
     {
-        row[i % 4] = slotsUnordered[i];
-        slotsUnordered[i].innerHTML = "";
-
-        //slotsUnordered[i].addEventListener("click", debugAddPiece); 
-        
-        if (i % 4 === 3 && i !== 0)
-        {
-            slots[slots.length] = row;
-            row = [];
-        }
+        slots[i % 4][slots[i%4].length] = slotsUnordered[i];
+        slotsUnordered[i].value = 0;
     }
 
     document.getElementById("btnReset").onclick = reset;
 
-    initDefaultSetup();
+    //initDefaultSetup();
 
-    //initDebugingSetup();
-
+    initDebugingSetup();
+    
     //keys input
     document.body.addEventListener("keydown", onKeyDown);
 
@@ -107,29 +115,21 @@ function initDefaultSetup()
 
 function initDebugingSetup()
 {
-    var newPiece = new Piece(2);
+    var newPiece = new Piece(1, 3, 2);
     pieces[pieces.length] = newPiece;
-    slots[1][0].innerHTML = newPiece.GetDiv();
-    newPiece.SetX(1);
-    newPiece.SetY(0);
+    document.getElementById('pieceContainer').appendChild(newPiece.GetDiv());
+    
+    /*newPiece = new Piece(1, 3, 2);
+    pieces[pieces.length] = newPiece;
+    document.getElementById('pieceContainer').appendChild(newPiece.GetDiv());
 
-    newPiece = new Piece(2);
+    newPiece = new Piece(3, 3, 4);
     pieces[pieces.length] = newPiece;
-    slots[1][3].innerHTML = newPiece.GetDiv();
-    newPiece.SetX(1);
-    newPiece.SetY(3);
+    document.getElementById('pieceContainer').appendChild(newPiece.GetDiv());
 
-    newPiece = new Piece(4);
+    newPiece = new Piece(0, 3, 8);
     pieces[pieces.length] = newPiece;
-    slots[3][3].innerHTML = newPiece.GetDiv();
-    newPiece.SetX(3);
-    newPiece.SetY(3);
-
-    newPiece = new Piece(8);
-    pieces[pieces.length] = newPiece;
-    slots[0][3].innerHTML = newPiece.GetDiv();
-    newPiece.SetX(0);
-    newPiece.SetY(3);
+    document.getElementById('pieceContainer').appendChild(newPiece.GetDiv());*/
 }
 
 /*
@@ -184,9 +184,9 @@ function movePieces(direction)
     var pieceMoved = true;
 
     // right
-    if (direction === Direction.RIGHT)
+    if (direction === Direction.DOWN)
     {
-        console.log("Pieces: " + pieces.length);
+        //console.log("Pieces: " + pieces.length);
 
         while (pieceMoved)
         {
@@ -196,7 +196,8 @@ function movePieces(direction)
                 var piece = pieces[i];
 
                 if (piece.GetY() + 1 <= 3 &&
-                    slots[piece.GetX()][piece.GetY() + 1].innerHTML == "") {
+                    slots[piece.GetX()][piece.GetY() + 1].value == 0) 
+                {
                     movePiece(piece.GetX(), piece.GetY(), piece.GetX(), piece.GetY() + 1);
                     pieceMoved = true;
                     break;
@@ -206,9 +207,9 @@ function movePieces(direction)
     }
 
     // left
-    if (direction === Direction.LEFT)
+    if (direction === Direction.UP)
     {
-        console.log("Pieces: " + pieces.length);
+        //console.log("Pieces: " + pieces.length);
 
         while (pieceMoved)
         {
@@ -218,7 +219,8 @@ function movePieces(direction)
                 var piece = pieces[i];
 
                 if (piece.GetY() - 1 >= 0 &&
-                    slots[piece.GetX()][piece.GetY() - 1].innerHTML == "") {
+                    slots[piece.GetX()][piece.GetY() - 1].value == 0) 
+                {
                     movePiece(piece.GetX(), piece.GetY(), piece.GetX(), piece.GetY() - 1);
                     pieceMoved = true;
                     break;
@@ -228,9 +230,9 @@ function movePieces(direction)
     }
 
     // up
-    if (direction === Direction.UP)
+    if (direction === Direction.LEFT)
     {
-        console.log("Pieces: " + pieces.length);
+        //console.log("Pieces: " + pieces.length);
 
         while (pieceMoved)
         {
@@ -240,7 +242,8 @@ function movePieces(direction)
                 var piece = pieces[i];
 
                 if (piece.GetX() - 1 >= 0 &&
-                    slots[piece.GetX() - 1][piece.GetY()].innerHTML == "") {
+                    slots[piece.GetX() - 1][piece.GetY()].value == 0) 
+                {
                     movePiece(piece.GetX(), piece.GetY(), piece.GetX() - 1, piece.GetY());
                     pieceMoved = true;
                     break;
@@ -250,9 +253,9 @@ function movePieces(direction)
     }
 
     // down
-    if (direction === Direction.DOWN)
+    if (direction === Direction.RIGHT)
     {
-        console.log("Pieces: " + pieces.length);
+        //console.log("Pieces: " + pieces.length);
 
         while (pieceMoved)
         {
@@ -262,7 +265,8 @@ function movePieces(direction)
                 var piece = pieces[i];
 
                 if (piece.GetX() + 1 <= 3 &&
-                    slots[piece.GetX() + 1][piece.GetY()].innerHTML == "") {
+                    slots[piece.GetX() + 1][piece.GetY()].value == 0) 
+                {
                     movePiece(piece.GetX(), piece.GetY(), piece.GetX() + 1, piece.GetY());
                     pieceMoved = true;
                     break;
@@ -271,19 +275,17 @@ function movePieces(direction)
         }
     }
 
-    //checkMerge(e);
-
-    for (var i = 0; i < pieces.length; i++)
+    /*for (var i = 0; i < pieces.length; i++)
     {
         console.log("Piece: " + i + " x: " + pieces[i].GetX() + " y: " + pieces[i].GetY());
-    }
+    }*/
 }
 
 function checkMerge(direction) 
 {
     var keepMoving = false;
     //check piece left
-    if (direction === Direction.RIGHT) {
+    if (direction === Direction.UP) {
         for (var i = 0; i < pieces.length; i++) {
             var piece = pieces[i];
 
@@ -298,7 +300,7 @@ function checkMerge(direction)
     }
 
     //check piece right
-    if (direction === Direction.LEFT) {
+    if (direction === Direction.DOWN) {
         for (var i = 0; i < pieces.length; i++) {
             var piece = pieces[i];
 
@@ -313,7 +315,7 @@ function checkMerge(direction)
     }
 
     // check piece down
-    if (direction === Direction.UP) {
+    if (direction === Direction.RIGHT) {
         for (var i = 0; i < pieces.length; i++) {
             var piece = pieces[i];
 
@@ -328,7 +330,7 @@ function checkMerge(direction)
     }
 
     // check piece up
-    if (direction === Direction.DOWN)
+    if (direction === Direction.LEFT)
     {
         for (var i = 0; i < pieces.length; i++)
         {
@@ -349,7 +351,7 @@ function checkMerge(direction)
 
 function addRandomPiece()
 {
-    do
+    /*do
     {
         var x = Math.floor(Math.random() * (3 - 0 + 1)) + 0;
         var y = Math.floor(Math.random() * (3 - 0 + 1)) + 0;
@@ -359,19 +361,31 @@ function addRandomPiece()
     pieces[pieces.length] = newPiece;
     slots[x][y].innerHTML = newPiece.GetDivInit();
     newPiece.SetX(x);
-    newPiece.SetY(y);
+    newPiece.SetY(y);*/
 }
 
 function movePiece(x1, y1, x2, y2)
 {
+    console.log(x1,y1,x2,y2);
     var piece = getPieceByCoords(x1, y1);
-    slots[x2][y2].innerHTML = piece.GetDiv();
-    slots[x1][y1].innerHTML = "";
+    slots[x2][y2].value = piece.GetValue();
+    slots[x1][y1].value = 0;
+    
+    //useful for debuging
+    slots[x2][y2].innerHTML = piece.GetValue();
+    slots[x1][y1].innerHTML = 0;
 
     piece.SetX(x2);
     piece.SetY(y2);
 
+    piece.GetDiv().classList.toggle(cols[x1]);
+    piece.GetDiv().classList.toggle(rows[y1]);
+    
+    piece.GetDiv().classList.toggle(cols[x2]);
+    piece.GetDiv().classList.toggle(rows[y2]);
+    
     hasMovedOrMerged = true;
+
 }
 
 //xy1 = coords for piece to remove
