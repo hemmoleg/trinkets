@@ -15,7 +15,6 @@
         <title>_1024</title>
     </head>
     <body>
-
         <div id="table">
             <div id="board">
                 <div class="row">
@@ -44,9 +43,28 @@
                 </div>
             </div>
             <div id="pieceContainer">
-                
             </div>
             <button type="button" id="btnReset">Reset</button>
+            
+            <div class="switchDiv">
+            <label class="switch">
+              <input type="checkbox" id="chkBoxShowMerge">
+              <span class="slider round"></span>  
+            </label>
+            <span style="vertical-align:30%; font-size: 4vmin">
+                Show marked for merge
+            </span>
+            </div>
+            <div class="switchDiv">
+            <label class="switch">
+              <input type="checkbox"
+              id="chkBoxAddRandom">
+              <span class="slider round"></span>  
+            </label>
+            <span style="vertical-align:30%; font-size: 4vmin">
+                Add random piece
+            </span>
+            </div>
         </div>
 
         <script type="text/javascript" src="cordova.js"></script>

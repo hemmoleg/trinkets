@@ -23,7 +23,6 @@ body {
     height:100%;
     margin:0px;
     padding:0px;
-    text-transform:uppercase;
     width:100%;
 	
     background-color:#32383d;
@@ -130,17 +129,71 @@ body {
 .row2 {top: 49vmin;}
 .row3 {top: 73.7vmin;}
 
-
-
-/*.moveLeft{
-    animation: col0 3s;
-}
-
-@keyframes col0{
-    0%{left: 220%}
-    100%{left: 0px}
-}*/
+.markedForMerge {background-color: aqua;}
 
 #btnReset {
+    margin-top: 0vmin;
+    margin-right: 10vmin
+}
+
+.switchDiv{
+    margin-left: 15vmin;
+}
+
+/* checkbox */
+.switch {
     margin-top: 2vmin;
+  position: relative;
+  display: inline-block;
+  width: 12vmin;
+  height: 6vmin;
+}
+
+/* Hide default HTML checkbox */
+.switch input {display:none;}
+
+/* The slider */
+.slider {
+  position: absolute;
+  cursor: pointer;
+  top: 0;
+  left: 0;
+  right: 0;
+  bottom: 0;
+  background-color: #ccc;
+  -webkit-transition: .4s;
+  transition: .4s;
+}
+
+.slider:before {
+  position: absolute;
+  content: "";
+  height: 4.5vmin;
+  width: 4.5vmin;
+  left: 1.2vmin;
+  bottom: 0.8vmin;
+  background-color: white;
+  -webkit-transition: .4s;
+  transition: .4s;
+}
+
+input:checked + .slider {
+  background-color: #2196F3;
+}
+
+input:focus + .slider {
+  box-shadow: 0 0 1px #2196F3;
+}
+
+input:checked + .slider:before {
+  transform: translateX(5vmin);
+}
+
+/* BG */
+.slider.round {
+  border-radius: 3vmin;
+}
+/* slider */
+.slider.round:before {
+  border-radius: 50%;
 }
