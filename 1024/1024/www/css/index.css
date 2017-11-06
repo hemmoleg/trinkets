@@ -136,13 +136,25 @@ body {
     margin-right: 10vmin
 }
 
+#infoAndDebug{
+    display: table;
+    font-size: 4vmin;
+}
+
+#scoreContainer{
+    display: table-cell;
+    width: 100px;
+}
+
 .switchDiv{
-    margin-left: 15vmin;
+    
+    display: inline;
+    position: absolute;
+    right: 0px;
 }
 
 /* checkbox */
 .switch {
-    margin-top: 2vmin;
   position: relative;
   display: inline-block;
   width: 12vmin;

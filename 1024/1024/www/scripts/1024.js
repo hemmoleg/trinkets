@@ -69,6 +69,8 @@ window.onload = function ()
     document.getElementById("btnReset").onclick = reset;
 
     
+    //add autopaly-mode
+    
     //initDefaultSetup();
 
     initDebugingSetup();
@@ -172,6 +174,8 @@ function moveAndMerge(direction)
     
     if (hasMovedOrMerged && pieces.length < 16 && document.getElementById("chkBoxAddRandom").checked)
         addRandomPiece();
+    
+    updateScore();
 }
 
 function movePieces(direction)
@@ -299,7 +303,7 @@ function checkMerge(e)
            pieces[i] !== piece)
             {
                 mergePieces(piece.GetX(), piece.GetY(), piece.GetX(), piece.GetY());
-
+                updateScore();
                 return;
             }
     }
@@ -404,6 +408,16 @@ function getPieceByDiv(div)
     if(div.classList.contains("row3")) y = 3;
     
     return getPieceByCoords(x,y);
+}
+
+function updateScore()
+{
+    var score = 0;
+    for(var i = 0; i < pieces.length; i++)
+    {
+        score += pieces[i].GetValue();
+    }
+    document.getElementById("score").innerHTML = score;
 }
 
 function addRandomPiece()
