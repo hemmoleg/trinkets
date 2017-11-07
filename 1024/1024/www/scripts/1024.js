@@ -4,6 +4,7 @@ var pieces = [];
 var dragSrcElement = null;
 var hasMovedOrMerged = false;
 var debuging = false;
+var hiscore = 0;
 
 
 var cols = ["col0", "col1", "col2", "col3"];
@@ -18,6 +19,7 @@ function Piece(x, y, initVal)
     var y;
     var value = initVal;
     var canMerge = true;
+    var moving = false;
     
     Div = document.createElement('div');
     Div.innerHTML = "<b>" + initVal + "</b>";
@@ -40,6 +42,9 @@ function Piece(x, y, initVal)
 
     this.GetCanMerge = function () { return canMerge; }
     this.SetCanMerge = function (val) { canMerge = val; }
+    
+    this.IsMoving = function () { return moving; }
+    this.SetMoving = function (val) { moving = val; }
     
     this.GetValue = function () { return value; }
     this.SetValue = function (val) { value = val; }
@@ -68,12 +73,18 @@ window.onload = function ()
 
     document.getElementById("btnReset").onclick = reset;
 
+    hiscore = parseInt(window.localStorage.getItem('hiscore'));
+    if(!isNaN(hiscore))
+        document.getElementById("hiscore").innerHTML = window.localStorage.getItem('hiscore');
+    else
+        hiscore = 0;
     
     //add autopaly-mode
     
-    //initDefaultSetup();
-
-    initDebugingSetup();
+    if(window.localStorage.getItem('debugSetup') == "true")
+        initDebugingSetup();
+    else
+        load();
     
     //keys input
     document.body.addEventListener("keydown", onKeyDown);
@@ -109,6 +120,8 @@ window.onload = function ()
             console.log("swipe down");
         }
     });
+    
+    debugElements();
 }
 
 function initDefaultSetup()
@@ -120,21 +133,10 @@ function initDefaultSetup()
 
 function initDebugingSetup()
 {
-    var newPiece = new Piece(0, 0, 2);
-    pieces[pieces.length] = newPiece;
-    document.getElementById('pieceContainer').appendChild(newPiece.GetDiv());
-    
-    newPiece = new Piece(1, 0, 2);
-    pieces[pieces.length] = newPiece;
-    document.getElementById('pieceContainer').appendChild(newPiece.GetDiv());
-    
-    newPiece = new Piece(2, 0, 2);
-    pieces[pieces.length] = newPiece;
-    document.getElementById('pieceContainer').appendChild(newPiece.GetDiv());
-
-    newPiece = new Piece(3, 0, 2);
-    pieces[pieces.length] = newPiece;
-    document.getElementById('pieceContainer').appendChild(newPiece.GetDiv());
+    createNewPiece(0, 0, 2);
+    createNewPiece(1, 0, 2);
+    createNewPiece(2, 0, 2);
+    createNewPiece(3, 0, 2);
 }
 
 /*
@@ -171,11 +173,6 @@ function moveAndMerge(direction)
     hasMovedOrMerged = false;
 
     movePieces(direction);
-    
-    if (hasMovedOrMerged && pieces.length < 16 && document.getElementById("chkBoxAddRandom").checked)
-        addRandomPiece();
-    
-    updateScore();
 }
 
 function movePieces(direction)
@@ -297,16 +294,40 @@ function movePieces(direction)
 function checkMerge(e) 
 {
     piece = getPieceByDiv(e.target);
+    piece.SetMoving(false);
     for(var i = 0; i < pieces.length; i++)
     {
         if(pieces[i].GetX() === piece.GetX() && pieces[i].GetY() === piece.GetY() &&
            pieces[i] !== piece)
             {
                 mergePieces(piece.GetX(), piece.GetY(), piece.GetX(), piece.GetY());
-                updateScore();
-                return;
+                break;
             }
     }
+    console.log("check moving");
+    for (var i = 0; i < pieces.length; i++)
+    {
+        console.log("Piece: " + i + " x: " + pieces[i].GetX() + " y: " + pieces[i].GetY() + " moving: " + pieces[i].IsMoving());
+    }
+    for(var i = 0; i < pieces.length; i++)
+    {
+        if(pieces[i].IsMoving())
+        {
+            console.log(pieces[i].GetX() + " " + pieces[i].GetY() + " " + pieces[i].GetValue() + " still moving");
+            return;
+        }
+    }
+    allPiecesDoneMoving();
+}
+
+function allPiecesDoneMoving()
+{
+    if (hasMovedOrMerged && pieces.length < 16 && document.getElementById("chkBoxAddRandom").checked)
+        addRandomPiece();
+    
+    updateScore();
+    
+    save();
 }
 
 function movePiece(x1, y1, x2, y2)
@@ -327,8 +348,8 @@ function movePiece(x1, y1, x2, y2)
     slots[x1][y1].value = 0;
     
     //useful for debuging
-    slots[x2][y2].innerHTML = piece.GetValue();
-    slots[x1][y1].innerHTML = 0;
+    //slots[x2][y2].innerHTML = piece.GetValue();
+    //slots[x1][y1].innerHTML = 0;
 
     piece.SetX(x2);
     piece.SetY(y2);
@@ -339,6 +360,7 @@ function movePiece(x1, y1, x2, y2)
     piece.GetDiv().classList.toggle(cols[x2]);
     piece.GetDiv().classList.toggle(rows[y2]);
     
+    piece.SetMoving(true);
     hasMovedOrMerged = true;
 
 }
@@ -348,7 +370,7 @@ function movePiece(x1, y1, x2, y2)
 function mergePieces(x1, y1, x2, y2)
 {
     removePieceByCoords(x1, y1);
-    slots[x1][y1].value = 0;
+    
     try{
         getPieceByCoords(x2, y2).DoubleValue();
         slots[x2][y2].value = getPieceByCoords(x2, y2).GetValue();
@@ -372,10 +394,13 @@ function mergePieces(x1, y1, x2, y2)
 
 function removePieceByCoords(x, y)
 {
-    for (var i = 0; i < pieces.length; i++) {
-        if (pieces[i].GetX() === x && pieces[i].GetY() === y) {
+    for (var i = 0; i < pieces.length; i++) 
+    {
+        if (pieces[i].GetX() === x && pieces[i].GetY() === y) 
+        {
             document.getElementById('pieceContainer').removeChild(pieces[i].GetDiv());
             pieces.splice(i, 1);
+            slots[x][y].value = 0;
             return;
         }
     }
@@ -418,6 +443,12 @@ function updateScore()
         score += pieces[i].GetValue();
     }
     document.getElementById("score").innerHTML = score;
+    
+    if(score > hiscore)
+    {
+        document.getElementById("hiscore").innerHTML = score;
+        window.localStorage.setItem('hiscore', score);
+    }
 }
 
 function addRandomPiece()
@@ -433,12 +464,113 @@ function addRandomPiece()
     document.getElementById('pieceContainer').appendChild(newPiece.GetDiv());
 }
 
+function save()
+{
+    var storage = window.localStorage;
+    for(var x = 0; x < 4; x++)
+    {
+        for(var y = 0; y < 4; y++)
+        {
+            storage.setItem(x.toString().concat(y.toString()), getValueByCoords(x,y));
+        }
+    }
+}
+
+function load()
+{
+    var storage = window.localStorage;
+    var val = 0;
+    for(var x = 0; x < 4; x++)
+    {
+        for(var y = 0; y < 4; y++)
+        {
+            //storage.setItem(x.toString().concat(y.toString()), getValueByCoords(x,y));
+            val = parseInt(storage.getItem(x.toString().concat(y.toString())));
+            if(!isNaN(val) && val !== 0)
+            {
+                createNewPiece(x,y,val);
+            }
+        }
+    }
+    
+    if(pieces.length == 0)
+        initDefaultSetup();
+}
+
+function getValueByCoords(x,y)
+{
+    var piece = getPieceByCoords(x,y);
+    return piece != null ? piece.GetValue() : 0;
+}
+
+function createNewPiece(x,y,val)
+{
+    var newPiece = new Piece(x, y, val);
+    pieces[pieces.length] = newPiece;
+    document.getElementById('pieceContainer').appendChild(newPiece.GetDiv());
+}
+
 function reset()
 {
     console.log("RESET");
-    for (var i = 0; i < slotsUnordered.length; i++) {
-        slotsUnordered[i].innerHTML = "";
+    
+    for(var x = 0; x < 4; x++)
+    {
+        for(var y = 0; y < 4; y++)
+        {
+            removePieceByCoords(x,y);
+        }
     }
+    
     pieces = [];
-    initDefaultSetup();
+    document.getElementById("score").innerHTML = 0;
+    
+    if(document.getElementById("chkBoxDebugSetup").checked)
+        initDebugingSetup();
+    else
+        initDefaultSetup();
+}
+
+function debugElements()
+{
+    document.getElementById("chkBoxDebugSetup").onchange = function()
+    {
+        if(document.getElementById("chkBoxDebugSetup").checked)
+            window.localStorage.setItem('debugSetup', 'true');
+        else
+            window.localStorage.setItem('debugSetup', 'false');
+        
+        reset();
+    }
+    
+    if(window.localStorage.getItem('debugSetup') == "true")
+        document.getElementById("chkBoxDebugSetup").checked = true;
+    else
+        document.getElementById("chkBoxDebugSetup").checked = false;
+    
+    document.getElementById("chkBoxShowMerge").onchange = function()
+    {
+        if(document.getElementById("chkBoxShowMerge").checked)
+            window.localStorage.setItem('showMerge', 'true');
+        else
+            window.localStorage.setItem('showMerge', 'false');
+    }
+    
+    if(window.localStorage.getItem('showMerge') == "true")
+        document.getElementById("chkBoxShowMerge").checked = true;
+    else
+        document.getElementById("chkBoxShowMerge").checked = false;
+    
+    document.getElementById("chkBoxAddRandom").onchange = function()
+    {
+        if(document.getElementById("chkBoxAddRandom").checked)
+            window.localStorage.setItem('addRandom', 'true');
+        else
+            window.localStorage.setItem('addRandom', 'false');
+    }
+    
+    if(window.localStorage.getItem('addRandom') == "true")
+        document.getElementById("chkBoxAddRandom").checked = true;
+    else
+        document.getElementById("chkBoxAddRandom").checked = false;
 }

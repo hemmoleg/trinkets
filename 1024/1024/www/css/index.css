@@ -157,8 +157,8 @@ body {
 .switch {
   position: relative;
   display: inline-block;
-  width: 12vmin;
-  height: 6vmin;
+  width: 10vmin;
+  height: 5vmin;
 }
 
 /* Hide default HTML checkbox */
@@ -180,8 +180,8 @@ body {
 .slider:before {
   position: absolute;
   content: "";
-  height: 4.5vmin;
-  width: 4.5vmin;
+  height: 3.5vmin;
+  width: 3.5vmin;
   left: 1.2vmin;
   bottom: 0.8vmin;
   background-color: white;
@@ -198,7 +198,7 @@ input:focus + .slider {
 }
 
 input:checked + .slider:before {
-  transform: translateX(5vmin);
+  transform: translateX(4vmin);
 }
 
 /* BG */
