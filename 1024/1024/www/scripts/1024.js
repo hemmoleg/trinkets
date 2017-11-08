@@ -19,7 +19,7 @@ function Piece(x, y, initVal)
     var y;
     var value = initVal;
     var canMerge = true;
-    var moving = false;
+    var moving;
     
     Div = document.createElement('div');
     Div.innerHTML = "<b>" + initVal + "</b>";
@@ -133,10 +133,10 @@ function initDefaultSetup()
 
 function initDebugingSetup()
 {
-    createNewPiece(0, 0, 2);
     createNewPiece(1, 0, 2);
-    createNewPiece(2, 0, 2);
-    createNewPiece(3, 0, 2);
+    createNewPiece(0, 0, 2);
+    /*createNewPiece(2, 0, 2);
+    createNewPiece(3, 0, 2);*/
 }
 
 /*
@@ -284,10 +284,10 @@ function movePieces(direction)
         }
     }
     
-    for (var i = 0; i < pieces.length; i++)
+    /*for (var i = 0; i < pieces.length; i++)
     {
         console.log("Piece: " + i + " x: " + pieces[i].GetX() + " y: " + pieces[i].GetY());
-    }
+    }*/
 }
 
 //executed when piece is done moving visualy
@@ -295,6 +295,12 @@ function checkMerge(e)
 {
     piece = getPieceByDiv(e.target);
     piece.SetMoving(false);
+    if( document.getElementById("chkBoxShowMoving").checked )
+    {
+        var xxx = piece.GetDiv(); 
+        xxx.classList.remove("moving");
+    }
+    
     for(var i = 0; i < pieces.length; i++)
     {
         if(pieces[i].GetX() === piece.GetX() && pieces[i].GetY() === piece.GetY() &&
@@ -304,11 +310,11 @@ function checkMerge(e)
                 break;
             }
     }
-    console.log("check moving");
-    for (var i = 0; i < pieces.length; i++)
+    console.log(piece.GetX() + " " + piece.GetY() + " arrived -> check others moving");
+    /*for (var i = 0; i < pieces.length; i++)
     {
         console.log("Piece: " + i + " x: " + pieces[i].GetX() + " y: " + pieces[i].GetY() + " moving: " + pieces[i].IsMoving());
-    }
+    }*/
     for(var i = 0; i < pieces.length; i++)
     {
         if(pieces[i].IsMoving())
@@ -317,6 +323,7 @@ function checkMerge(e)
             return;
         }
     }
+    console.log("none moving");
     allPiecesDoneMoving();
 }
 
@@ -330,12 +337,12 @@ function allPiecesDoneMoving()
     save();
 }
 
+
 function movePiece(x1, y1, x2, y2)
 {
     var piece = getPieceByCoords(x1, y1);
     if(slots[x1][y1].value === slots[x2][y2].value)
     {
-        console.log("dasfasdf");
         slots[x2][y2].value = slots[x2][y2].value * 2;
         slots[x2][y2].markedForMerge = true;
         if(document.getElementById("chkBoxShowMerge").checked)
@@ -361,6 +368,11 @@ function movePiece(x1, y1, x2, y2)
     piece.GetDiv().classList.toggle(rows[y2]);
     
     piece.SetMoving(true);
+    if( document.getElementById("chkBoxShowMoving").checked )
+    {
+        piece.GetDiv().classList.add("moving");
+    }
+    
     hasMovedOrMerged = true;
 
 }
@@ -419,20 +431,11 @@ function getPieceByCoords(x, y)
 
 function getPieceByDiv(div)
 {
-    var x;
-    var y;
-    
-    if(div.classList.contains("col0")) x = 0;
-    if(div.classList.contains("col1")) x = 1;
-    if(div.classList.contains("col2")) x = 2;
-    if(div.classList.contains("col3")) x = 3;
-    
-    if(div.classList.contains("row0")) y = 0;
-    if(div.classList.contains("row1")) y = 1;
-    if(div.classList.contains("row2")) y = 2;
-    if(div.classList.contains("row3")) y = 3;
-    
-    return getPieceByCoords(x,y);
+    for (var i = 0; i < pieces.length; i++)
+    {
+        if(pieces[i].GetDiv() === div)
+            return pieces[i];
+    }
 }
 
 function updateScore()
@@ -548,6 +551,7 @@ function debugElements()
     else
         document.getElementById("chkBoxDebugSetup").checked = false;
     
+    
     document.getElementById("chkBoxShowMerge").onchange = function()
     {
         if(document.getElementById("chkBoxShowMerge").checked)
@@ -561,6 +565,7 @@ function debugElements()
     else
         document.getElementById("chkBoxShowMerge").checked = false;
     
+    
     document.getElementById("chkBoxAddRandom").onchange = function()
     {
         if(document.getElementById("chkBoxAddRandom").checked)
@@ -573,4 +578,18 @@ function debugElements()
         document.getElementById("chkBoxAddRandom").checked = true;
     else
         document.getElementById("chkBoxAddRandom").checked = false;
+    
+    
+    document.getElementById("chkBoxShowMoving").onchange = function()
+    {
+        if(document.getElementById("chkBoxShowMoving").checked)
+            window.localStorage.setItem('showMoving', 'true');
+        else
+            window.localStorage.setItem('showMoving', 'false');
+    }
+    
+    if(window.localStorage.getItem('showMoving') == "true")
+        document.getElementById("chkBoxShowMoving").checked = true;
+    else
+        document.getElementById("chkBoxShowMoving").checked = false;
 }
