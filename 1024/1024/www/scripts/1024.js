@@ -1,10 +1,11 @@
 ﻿var slotsUnordered = [];
 var slots = [];
 var pieces = [];
+var prevPieces;
 var dragSrcElement = null;
 var hasMovedOrMerged = false;
-var debuging = false;
 var hiscore = 0;
+var moving = false;
 
 
 var cols = ["col0", "col1", "col2", "col3"];
@@ -30,7 +31,6 @@ function Piece(x, y, initVal)
     this.y = y;
     Div.classList.add(cols[x]);
     Div.classList.add(rows[y]);
-    slots[x][y].value = initVal;
     
     this.GetX = function () { return x; }
     this.SetX = function (val) { x = val; }
@@ -68,7 +68,6 @@ window.onload = function ()
     for (var i = 0; i < slotsUnordered.length; i++)
     {
         slots[i % 4][slots[i%4].length] = slotsUnordered[i];
-        slotsUnordered[i].value = 0;
     }
 
     document.getElementById("btnReset").onclick = reset;
@@ -84,7 +83,7 @@ window.onload = function ()
     if(window.localStorage.getItem('debugSetup') == "true")
         initDebugingSetup();
     else
-        load();
+        load(false);
     
     //keys input
     document.body.addEventListener("keydown", onKeyDown);
@@ -133,10 +132,12 @@ function initDefaultSetup()
 
 function initDebugingSetup()
 {
+    createNewPiece(0, 0, 8);
     createNewPiece(1, 0, 2);
-    createNewPiece(0, 0, 2);
-    /*createNewPiece(2, 0, 2);
-    createNewPiece(3, 0, 2);*/
+    createNewPiece(0, 1, 8);
+    createNewPiece(0, 2, 2);
+    createNewPiece(1, 2, 2);
+    createNewPiece(0, 3, 2);
 }
 
 /*
@@ -169,6 +170,8 @@ function onKeyDown(e)
 
 function moveAndMerge(direction)
 {
+    console.log(moving);
+    if(moving)return;
     //set by movePiece and mergePieces
     hasMovedOrMerged = false;
 
@@ -177,13 +180,15 @@ function moveAndMerge(direction)
 
 function movePieces(direction)
 {
+    save(true);
     /*for (var i = 0; i < pieces.length; i++)
     {
         console.log("Piece: " + i + " x: " + pieces[i].GetX() + " y: " + pieces[i].GetY());
     }*/
 
     var pieceMoved = true;
-
+    var tempPiece;
+    
     if (direction === Direction.DOWN)
     {
         while (pieceMoved)
@@ -197,8 +202,9 @@ function movePieces(direction)
                     var piece = getPieceByCoords(x,y);
                     if(piece == null) continue;
                     
-                    if(slots[x][y+1].value == 0 ||
-                       (piece.GetValue() === slots[x][y+1].value && !slots[x][y+1].markedForMerge))
+                    tempPiece = getPieceByCoords(x, y+1);
+                    if(tempPiece === null ||
+                       (piece.GetValue() === tempPiece.GetValue() && !slots[x][y+1].markedForMerge))
                     {
                         movePiece(piece.GetX(), piece.GetY(), piece.GetX(), piece.GetY() + 1);
                         pieceMoved = true;
@@ -208,7 +214,7 @@ function movePieces(direction)
             }
         }
     }
-
+    
     if (direction === Direction.UP)
     {
         while (pieceMoved)
@@ -222,8 +228,9 @@ function movePieces(direction)
                     var piece = getPieceByCoords(x,y);
                     if(piece == null) continue;
                     
-                    if(slots[x][y-1].value == 0 ||
-                       (piece.GetValue() === slots[x][y-1].value && !slots[x][y-1].markedForMerge))
+                    tempPiece = getPieceByCoords(x, y-1);
+                    if(tempPiece === null ||
+                       (piece.GetValue() === tempPiece.GetValue() && !slots[x][y-1].markedForMerge))
                     {
                         movePiece(piece.GetX(), piece.GetY(), piece.GetX(), piece.GetY() - 1);
                         pieceMoved = true;
@@ -247,12 +254,12 @@ function movePieces(direction)
                     var piece = getPieceByCoords(x,y);
                     if(piece == null) continue;
                     
-                    if(slots[x-1][y].value == 0 ||
-                       (piece.GetValue() === slots[x-1][y].value  && !slots[x-1][y].markedForMerge))
+                    tempPiece = getPieceByCoords(x-1, y);
+                    if(tempPiece === null ||
+                       (piece.GetValue() === tempPiece.GetValue()  && !slots[x-1][y].markedForMerge))
                     {
                         movePiece(piece.GetX(), piece.GetY(), piece.GetX() - 1, piece.GetY());
                         pieceMoved = true;
-                        break;
                     }
                 }
             }
@@ -272,87 +279,30 @@ function movePieces(direction)
                     var piece = getPieceByCoords(x,y);
                     if(piece == null) continue;
                     
-                    if(slots[x+1][y].value == 0 ||
-                       (piece.GetValue() === slots[x+1][y].value && !slots[x+1][y].markedForMerge))
+                    tempPiece = getPieceByCoords(x+1, y);
+                    if(tempPiece === null ||
+                       (piece.GetValue() === tempPiece.GetValue() && !slots[x+1][y].markedForMerge))
                     {
                         movePiece(piece.GetX(), piece.GetY(), piece.GetX() + 1, piece.GetY());
                         pieceMoved = true;
-                        break;
                     }
                 }
             }
         }
     }
-    
-    /*for (var i = 0; i < pieces.length; i++)
-    {
-        console.log("Piece: " + i + " x: " + pieces[i].GetX() + " y: " + pieces[i].GetY());
-    }*/
 }
-
-//executed when piece is done moving visualy
-function checkMerge(e) 
-{
-    piece = getPieceByDiv(e.target);
-    piece.SetMoving(false);
-    if( document.getElementById("chkBoxShowMoving").checked )
-    {
-        var xxx = piece.GetDiv(); 
-        xxx.classList.remove("moving");
-    }
-    
-    for(var i = 0; i < pieces.length; i++)
-    {
-        if(pieces[i].GetX() === piece.GetX() && pieces[i].GetY() === piece.GetY() &&
-           pieces[i] !== piece)
-            {
-                mergePieces(piece.GetX(), piece.GetY(), piece.GetX(), piece.GetY());
-                break;
-            }
-    }
-    console.log(piece.GetX() + " " + piece.GetY() + " arrived -> check others moving");
-    /*for (var i = 0; i < pieces.length; i++)
-    {
-        console.log("Piece: " + i + " x: " + pieces[i].GetX() + " y: " + pieces[i].GetY() + " moving: " + pieces[i].IsMoving());
-    }*/
-    for(var i = 0; i < pieces.length; i++)
-    {
-        if(pieces[i].IsMoving())
-        {
-            console.log(pieces[i].GetX() + " " + pieces[i].GetY() + " " + pieces[i].GetValue() + " still moving");
-            return;
-        }
-    }
-    console.log("none moving");
-    allPiecesDoneMoving();
-}
-
-function allPiecesDoneMoving()
-{
-    if (hasMovedOrMerged && pieces.length < 16 && document.getElementById("chkBoxAddRandom").checked)
-        addRandomPiece();
-    
-    updateScore();
-    
-    save();
-}
-
 
 function movePiece(x1, y1, x2, y2)
 {
     var piece = getPieceByCoords(x1, y1);
-    if(slots[x1][y1].value === slots[x2][y2].value)
+    //at this point its enough to check if theres a piece or not
+    if(getPieceByCoords(x2,y2) !== null )//&& piece.GetValue() === getPieceByCoords(x2,y2).GetValue())
     {
-        slots[x2][y2].value = slots[x2][y2].value * 2;
+        console.log("mark for merge " + x2 + "/" + y2);
         slots[x2][y2].markedForMerge = true;
         if(document.getElementById("chkBoxShowMerge").checked)
             slots[x2][y2].classList.toggle("markedForMerge");
     }
-    else
-    {
-        slots[x2][y2].value = piece.GetValue();
-    }
-    slots[x1][y1].value = 0;
     
     //useful for debuging
     //slots[x2][y2].innerHTML = piece.GetValue();
@@ -372,10 +322,56 @@ function movePiece(x1, y1, x2, y2)
     {
         piece.GetDiv().classList.add("moving");
     }
-    
+    moving = true;
     hasMovedOrMerged = true;
 
 }
+
+//executed when piece is done moving visualy
+function checkMerge(e) 
+{
+    piece = getPieceByDiv(e.target);
+    piece.SetMoving(false);
+    if( document.getElementById("chkBoxShowMoving").checked )
+    {
+        piece.GetDiv().classList.remove("moving");
+    }
+    
+    for(var i = 0; i < pieces.length; i++)
+    {
+        if(pieces[i].GetX() === piece.GetX() && pieces[i].GetY() === piece.GetY() &&
+           pieces[i] !== piece)
+            {
+                mergePieces(piece.GetX(), piece.GetY(), piece.GetX(), piece.GetY());
+                break;
+            }
+    }
+    console.log(piece.GetX() + " " + piece.GetY() + " arrived -> check others moving");
+   
+    for(var i = 0; i < pieces.length; i++)
+    {
+        if(pieces[i].IsMoving())
+        {
+            //console.log(pieces[i].GetX() + " " + pieces[i].GetY() + " " + pieces[i].GetValue() + " still moving");
+            return;
+        }
+    }
+    console.log("none moving");
+    allPiecesDoneMoving();
+}
+
+function allPiecesDoneMoving()
+{
+    moving = false;
+    
+    if (hasMovedOrMerged && pieces.length < 16 && document.getElementById("chkBoxAddRandom").checked)
+        addRandomPiece();
+    
+    updateScore();
+    
+    save(false);
+}
+
 
 //xy1 = coords for piece to remove
 //xy2 = coords for resulting piece
@@ -385,7 +381,6 @@ function mergePieces(x1, y1, x2, y2)
     
     try{
         getPieceByCoords(x2, y2).DoubleValue();
-        slots[x2][y2].value = getPieceByCoords(x2, y2).GetValue();
         slots[x2][y2].markedForMerge = false;
         if(document.getElementById("chkBoxShowMerge").checked)
             slots[x2][y2].classList.toggle("markedForMerge");
@@ -412,7 +407,6 @@ function removePieceByCoords(x, y)
         {
             document.getElementById('pieceContainer').removeChild(pieces[i].GetDiv());
             pieces.splice(i, 1);
-            slots[x][y].value = 0;
             return;
         }
     }
@@ -467,19 +461,19 @@ function addRandomPiece()
     document.getElementById('pieceContainer').appendChild(newPiece.GetDiv());
 }
 
-function save()
+function save(savePreviousState)
 {
     var storage = window.localStorage;
     for(var x = 0; x < 4; x++)
     {
         for(var y = 0; y < 4; y++)
         {
-            storage.setItem(x.toString().concat(y.toString()), getValueByCoords(x,y));
+            storage.setItem(x.toString().concat(y.toString()) + savePreviousState, getValueByCoords(x,y));
         }
     }
 }
 
-function load()
+function load(loadPreviousState)
 {
     var storage = window.localStorage;
     var val = 0;
@@ -488,7 +482,7 @@ function load()
         for(var y = 0; y < 4; y++)
         {
             //storage.setItem(x.toString().concat(y.toString()), getValueByCoords(x,y));
-            val = parseInt(storage.getItem(x.toString().concat(y.toString())));
+            val = parseInt(storage.getItem(x.toString().concat(y.toString()).concat(loadPreviousState)));
             if(!isNaN(val) && val !== 0)
             {
                 createNewPiece(x,y,val);
@@ -532,6 +526,29 @@ function reset()
         initDebugingSetup();
     else
         initDefaultSetup();
+}
+
+function undo()
+{
+    for(var x = 0; x < 4; x++)
+    {
+        for(var y = 0; y < 4; y++)
+        {
+            removePieceByCoords(x,y);
+        }
+    }
+    
+    for(var i = 0; i < slotsUnordered.length; i++)
+    {
+        if(slotsUnordered[i].markedForMerge)
+        {
+            slotsUnordered[i].markedForMerge = false;
+            if(document.getElementById("chkBoxShowMerge").checked)
+                slotsUnordered[i].classList.toggle("markedForMerge");
+        }
+    }
+    
+    load(true);
 }
 
 function debugElements()
@@ -592,4 +609,7 @@ function debugElements()
         document.getElementById("chkBoxShowMoving").checked = true;
     else
         document.getElementById("chkBoxShowMoving").checked = false;
+    
+    document.getElementById("btnUndo").onclick = undo;
+
 }
