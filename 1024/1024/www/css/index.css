@@ -92,6 +92,20 @@ body {
     transition-duration: 1s;
 }
 
+.animMerge {
+    animation: merge 0.5s;
+}
+
+@keyframes merge {
+    0% {
+        transform: scale(1);
+    }
+
+    50% {
+        transform: scale(1.2);
+    }
+}
+
 .moving{
     background-color: blueviolet;
 }

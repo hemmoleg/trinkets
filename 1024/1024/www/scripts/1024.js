@@ -25,8 +25,15 @@ function Piece(x, y, initVal)
     Div = document.createElement('div');
     Div.innerHTML = "<b>" + initVal + "</b>";
     Div.classList.add('piece');
-    Div.classList.add('newPieceAnim');
+    //Div.classList.add('newPieceAnim');
     Div.addEventListener("transitionend", checkMerge);
+    
+    Div.onclick = function(){
+        Div.classList.remove('animMerge');
+        Div.offsetWidth; // Holy Shit!
+        Div.classList.add('animMerge');
+    }
+    
     this.x = x;
     this.y = y;
     Div.classList.add(cols[x]);
@@ -133,11 +140,11 @@ function initDefaultSetup()
 function initDebugingSetup()
 {
     createNewPiece(0, 0, 8);
-    createNewPiece(1, 0, 2);
-    createNewPiece(0, 1, 8);
-    createNewPiece(0, 2, 2);
-    createNewPiece(1, 2, 2);
-    createNewPiece(0, 3, 2);
+    //createNewPiece(1, 0, 2);
+    //createNewPiece(0, 1, 8);
+    //createNewPiece(0, 2, 2);
+    //createNewPiece(1, 2, 2);
+    //createNewPiece(0, 3, 2);
 }
 
 /*
@@ -382,6 +389,8 @@ function mergePieces(x1, y1, x2, y2)
     try{
         getPieceByCoords(x2, y2).DoubleValue();
         slots[x2][y2].markedForMerge = false;
+        //getPieceByCoords(x2, y2).GetDiv().classList.toggle('animMerge');
+        // getPieceByCoords(x2, y2).GetDiv().classList.toggle('newPieceAnim');
         if(document.getElementById("chkBoxShowMerge").checked)
             slots[x2][y2].classList.toggle("markedForMerge");
     }
