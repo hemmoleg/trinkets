@@ -25,13 +25,18 @@ function Piece(x, y, initVal)
     Div = document.createElement('div');
     Div.innerHTML = "<b>" + initVal + "</b>";
     Div.classList.add('piece');
-    //Div.classList.add('newPieceAnim');
+    Div.classList.add('newPieceAnim');
     Div.addEventListener("transitionend", checkMerge);
     
-    Div.onclick = function(){
-        Div.classList.remove('animMerge');
-        Div.offsetWidth; // Holy Shit!
-        Div.classList.add('animMerge');
+    Div.onclick = function(e)
+    {
+        var html = window.getComputedStyle(e.target, null).getPropertyValue("background-color");
+        var hex = retardHtmlToHex(html)
+        var hsl = hexToHSL(hex)
+        console.log("hex: " + hex );
+        console.log("hsl: " + hsl );
+        console.log("hex: " + hslToHex(hsl[0], hsl[1], hsl[2]) )
+        
     }
     
     this.x = x;
@@ -66,7 +71,13 @@ window.onload = function ()
 {
     slotsUnordered = document.querySelectorAll('.slot');
 
-    //var row = [];
+    var hex = 'FF5300';
+    var hsl = hexToHSL(hex);
+    var hexNew = hslToHex(hsl[0], hsl[1], hsl[2]);
+    
+    console.log("HIER: " + hex + " " + hsl + " " + hexNew);
+    
+    
     var col0 = []; 
     var col1 = [];
     var col2 = [];
@@ -139,8 +150,8 @@ function initDefaultSetup()
 
 function initDebugingSetup()
 {
-    createNewPiece(0, 0, 8);
-    //createNewPiece(1, 0, 2);
+    createNewPiece(0, 0, 2);
+    createNewPiece(1, 0, 2);
     //createNewPiece(0, 1, 8);
     //createNewPiece(0, 2, 2);
     //createNewPiece(1, 2, 2);
@@ -337,6 +348,7 @@ function movePiece(x1, y1, x2, y2)
 //executed when piece is done moving visualy
 function checkMerge(e) 
 {
+    console.log("checkMErge");
     piece = getPieceByDiv(e.target);
     piece.SetMoving(false);
     if( document.getElementById("chkBoxShowMoving").checked )
@@ -384,13 +396,18 @@ function allPiecesDoneMoving()
 //xy2 = coords for resulting piece
 function mergePieces(x1, y1, x2, y2)
 {
+    console.log("MERGE");
     removePieceByCoords(x1, y1);
     
     try{
         getPieceByCoords(x2, y2).DoubleValue();
         slots[x2][y2].markedForMerge = false;
-        //getPieceByCoords(x2, y2).GetDiv().classList.toggle('animMerge');
-        // getPieceByCoords(x2, y2).GetDiv().classList.toggle('newPieceAnim');
+        var div = getPieceByCoords(x2, y2).GetDiv(); 
+        div.classList.remove('newPieceAnim');
+        div.classList.remove('animMerge');
+        div.offsetWidth; // Holy Shit!
+        div.classList.add('animMerge');
+    
         if(document.getElementById("chkBoxShowMerge").checked)
             slots[x2][y2].classList.toggle("markedForMerge");
     }
@@ -415,6 +432,7 @@ function removePieceByCoords(x, y)
         if (pieces[i].GetX() === x && pieces[i].GetY() === y) 
         {
             document.getElementById('pieceContainer').removeChild(pieces[i].GetDiv());
+            pieces[i].GetDiv().removeEventListener("transitionend", checkMerge);
             pieces.splice(i, 1);
             return;
         }

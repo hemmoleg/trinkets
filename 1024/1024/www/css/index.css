@@ -79,7 +79,7 @@ body {
     position: absolute;
     
     text-align: center;
-    background-color: #FF5300;
+    background-color: #00fc0d;
     width: 20vmin;
     height: 20vmin;
     /*padding-top: 3px;*/
@@ -102,7 +102,7 @@ body {
     }
 
     50% {
-        transform: scale(1.2);
+        transform: scale(1.3);
     }
 }
 
