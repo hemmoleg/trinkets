@@ -140,11 +140,21 @@ function initDefaultSetup()
 function initDebugingSetup()
 {
     createNewPiece(0, 0, 8);
-    //createNewPiece(1, 0, 2);
-    //createNewPiece(0, 1, 8);
-    //createNewPiece(0, 2, 2);
-    //createNewPiece(1, 2, 2);
-    //createNewPiece(0, 3, 2);
+    createNewPiece(1, 0, 2);
+    createNewPiece(2, 0, 8);
+    createNewPiece(3, 0, 2);
+    createNewPiece(0, 1, 8);
+    createNewPiece(1, 1, 2);
+    createNewPiece(2, 1, 8);
+    createNewPiece(3, 1, 2);
+    createNewPiece(0, 2, 8);
+    createNewPiece(1, 2, 2);
+    createNewPiece(2, 2, 8);
+    createNewPiece(3, 2, 2);
+    createNewPiece(0, 3, 8);
+    createNewPiece(1, 3, 2);
+    createNewPiece(2, 3, 8);
+    createNewPiece(3, 3, 2);
 }
 
 /*
