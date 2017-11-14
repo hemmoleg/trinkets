@@ -2,3 +2,11 @@ input{
     height: 200px;
     width: 499px;
 }
+
+ul{
+    margin: 0px;
+}
+
+#timeResults{
+    list-style: none;
+}
