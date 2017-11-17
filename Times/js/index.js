@@ -48,6 +48,7 @@ function doIt()
             $('#divMonths').append(monthDivs[i]);
         }
         
+        timeTable = $('div>div:last-Child>h3').text(getMonthString(days[0]));
         timeTable = $('div>div:last-Child>table');
         
         for(var j = 0; j < days.length; j++)
@@ -103,8 +104,8 @@ function processDay(day)
     if(day.includes("Unentschuldigt"))
     {
         var li = $('<li/>')
-                    .text("Unentschuldigt")
-                    .appendTo(targetTimeList);
+                 .text("Unentschuldigt")
+                 .appendTo(targetTimeList);
     }
 
     if(day.includes("Krank"))
@@ -292,6 +293,15 @@ function getHourMinuteString(minutes)
     var m = minutes % 60;
     m = m < 10 ? '0' + m : m;
     return h + ':' + m;
+}
+
+function getMonthString(day)
+{
+    var regexMonth = /\. [A-Z]\w+/g;
+    var tmp;
+    
+    tmp = regexMonth.exec(day);
+    return tmp.toString().substr(1);
 }
 
 function round(x, n) {

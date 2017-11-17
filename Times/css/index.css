@@ -8,16 +8,19 @@ input{
 }
 
 .hiddenTransition{
-    transition: all 3s;
+    transition: all 0.5s;
 }
 
 div * {
     cursor: pointer;
 }
 
+li{
+    white-space: nowrap;
+}
+
 .divMonth{
-    padding-top: 10px;
-    padding-left: 10px;
+    padding: 10px;
     max-width: 320px;
     cursor: pointer;
     background-color: transparent;
@@ -39,7 +42,7 @@ div:nth-child(even){
     font-family: arial;
     margin-top: 0px;
     margin-bottom: 0.3rem;
-    transform-origin: 0%;
+    transform-origin: 10px 10px;
 }
 
 .hMonthHidden{
