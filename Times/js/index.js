@@ -1,127 +1,154 @@
-var days = [];
-var htmlList;
+var monthDivs = [];
 var timeTable;
-var currentHours = currentMinutes = [];
-var misses = []; //in minutes
+var presentHours = presentMinutes = [];
+var target = []; //in minutes
+var present = []; //in minutes
+var monthStrings = [];
+var missing = []; //in minutes
 
 window.onload = function()
 {
     $('textarea').on('paste', function () {
-                            setTimeout(readTimes, 100);
-                                        });
-    htmlList = $('#dayList');
-    timeTable = $('#timeTable');
-    extractDays();
+        setTimeout(doIt, 100);
+    });
     
-    calcTime("08:24-13:03");
+    for(var i = 0; i < 12; i++)
+    {
+        monthDivs[monthDivs.length] = $('.divMonth').clone();
+    }
+    
+    //monthDivs = $('.divMonth');
+    
+    doIt();
+
+    $('.divMonth').on('click', function(e){
+        e.currentTarget.classList.toggle('divMonthHidden');
+        e.currentTarget.childNodes[1].classList.toggle('hMonthHidden');
+        e.currentTarget.childNodes[3].classList.toggle('timeTableHidden');
+        //console.log($(e.target));
+    })
 }
 
-function extractDays()
+function doIt()
 {
     var text = $('textarea').val();
-    var regexDay = /title=(.*)abbr/g;
+    var lastFound = 0;
+    var days = [];
+    
+    text = text.substr(text.indexOf('<td colspan="32" class="section">'));
+    monthStrings = text.split('NE/UZ');
+    console.log(monthStrings);
+    
+    for(var i = 0; i < monthStrings.length; i++)
+    {
+        days = extractDays(monthStrings[i]);
+        if(i > 0)
+        {
+            //add new divMonth
+            $('#divMonths').append(monthDivs[i]);
+        }
+        
+        timeTable = $('div>div:last-Child>table');
+        
+        for(var j = 0; j < days.length; j++)
+        {
+            processDay(days[j]);
+        }
+        calcTotals();
+    }
+}
+
+function extractDays(text)
+{
+    var regexDay = /abbr title=(.*)abbr/g;
+    var days = [];
+    target = [];
+    present = [];
+    missing = []; //in minutes
+    presentHours = [];
+    presentMinutes = [];
     
     do {
         m = regexDay.exec(text);
         if (m) 
         {
             days[days.length] = m[0];
-            processDay(m[0]);
         }
     } while (m);
     
-    console.log(days);
+    return days;
 }
 
 function processDay(day)
 {
     var regexTimes = /\d\w:\d\w-\d\w:\d\w(?= Uhr)/g;
-    var timeList;
+    var targetTimeList;
     
-    regexTimes.lastIndex = 0;
-
+    if(day.includes("Kein Unterrichtstag"))
+    {
+        return;
+    }
+    
     var newRow = $('<tr/>').appendTo(timeTable);
-    var td1 = $('<td/>').appendTo(newRow);
-    $('<li/>').text(getDateString(day)).appendTo(td1);
+    var tdDate = $('<td/>').appendTo(newRow);
+    $('<li/>').text(getDateString(day)).appendTo(tdDate);
 
-    timeList = $('<ul/>').appendTo(td1);
+    targetTimeList = $('<ul/>').appendTo(tdDate);
 
     var td2 = $('<td/>').attr("valign", "bottom").appendTo(newRow);
-    var timeResults = $('<ul/>')
-                      .attr("id","timeResults")
+    var presentTimeList = $('<ul/>')
+                      .attr("id","presentTimeList")
                       .appendTo(td2);
-
-    currentHours = [];
-    currentMinutes = [];
 
     if(day.includes("Unentschuldigt"))
     {
         var li = $('<li/>')
                     .text("Unentschuldigt")
-                    .appendTo(timeList);
+                    .appendTo(targetTimeList);
     }
 
     if(day.includes("Krank"))
     {
         var li = $('<li/>')
                  .text("Krank")
-                 .appendTo(timeList);
+                 .appendTo(targetTimeList);
     }
 
+    if(day.includes("Anwesend") && null == regexTimes.exec(day) )
+    {
+        /*var li = $('<li/>')
+                 .text("ANWESEND!!!")
+                 .appendTo(targetTimeList);*/
+        
+        day = day.concat('08:00-16:00 Uhr');
+    }
+    
+    presentHours = [];
+    presentMinutes = [];
+    
+    regexTimes.lastIndex = 0;
     do {
         time = regexTimes.exec(day);
         if (time) 
         {
-            console.log(time[0]);
-
+            //Target times
             var li = $('<li/>')
                     .text(time[0])
-                    .appendTo(timeList);
+                    .appendTo(targetTimeList);
 
+            //present times
             li = $('<li/>')
-                    .text(calcTime(time[0]))
-                    .appendTo(timeResults);
+                 .text(calcTime(time[0]))
+                 .appendTo(presentTimeList);
         }
     } while (time);
 
     
     var td3 = $('<td/>')
-              .text(calcCurrentMisses())
+              .text(calcDayMissing())
               .attr("valign", "bottom")
+              .addClass('missingTime')
               .appendTo(newRow);
-
-    //list layout
-    /*$('<li/>').text(tmp).appendTo(htmlList);
-
-    timeList = $('<ul/>');
-    if(days[i].includes("Unentschuldigt"))
-    {
-        var li = $('<li/>')
-                    .text("Unentschuldigt")
-                    .appendTo(timeList);
-    }
-
-    if(days[i].includes("Krank"))
-    {
-        var li = $('<li/>')
-                    .text("Krank")
-                    .appendTo(timeList);
-    }
-
-    do {
-        time = regexTimes.exec(days[i]);
-        if (time) 
-        {
-            console.log(time[0]);
-
-            var li = $('<li/>')
-                    .text(time[0])
-                    .appendTo(timeList);
-        }
-    } while (time);
-
-    timeList.appendTo(htmlList);*/
-    
 }
 
 function calcTime(timeString)
@@ -146,14 +173,14 @@ function calcTime(timeString)
     
     hourResult = parseInt(hour2) - parseInt(hour1) - 1;
     minuteResult = 60 - parseInt(minute1) + parseInt(minute2);
-    if(minuteResult > 60)
+    if(minuteResult >= 60)
     {
         hourResult++;
         minuteResult -= 60;
     }
     
-    currentHours[currentHours.length] = hourResult;
-    currentMinutes[currentMinutes.length] = minuteResult;
+    presentHours[presentHours.length] = hourResult;
+    presentMinutes[presentMinutes.length] = minuteResult;
      
     if(minuteResult < 10)
         return hourResult.toString().concat(":").concat('0').concat(minuteResult);
@@ -162,37 +189,65 @@ function calcTime(timeString)
 }
 
 //based of current hours and minutes
-function calcCurrentMisses()
+function calcDayMissing()
 {
-    var totalCurrentHours = 0;
-    var totalCurrentMinutes = 0;
-    var minuteMisses = 0;
+    var totalpresentHours = 0;
+    var totalpresentMinutes = 0;
+    var minutemissing = 0;
     
-    for(var i = 0; i < currentHours.length; i++)
+    for(var i = 0; i < presentHours.length; i++)
     {
-        totalCurrentHours += currentHours[i];
+        totalpresentHours += presentHours[i];
     }
     
-    for(var i = 0; i < currentMinutes.length; i++)
+    for(var i = 0; i < presentMinutes.length; i++)
     {
-        totalCurrentMinutes += currentMinutes[i];
+        totalpresentMinutes += presentMinutes[i];
     }
     
-    minuteMisses = (8 * 60) - (totalCurrentHours * 60 + totalCurrentMinutes);
+    minutemissing = (8 * 60) - (totalpresentHours * 60 + totalpresentMinutes);
     
-    misses[misses.length] = minuteMisses < 0 ? 0 : minuteMisses;
+    missing[missing.length] = minutemissing < 0 ? 0 : minutemissing;
+    present[present.length] = totalpresentHours * 60 + totalpresentMinutes;
+    target[target.length] = 8 * 60;
     
-    if(minuteMisses < 0)
+    if(minutemissing < 0)
     {
         return "0:00";
     }
     else
     {
-        var h = Math.floor(minuteMisses / 60);
-        var m = minuteMisses % 60;
-        m = m < 10 ? '0' + m : m;
-        return h + ':' + m;
+        return getHourMinuteString(minutemissing)
     }
+}
+
+function calcTotals()
+{
+    var totalTarget = 0;
+    for(var i = 0; i < target.length; i++)
+    {
+        totalTarget += target[i];
+    }
+    
+    var totalPresent = 0;
+    for(var i = 0; i < present.length; i++)
+    {
+        totalPresent += present[i];
+    }
+    
+    var totalMissing = 0;
+    for(var i = 0; i < present.length; i++)
+    {
+        totalMissing += missing[i];
+    }
+    
+    var rowTotals = $('<tr/>').appendTo(timeTable);
+    //insert empty cell
+    rowTotals.append($('<td/>').text(getHourMinuteString(totalTarget)));
+    rowTotals.append($('<td/>').text(getHourMinuteString(totalPresent)));
+    rowTotals.append($('<td/>').text(getHourMinuteString(totalMissing)));
+    
+    rowTotals.append($('<td/>').text(round((100/totalTarget) * (totalMissing), 1) + '%'));
 }
 
 function getDateString(day)
@@ -229,4 +284,21 @@ function readTimes(timeString)
     
     
     //var daysFound
+}
+
+function getHourMinuteString(minutes)
+{
+    var h = Math.floor(minutes / 60);
+    var m = minutes % 60;
+    m = m < 10 ? '0' + m : m;
+    return h + ':' + m;
+}
+
+function round(x, n) {
+  if (n < 1 || n > 14) return false;
+  var e = Math.pow(10, n);
+  var k = (Math.round(x * e) / e).toString();
+  if (k.indexOf('.') == -1) k += '.';
+  k += e.toString().substring(1);
+  return k.substring(0, k.indexOf('.') + n+1);
 }
