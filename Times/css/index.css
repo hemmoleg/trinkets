@@ -7,6 +7,11 @@ input{
     display: inline-flex;
 }
 
+body{
+    font-family: roboto;
+    font-weight: 400;
+}
+
 .hiddenTransition{
     transition: all 0.5s;
 }
@@ -35,11 +40,13 @@ div:nth-child(odd){
 }
 
 div:nth-child(even){
-    background-color: #eeeeee;
+    background-color: #e9e9e9;
 }
 
 .hMonth{
-    font-family: arial;
+    font-family: roboto;
+    font-weight: 300;
+    font-style: italic;
     margin-top: 0px;
     margin-bottom: 0.3rem;
     transform-origin: 10px 10px;
@@ -52,11 +59,21 @@ div:nth-child(even){
 
 ul{
     margin: 0px;
+    list-style: none;
 }
 
 .timeTable{
     transform-origin: 0%;
     list-style: none;
+}
+
+tr:not(:first-child)
+{
+    background: #cccccc;
+}
+
+.date{
+    text-decoration: underline;
 }
 
 .timeTableHidden{
@@ -65,7 +82,6 @@ ul{
 }
 
 #presentTimeList{
-    list-style: none;
     list-style-position: outside;
     padding-left: 13px;
 }

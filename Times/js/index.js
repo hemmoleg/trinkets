@@ -17,8 +17,6 @@ window.onload = function()
         monthDivs[monthDivs.length] = $('.divMonth').clone();
     }
     
-    //monthDivs = $('.divMonth');
-    
     doIt();
 
     $('.divMonth').on('click', function(e){
@@ -39,16 +37,24 @@ function doIt()
     monthStrings = text.split('NE/UZ');
     console.log(monthStrings);
     
+    //reset
+    $('#divMonths').empty();
+    for(var i = 0; i < monthDivs.length; i++)
+    {
+        $(monthDivs[i].children()[1]).empty();
+        //$(monthDivs[i]).children[3]
+    }
+    
     for(var i = 0; i < monthStrings.length; i++)
     {
         days = extractDays(monthStrings[i]);
-        if(i > 0)
-        {
-            //add new divMonth
-            $('#divMonths').append(monthDivs[i]);
-        }
+        
+        //add new divMonth
+        $('#divMonths').append(monthDivs[i]);
+       
         
         timeTable = $('div>div:last-Child>h3').text(getMonthString(days[0]));
+        //set timeTable to fill
         timeTable = $('div>div:last-Child>table');
         
         for(var j = 0; j < days.length; j++)
@@ -92,7 +98,9 @@ function processDay(day)
     
     var newRow = $('<tr/>').appendTo(timeTable);
     var tdDate = $('<td/>').appendTo(newRow);
-    $('<li/>').text(getDateString(day)).appendTo(tdDate);
+    $('<li/>').text(getDateString(day))
+              .appendTo(tdDate)
+              .addClass('date');
 
     targetTimeList = $('<ul/>').appendTo(tdDate);
 
