@@ -12,6 +12,10 @@ window.onload = function()
         setTimeout(doIt, 100);
     });
     
+    $('textarea').on('click', function () {
+        this.select();
+    });
+    
     for(var i = 0; i < 12; i++)
     {
         monthDivs[monthDivs.length] = $('.divMonth').clone();
@@ -38,22 +42,23 @@ function doIt()
     console.log(monthStrings);
     
     //reset
+    
+    $('.timeTable tr').has('td').remove();
     $('#divMonths').empty();
-    for(var i = 0; i < monthDivs.length; i++)
-    {
-        $(monthDivs[i].children()[1]).empty();
-        //$(monthDivs[i]).children[3]
-    }
     
     for(var i = 0; i < monthStrings.length; i++)
     {
         days = extractDays(monthStrings[i]);
+        if(days.length === 0)
+        {
+            console.log("could not read month string " + i);
+            continue;
+        }
         
         //add new divMonth
         $('#divMonths').append(monthDivs[i]);
-       
         
-        timeTable = $('div>div:last-Child>h3').text(getMonthString(days[0]));
+        timeTable = $('div>div:last-Child>h3').text(getMonthString(days));
         //set timeTable to fill
         timeTable = $('div>div:last-Child>table');
         
@@ -303,13 +308,18 @@ function getHourMinuteString(minutes)
     return h + ':' + m;
 }
 
-function getMonthString(day)
+function getMonthString(days)
 {
     var regexMonth = /\. [A-Z]\w+/g;
     var tmp;
+    var i = 0;
     
-    tmp = regexMonth.exec(day);
-    return tmp.toString().substr(1);
+    while(tmp == null && i < days.length)
+    {
+        tmp = regexMonth.exec(days[i]);
+        i++;
+    }
+    return tmp == null ? null : tmp.toString().substr(1);
 }
 
 function round(x, n) {
