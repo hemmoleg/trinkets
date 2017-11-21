@@ -76,6 +76,10 @@ tr:not(:first-child)
     text-decoration: underline;
 }
 
+.lblMissingPercent{
+    transform: rotate(90deg);
+}
+
 .timeTableHidden{
     transform: scaleX(0.1);
     opacity: 0;

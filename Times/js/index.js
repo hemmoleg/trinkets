@@ -39,10 +39,9 @@ function doIt()
     
     text = text.substr(text.indexOf('<td colspan="32" class="section">'));
     monthStrings = text.split('NE/UZ');
-    console.log(monthStrings);
+    //console.log(monthStrings);
     
     //reset
-    
     $('.timeTable tr').has('td').remove();
     $('#divMonths').empty();
     
@@ -57,6 +56,13 @@ function doIt()
         
         //add new divMonth
         $('#divMonths').append(monthDivs[i]);
+        
+        $(monthDivs[i]).on('click', function(e){
+        e.currentTarget.classList.toggle('divMonthHidden');
+        e.currentTarget.childNodes[1].classList.toggle('hMonthHidden');
+        e.currentTarget.childNodes[3].classList.toggle('timeTableHidden');
+        //console.log($(e.target));
+        })
         
         timeTable = $('div>div:last-Child>h3').text(getMonthString(days));
         //set timeTable to fill
@@ -254,6 +260,14 @@ function calcTotals()
     {
         totalMissing += missing[i];
     }
+    
+    console.log($('.timeTable:last'));
+    $('<td/>').text("Missing %")
+              .addClass('lblMissingPercent')
+              .attr('rowspan', $(timeTable).children().length-1)
+              .addClass('date')
+              .appendTo('.timeTable:last tr:nth-child(2)');
+                //.appendTo($(timeTable).children().last())
     
     var rowTotals = $('<tr/>').appendTo(timeTable);
     //insert empty cell
