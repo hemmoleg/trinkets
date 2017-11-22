@@ -1,24 +1,23 @@
 <!DOCTYPE html>
 <html lang="de">
+
 <head>
     <title></title>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1">
     <meta name="description" content="">
     <meta name="keywords" content="">
-    
     <link rel="stylesheet" type="text/css" href>
-    
     <style type="text/css"></style>
-    <link href="https://fonts.googleapis.com/css?family=Roboto:300,300i,400,400i" rel="stylesheet"> 
+    <link href="https://fonts.googleapis.com/css?family=Roboto:300,300i,400,400i" rel="stylesheet">
     <link rel="stylesheet" type="text/css" href="css/index.css">
     <script type="text/javascript" src="js/jquery-3.2.1.min.js"></script>
     <script type="text/javascript" src="js/index.js"></script>
-    
 </head>
-<body>
 
-    <textarea name="Text1" cols="50" rows="5"><!--ADSFADSFADSFrechnet wird.</p></div><fieldset class="fehlz-block fehlz-block-massnahme"><legend></legend><h2 style="margin: 0"><strong><a href="javascript: void(0)" onclick="switchBlock($(this).up('fieldset'), '.massnahme-content');">075/239/2017 - Multimedia-Qualifizierung Digital/Print (14.08.2017 - 21.03.2018)</a></strong></h2><div class="massnahme-content" style="margin-top: 1em;"><table><tr  class="table-row table-row-odd"><th >1</th><th >2</th><th >3</th><th >4</th><th >5</th><th >6</th><th >7</th><th >8</th><th >9</th><th >10</th><th >11</th><th >12</th><th >13</th><th >14</th><th >15</th><th >16</th><th >17</th><th >18</th><th >19</th><th >20</th><th >21</th><th >22</th><th >23</th><th >24</th><th >25</th><th >26</th><th >27</th><th >28</th><th >29</th><th >30</th><th >31</th><th >FZ-Quote</th><th >NE/UZ-Quote</th></tr><tr  class="table-row table-row-even"><td colspan="32" class="section">August 2017</td></tr><tr  class="table-row table-row-odd"><td colspan="13" class="anwCell-outOfRange"></td><td  class="anwCell anwCell-A"><abbr title="Montag, 14. August 2017: Status: Anwesend">A</abbr>
+<body>
+    <textarea name="Text1" cols="50" rows="5">
+        <!--ADSFADSFADSFrechnet wird.</p></div><fieldset class="fehlz-block fehlz-block-massnahme"><legend></legend><h2 style="margin: 0"><strong><a href="javascript: void(0)" onclick="switchBlock($(this).up('fieldset'), '.massnahme-content');">075/239/2017 - Multimedia-Qualifizierung Digital/Print (14.08.2017 - 21.03.2018)</a></strong></h2><div class="massnahme-content" style="margin-top: 1em;"><table><tr  class="table-row table-row-odd"><th >1</th><th >2</th><th >3</th><th >4</th><th >5</th><th >6</th><th >7</th><th >8</th><th >9</th><th >10</th><th >11</th><th >12</th><th >13</th><th >14</th><th >15</th><th >16</th><th >17</th><th >18</th><th >19</th><th >20</th><th >21</th><th >22</th><th >23</th><th >24</th><th >25</th><th >26</th><th >27</th><th >28</th><th >29</th><th >30</th><th >31</th><th >FZ-Quote</th><th >NE/UZ-Quote</th></tr><tr  class="table-row table-row-even"><td colspan="32" class="section">August 2017</td></tr><tr  class="table-row table-row-odd"><td colspan="13" class="anwCell-outOfRange"></td><td  class="anwCell anwCell-A"><abbr title="Montag, 14. August 2017: Status: Anwesend">A</abbr>
 </td><td  class="anwCell anwCell-nonEditable"><abbr title="Kein Unterrichtstag"></abbr>
 </td><td  class="anwCell anwCell-hasBem anwCell-A"><abbr title="Mittwoch, 16. August 2017: Status: Anwesend, 08:06-13:06 Uhr, 20:06-23:12 Uhr">A</abbr>
 </td><td  class="anwCell anwCell-hasBem anwCell-A"><abbr title="Donnerstag, 17. August 2017: Status: Anwesend, 08:03-13:12 Uhr, 20:40-23:45 Uhr">A</abbr>
@@ -48,22 +47,43 @@ Tage: 2, Gesamttage: 8, Erfassungszeitraum: 14.08.2017 - 31.08.2017">25,0</acron
 </td><td  class="anwCell anwCell-hasBem anwCell-A"><abbr title="Dienstag, 05. September 2017: Status: Anwesend, 08:30-13:05 Uhr, 17:11-20:16 Uhr">A</abbr>
 </td><td  class="anwCell anwCell-hasBem anwCell-A"><abbr title="Mittwoch, 06. September 2017: Status: Anwesend, 08:00-13:07 Uhr">A</abbr>
 </td><td  class="anwCell anwCell-hasBem anwCell-A"><abbr title="Donnerstag, 07. September 2017: Status: Anwesend, 08:03-13:05 Uhr, 15:31-16:45 Uhr, 16:45-18:35 Uhr">A</abbr>
-</td> --></textarea>
+</td> -->
+    </textarea>
     <br>
-<div id="divMonths">
-    <div class="divMonth hiddenTransition">
-        <h3 class="hMonth hiddenTransition">Month</h3>
-        <table class="timeTable hiddenTransition">
-            <thead>
-                <tr>
-                    <th>Target</th>
-                    <th>Present</th>
-                    <th>Missing</th>
-                </tr>
-            </thead>
-        </table>
-    </div>
-    <!--<div class="divMonth hiddenTransition">
+    <br>
+    <table>
+        <tr>
+            <td style="background: #cccccc">Total Target:</td>
+            <td style="background: #cccccc" style="text-align: right"><span id="totalTarget"></span></td>
+        </tr>
+        <tr>
+            <td>Total Present:
+                <td style="text-align: right"><span id="totalPresent"></span></td>
+        </tr>
+        <tr>
+            <td>Total Missing:
+                <td style="text-align: right"><span id="totalMissing"></span></td>
+        </tr>
+        <tr>
+            <td>Percent Missing:
+                <td style="text-align: right"><span id="percentMissing"></span></td>
+        </tr>
+    </table>
+    <br>
+    <div id="divMonths">
+        <div class="divMonth hiddenTransition">
+            <h3 class="hMonth hiddenTransition">Month</h3>
+            <table class="timeTable hiddenTransition">
+                <thead>
+                    <tr>
+                        <th>Target</th>
+                        <th>Present</th>
+                        <th>Missing</th>
+                    </tr>
+                </thead>
+            </table>
+        </div>
+        <!--<div class="divMonth hiddenTransition">
         <h3 class="hMonth hiddenTransition">Month</h3>
         <table class="timeTable hiddenTransition">
             <th>Target</th>
@@ -71,8 +91,7 @@ Tage: 2, Gesamttage: 8, Erfassungszeitraum: 14.08.2017 - 31.08.2017">25,0</acron
             <th>Missing</th>
             <tr>asdfasdf</tr>
         </table>
-    </div>-->
-</div>
-
+    </div>--></div>
 </body>
+
 </html>

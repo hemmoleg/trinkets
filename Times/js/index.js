@@ -5,6 +5,7 @@ var target = []; //in minutes
 var present = []; //in minutes
 var monthStrings = [];
 var missing = []; //in minutes
+var totalTarget = totalPresent = totalMissing = 0;
 
 window.onload = function()
 {
@@ -23,12 +24,12 @@ window.onload = function()
     
     doIt();
 
-    $('.divMonth').on('click', function(e){
+    /*$('.divMonth').on('click', function(e){
         e.currentTarget.classList.toggle('divMonthHidden');
         e.currentTarget.childNodes[1].classList.toggle('hMonthHidden');
         e.currentTarget.childNodes[3].classList.toggle('timeTableHidden');
         //console.log($(e.target));
-    })
+    })*/
 }
 
 function doIt()
@@ -211,24 +212,24 @@ function calcTime(timeString)
 //based of current hours and minutes
 function calcDayMissing()
 {
-    var totalpresentHours = 0;
-    var totalpresentMinutes = 0;
+    var monthlyPresentHours = 0;
+    var monthlyPresentMinutes = 0;
     var minutemissing = 0;
     
     for(var i = 0; i < presentHours.length; i++)
     {
-        totalpresentHours += presentHours[i];
+        monthlyPresentHours += presentHours[i];
     }
     
     for(var i = 0; i < presentMinutes.length; i++)
     {
-        totalpresentMinutes += presentMinutes[i];
+        monthlyPresentMinutes += presentMinutes[i];
     }
     
-    minutemissing = (8 * 60) - (totalpresentHours * 60 + totalpresentMinutes);
+    minutemissing = (8 * 60) - (monthlyPresentHours * 60 + monthlyPresentMinutes);
     
     missing[missing.length] = minutemissing < 0 ? 0 : minutemissing;
-    present[present.length] = totalpresentHours * 60 + totalpresentMinutes;
+    present[present.length] = monthlyPresentHours * 60 + monthlyPresentMinutes;
     target[target.length] = 8 * 60;
     
     if(minutemissing < 0)
@@ -243,26 +244,29 @@ function calcDayMissing()
 
 function calcTotals()
 {
-    var totalTarget = 0;
+    var monthlyTarget = 0;
     for(var i = 0; i < target.length; i++)
     {
+        monthlyTarget += target[i];
         totalTarget += target[i];
     }
     
-    var totalPresent = 0;
+    var monthlyPresent = 0;
     for(var i = 0; i < present.length; i++)
     {
+        monthlyPresent += present[i];
         totalPresent += present[i];
     }
     
-    var totalMissing = 0;
+    var monthlyMissing = 0;
     for(var i = 0; i < present.length; i++)
     {
+        monthlyMissing += missing[i];
         totalMissing += missing[i];
     }
     
     console.log($('.timeTable:last'));
-    $('<td/>').text("Missing %")
+    $('<td/>').text("Missing")
               .addClass('lblMissingPercent')
               .attr('rowspan', $(timeTable).children().length-1)
               .addClass('date')
@@ -271,11 +275,18 @@ function calcTotals()
     
     var rowTotals = $('<tr/>').appendTo(timeTable);
     //insert empty cell
-    rowTotals.append($('<td/>').text(getHourMinuteString(totalTarget)));
-    rowTotals.append($('<td/>').text(getHourMinuteString(totalPresent)));
-    rowTotals.append($('<td/>').text(getHourMinuteString(totalMissing)));
+    rowTotals.append($('<td/>').text(getHourMinuteString(monthlyTarget)));
+    rowTotals.append($('<td/>').text(getHourMinuteString(monthlyPresent)));
+    rowTotals.append($('<td/>').text(getHourMinuteString(monthlyMissing)));
     
-    rowTotals.append($('<td/>').text(round((100/totalTarget) * (totalMissing), 1) + '%'));
+    rowTotals.append($('<td/>').text(round((100/monthlyTarget) * (monthlyMissing), 1) + '%'));
+
+    console.log("TOTALS: target " + getHourMinuteString(totalTarget) + " present " + getHourMinuteString(totalPresent) + " missing " + getHourMinuteString(totalMissing));
+    
+    $('#totalTarget').text(getHourMinuteString(totalTarget));
+    $('#totalPresent').text(getHourMinuteString(totalPresent));
+    $('#totalMissing').text(getHourMinuteString(totalMissing));
+    $('#percentMissing').text(round((100/totalTarget) * (totalMissing), 1) + '%');
 }
 
 function getDateString(day)
@@ -319,7 +330,7 @@ function getHourMinuteString(minutes)
     var h = Math.floor(minutes / 60);
     var m = minutes % 60;
     m = m < 10 ? '0' + m : m;
-    return h + ':' + m;
+    return h + ':' + m + 'h';
 }
 
 function getMonthString(days)
