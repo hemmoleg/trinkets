@@ -6,6 +6,7 @@ var dragSrcElement = null;
 var hasMovedOrMerged = false;
 var hiscore = 0;
 var moving = false;
+var minDistance = 25;
 
 
 var cols = ["col0", "col1", "col2", "col3"];
@@ -21,6 +22,8 @@ function Piece(x, y, initVal)
     var value = initVal;
     var canMerge = true;
     var moving;
+    var tmpLeft;
+    var tmpTop;
     
     Div = document.createElement('div');
     Div.innerHTML = "<b>" + initVal + "</b>";
@@ -41,8 +44,11 @@ function Piece(x, y, initVal)
     
     this.x = x;
     this.y = y;
-    Div.classList.add(cols[x]);
-    Div.classList.add(rows[y]);
+    
+    this.tmpLeft = 0;
+    this.tmpTop = 0;
+    //Div.classList.add(cols[x]);
+    //Div.classList.add(rows[y]);
     
     this.GetX = function () { return x; }
     this.SetX = function (val) { x = val; }
@@ -96,7 +102,9 @@ window.onload = function ()
     else
         hiscore = 0;
     
+    /////////////////////////////
     //add autopaly-mode
+    /////////////////////////////
     
     if(window.localStorage.getItem('debugSetup') == "true")
         initDebugingSetup();
@@ -150,8 +158,8 @@ function initDefaultSetup()
 
 function initDebugingSetup()
 {
-    createNewPiece(0, 0, 8);
-    createNewPiece(1, 0, 2);
+    createNewPiece(2, 3, 8);
+    /*createNewPiece(3, 3, 2);
     createNewPiece(2, 0, 8);
     createNewPiece(3, 0, 2);
     createNewPiece(0, 1, 8);
@@ -165,7 +173,7 @@ function initDebugingSetup()
     createNewPiece(0, 3, 8);
     createNewPiece(1, 3, 2);
     createNewPiece(2, 3, 8);
-    createNewPiece(3, 3, 2);
+    createNewPiece(3, 3, 2);*/
 }
 
 /*
@@ -318,13 +326,14 @@ function movePieces(direction)
             }
         }
     }
+    applyMove();
 }
 
 function movePiece(x1, y1, x2, y2)
 {
     var piece = getPieceByCoords(x1, y1);
     //at this point its enough to check if theres a piece or not
-    if(getPieceByCoords(x2,y2) !== null )//&& piece.GetValue() === getPieceByCoords(x2,y2).GetValue())
+    if(getPieceByCoords(x2,y2) !== null )
     {
         console.log("mark for merge " + x2 + "/" + y2);
         slots[x2][y2].markedForMerge = true;
@@ -339,11 +348,17 @@ function movePiece(x1, y1, x2, y2)
     piece.SetX(x2);
     piece.SetY(y2);
 
-    piece.GetDiv().classList.toggle(cols[x1]);
+    console.log("going to: " + x2 + " " + y2);
+    
+
+    piece.tmpLeft += (x2 - x1) * minDistance;
+    piece.tmpTop += (y2 - y1) * minDistance;
+    
+    /*piece.GetDiv().classList.toggle(cols[x1]);
     piece.GetDiv().classList.toggle(rows[y1]);
     
     piece.GetDiv().classList.toggle(cols[x2]);
-    piece.GetDiv().classList.toggle(rows[y2]);
+    piece.GetDiv().classList.toggle(rows[y2]);*/
     
     piece.SetMoving(true);
     if( document.getElementById("chkBoxShowMoving").checked )
@@ -353,6 +368,21 @@ function movePiece(x1, y1, x2, y2)
     moving = true;
     hasMovedOrMerged = true;
 
+}
+
+function applyMove()
+{
+    for(var x = 0; x < 4; x++)
+    {
+        for(var y = 0; y < 4; y++)
+        {
+            var piece = getPieceByCoords(x,y);
+            if(piece == null) continue;
+        
+            piece.GetDiv().style.left = piece.tmpLeft.toString() + 'vmin';
+            piece.GetDiv().style.top = piece.tmpTop.toString() + 'vmin';
+        }
+    }
 }
 
 //executed when piece is done moving visualy
@@ -365,6 +395,20 @@ function checkMerge(e)
     {
         piece.GetDiv().classList.remove("moving");
     }
+    
+    prevX = piece.GetX() - (piece.tmpLeft / minDistance);
+    prevY = piece.GetY() - (piece.tmpTop / minDistance);
+    
+    console.log("done moving, origin was: " + prevX + " " + prevY);
+    
+    piece.tmpLeft = 0;
+    piece.tmpTop = 0;
+    
+    piece.GetDiv().style.left = '0px';
+    piece.GetDiv().style.top = '0px';
+    
+    slots[prevX][prevY].removeChild(piece.GetDiv());
+    slots[piece.GetX()][piece.GetY()].appendChild(piece.GetDiv());
     
     for(var i = 0; i < pieces.length; i++)
     {
@@ -493,9 +537,7 @@ function addRandomPiece()
         var y = Math.floor(Math.random() * (3 - 0 + 1)) + 0;
     } while (getPieceByCoords(x, y) != null);
     
-    var newPiece = new Piece(x, y, 2);
-    pieces[pieces.length] = newPiece;
-    document.getElementById('pieceContainer').appendChild(newPiece.GetDiv());
+   createNewPiece(x,y,2);
 }
 
 function save(savePreviousState)
@@ -541,7 +583,8 @@ function createNewPiece(x,y,val)
 {
     var newPiece = new Piece(x, y, val);
     pieces[pieces.length] = newPiece;
-    document.getElementById('pieceContainer').appendChild(newPiece.GetDiv());
+    //document.getElementById('pieceContainer').appendChild(newPiece.GetDiv());
+    slots[x][y].appendChild(newPiece.GetDiv());
 }
 
 function reset()

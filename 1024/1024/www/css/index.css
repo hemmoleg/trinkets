@@ -76,7 +76,9 @@ body {
 
 .piece {
     /*display: block;*/
-    position: absolute;
+    position: relative;
+    left: 0vmin;
+    top:0vmin;
     
     text-align: center;
     background-color: #00fc0d;
