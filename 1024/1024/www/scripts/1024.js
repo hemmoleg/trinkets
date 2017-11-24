@@ -29,7 +29,7 @@ function Piece(x, y, initVal)
     Div.innerHTML = "<b>" + initVal + "</b>";
     Div.classList.add('piece');
     Div.classList.add('newPieceAnim');
-    Div.addEventListener("transitionend", checkMerge);
+    Div.addEventListener("transitionend", finishMove);
     
     Div.onclick = function(e)
     {
@@ -158,9 +158,9 @@ function initDefaultSetup()
 
 function initDebugingSetup()
 {
-    createNewPiece(2, 3, 8);
-    /*createNewPiece(3, 3, 2);
-    createNewPiece(2, 0, 8);
+    /*createNewPiece(0, 0, 2);
+    createNewPiece(1, 0, 2);
+    createNewPiece(2, 0, 2);
     createNewPiece(3, 0, 2);
     createNewPiece(0, 1, 8);
     createNewPiece(1, 1, 2);
@@ -206,15 +206,14 @@ function onKeyDown(e)
 
 function moveAndMerge(direction)
 {
-    console.log(moving);
     if(moving)return;
-    //set by movePiece and mergePieces
+    //set by calculateMove and mergePieces
     hasMovedOrMerged = false;
 
-    movePieces(direction);
+    calculateMoves(direction);
 }
 
-function movePieces(direction)
+function calculateMoves(direction)
 {
     save(true);
     /*for (var i = 0; i < pieces.length; i++)
@@ -242,7 +241,7 @@ function movePieces(direction)
                     if(tempPiece === null ||
                        (piece.GetValue() === tempPiece.GetValue() && !slots[x][y+1].markedForMerge))
                     {
-                        movePiece(piece.GetX(), piece.GetY(), piece.GetX(), piece.GetY() + 1);
+                        calculateMove(piece.GetX(), piece.GetY(), piece.GetX(), piece.GetY() + 1);
                         pieceMoved = true;
                         break;
                     }
@@ -268,7 +267,7 @@ function movePieces(direction)
                     if(tempPiece === null ||
                        (piece.GetValue() === tempPiece.GetValue() && !slots[x][y-1].markedForMerge))
                     {
-                        movePiece(piece.GetX(), piece.GetY(), piece.GetX(), piece.GetY() - 1);
+                        calculateMove(piece.GetX(), piece.GetY(), piece.GetX(), piece.GetY() - 1);
                         pieceMoved = true;
                         break;
                     }
@@ -294,7 +293,7 @@ function movePieces(direction)
                     if(tempPiece === null ||
                        (piece.GetValue() === tempPiece.GetValue()  && !slots[x-1][y].markedForMerge))
                     {
-                        movePiece(piece.GetX(), piece.GetY(), piece.GetX() - 1, piece.GetY());
+                        calculateMove(piece.GetX(), piece.GetY(), piece.GetX() - 1, piece.GetY());
                         pieceMoved = true;
                     }
                 }
@@ -319,7 +318,7 @@ function movePieces(direction)
                     if(tempPiece === null ||
                        (piece.GetValue() === tempPiece.GetValue() && !slots[x+1][y].markedForMerge))
                     {
-                        movePiece(piece.GetX(), piece.GetY(), piece.GetX() + 1, piece.GetY());
+                        calculateMove(piece.GetX(), piece.GetY(), piece.GetX() + 1, piece.GetY());
                         pieceMoved = true;
                     }
                 }
@@ -329,7 +328,7 @@ function movePieces(direction)
     applyMove();
 }
 
-function movePiece(x1, y1, x2, y2)
+function calculateMove(x1, y1, x2, y2)
 {
     var piece = getPieceByCoords(x1, y1);
     //at this point its enough to check if theres a piece or not
@@ -348,17 +347,10 @@ function movePiece(x1, y1, x2, y2)
     piece.SetX(x2);
     piece.SetY(y2);
 
-    console.log("going to: " + x2 + " " + y2);
-    
+    console.log("going to: " + x2 + " " + y2); 
 
     piece.tmpLeft += (x2 - x1) * minDistance;
     piece.tmpTop += (y2 - y1) * minDistance;
-    
-    /*piece.GetDiv().classList.toggle(cols[x1]);
-    piece.GetDiv().classList.toggle(rows[y1]);
-    
-    piece.GetDiv().classList.toggle(cols[x2]);
-    piece.GetDiv().classList.toggle(rows[y2]);*/
     
     piece.SetMoving(true);
     if( document.getElementById("chkBoxShowMoving").checked )
@@ -372,24 +364,17 @@ function movePiece(x1, y1, x2, y2)
 
 function applyMove()
 {
-    for(var x = 0; x < 4; x++)
+    for(var i = 0; i < pieces.length; i++)
     {
-        for(var y = 0; y < 4; y++)
-        {
-            var piece = getPieceByCoords(x,y);
-            if(piece == null) continue;
-        
-            piece.GetDiv().style.left = piece.tmpLeft.toString() + 'vmin';
-            piece.GetDiv().style.top = piece.tmpTop.toString() + 'vmin';
-        }
+        pieces[i].GetDiv().style.left = pieces[i].tmpLeft.toString() + 'vmin';
+        pieces[i].GetDiv().style.top = pieces[i].tmpTop.toString() + 'vmin';
     }
 }
 
-//executed when piece is done moving visualy
-function checkMerge(e) 
+function finishMove(e)
 {
-    console.log("checkMErge");
     piece = getPieceByDiv(e.target);
+    
     piece.SetMoving(false);
     if( document.getElementById("chkBoxShowMoving").checked )
     {
@@ -410,10 +395,18 @@ function checkMerge(e)
     slots[prevX][prevY].removeChild(piece.GetDiv());
     slots[piece.GetX()][piece.GetY()].appendChild(piece.GetDiv());
     
+    checkMerge(piece);
+}
+
+//executed when piece is done moving visualy
+function checkMerge(piece) 
+{
+    console.log("checkMerge");
+    
     for(var i = 0; i < pieces.length; i++)
     {
         if(pieces[i].GetX() === piece.GetX() && pieces[i].GetY() === piece.GetY() &&
-           pieces[i] !== piece)
+           pieces[i] !== piece && !piece.IsMoving() && !pieces[i].IsMoving())
             {
                 mergePieces(piece.GetX(), piece.GetY(), piece.GetX(), piece.GetY());
                 break;
@@ -451,7 +444,7 @@ function allPiecesDoneMoving()
 function mergePieces(x1, y1, x2, y2)
 {
     console.log("MERGE");
-    removePieceByCoords(x1, y1);
+    recalculateMoveByCoords(x1, y1);
     
     try{
         getPieceByCoords(x2, y2).DoubleValue();
@@ -479,13 +472,16 @@ function mergePieces(x1, y1, x2, y2)
     hasMovedOrMerged = true;
 }
 
-function removePieceByCoords(x, y)
+function recalculateMoveByCoords(x, y)
 {
     for (var i = 0; i < pieces.length; i++) 
     {
         if (pieces[i].GetX() === x && pieces[i].GetY() === y) 
         {
-            document.getElementById('pieceContainer').removeChild(pieces[i].GetDiv());
+            //document.getElementById('pieceContainer').removeChild(pieces[i].GetDiv());
+            
+            slots[x][y].removeChild(pieces[i].GetDiv());
+            
             pieces[i].GetDiv().removeEventListener("transitionend", checkMerge);
             pieces.splice(i, 1);
             return;
@@ -595,7 +591,7 @@ function reset()
     {
         for(var y = 0; y < 4; y++)
         {
-            removePieceByCoords(x,y);
+            recalculateMoveByCoords(x,y);
         }
     }
     
@@ -614,7 +610,7 @@ function undo()
     {
         for(var y = 0; y < 4; y++)
         {
-            removePieceByCoords(x,y);
+            recalculateMoveByCoords(x,y);
         }
     }
     

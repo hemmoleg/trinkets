@@ -36,7 +36,7 @@ body {
 }
 
 #table {
-    display: table;
+    display: none;
     margin-top: 1vmin;
     margin-left: auto;
     margin-right: auto;
