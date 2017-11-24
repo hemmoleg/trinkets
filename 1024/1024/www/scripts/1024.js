@@ -6,11 +6,7 @@ var dragSrcElement = null;
 var hasMovedOrMerged = false;
 var hiscore = 0;
 var moving = false;
-var minDistance = 25;
-
-
-var cols = ["col0", "col1", "col2", "col3"];
-var rows = ["row0", "row1", "row2", "row3"]
+var minDistance = 20.8;
 
 Direction = {UP:"up", DOWN:"down", LEFT:"left", RIGHT:"right"}
 
@@ -30,6 +26,7 @@ function Piece(x, y, initVal)
     Div.classList.add('piece');
     Div.classList.add('newPieceAnim');
     Div.addEventListener("transitionend", finishMove);
+    Div.addEventListener("animationend", finishAnimation);
     
     Div.onclick = function(e)
     {
@@ -47,8 +44,6 @@ function Piece(x, y, initVal)
     
     this.tmpLeft = 0;
     this.tmpTop = 0;
-    //Div.classList.add(cols[x]);
-    //Div.classList.add(rows[y]);
     
     this.GetX = function () { return x; }
     this.SetX = function (val) { x = val; }
@@ -75,7 +70,7 @@ function Piece(x, y, initVal)
 
 window.onload = function ()
 {
-    slotsUnordered = document.querySelectorAll('.slot');
+    slotsUnordered = $('table div');
 
     var hex = 'FF5300';
     var hsl = hexToHSL(hex);
@@ -115,7 +110,7 @@ window.onload = function ()
     document.body.addEventListener("keydown", onKeyDown);
 
     //touch input
-    var hammertime = new Hammer(document.getElementById("table"));
+    var hammertime = new Hammer(document.getElementsByTagName("table")[0]);
     
     hammertime.get("swipe").set({ direction: Hammer.DIRECTION_ALL });
     
@@ -158,9 +153,9 @@ function initDefaultSetup()
 
 function initDebugingSetup()
 {
-    /*createNewPiece(0, 0, 2);
-    createNewPiece(1, 0, 2);
-    createNewPiece(2, 0, 2);
+    createNewPiece(0, 0, 2);
+    /*createNewPiece(1, 0, 2);
+    /*createNewPiece(2, 0, 2);
     createNewPiece(3, 0, 2);
     createNewPiece(0, 1, 8);
     createNewPiece(1, 1, 2);
@@ -625,6 +620,11 @@ function undo()
     }
     
     load(true);
+}
+
+function finishAnimation(e)
+{
+   e.target.classList.remove('newPieceAnim');
 }
 
 function debugElements()

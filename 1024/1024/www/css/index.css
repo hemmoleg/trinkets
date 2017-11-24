@@ -35,43 +35,20 @@ body {
     padding: 0;
 }
 
-#table {
-    display: none;
-    margin-top: 1vmin;
-    margin-left: auto;
-    margin-right: auto;
-}
-
-#pieceContainer{
-    position: relative;
-    display: block;
-    top: -97vmin;
-    width: 100%;
-    min-height: 100%;
-    background-color: aqua;
-}
-
-#board {
-    display: table;
-    width: 90vmin;
-    height: 90vmin;
-}
-
-.row {
-    display: table-row;
+table{
+    margin: 0 auto;
+	border-collapse: collapse;
 }
 
 .slot {
-    display: table-cell;
-    min-height: 20vmin;
-    min-width: 20vmin;
-    height: 20vmin;
-    width: 20vmin;
     border: .5vmin solid #666666;
     background-color: #FF874C;
     border-radius: 2vmin;
-    box-shadow: inset 0 0 3px #000;
-    padding: 2vmin;
+    box-shadow: inset 0 0 5px #000;
+    width: 20vmin; 
+    height: 20vmin;
+    margin-right: -2px;
+    margin-bottom: -2px;
 }
 
 .piece {
@@ -79,15 +56,15 @@ body {
     position: relative;
     left: 0vmin;
     top:0vmin;
-    
+    margin: 10%;
     text-align: center;
     background-color: #00fc0d;
-    width: 20vmin;
-    height: 20vmin;
-    /*padding-top: 3px;*/
-    /*line-height: 20vmin;*/
-    border-radius: 1.5vmin;
-    font-size: 10vmin;
+    width: 80%;
+    height: 80%;
+    border-radius: 10%;
+    font-size: 8vmin;
+    line-height: 12vmin;
+    text-align: center;
     
     transition: left ease-in-out, top ease-in-out;
 
@@ -130,16 +107,6 @@ body {
     }
 }
 
-.col0 {left: 2.4vmin;}
-.col1 {left: 27.2vmin;}
-.col2 {left: 52.2vmin;}
-.col3 {left: 77vmin;}
-
-.row0 {top: 1.4vmin;}
-.row1 {top: 25.7vmin;}
-.row2 {top: 50vmin;}
-.row3 {top: 74.7vmin;}
-
 .markedForMerge {background-color: aqua;}
 
 #btnReset {
@@ -168,8 +135,8 @@ body {
 .switch {
   position: relative;
   display: inline-block;
-  width: 10vmin;
-  height: 5vmin;
+  width: 8vmin;
+  height: 4vmin;
 }
 
 /* Hide default HTML checkbox */
@@ -191,10 +158,10 @@ body {
 .slider:before {
   position: absolute;
   content: "";
-  height: 3.5vmin;
-  width: 3.5vmin;
+  height: 60%;
+  width: 60%;
   left: 1.2vmin;
-  bottom: 0.8vmin;
+  bottom: 0.4vmin;
   background-color: white;
   -webkit-transition: .4s;
   transition: .4s;
