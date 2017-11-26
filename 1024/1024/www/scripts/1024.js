@@ -36,7 +36,7 @@ function Piece(x, y, initVal)
         console.log("hex: " + hex );
         console.log("hsl: " + hsl );
         console.log("hex: " + hslToHex(hsl[0], hsl[1], hsl[2]) )
-        
+        e.target.style.backgroundColor = hslToHex(hsl[0] - 10, hsl[1], hsl[2]);
     }
     
     this.x = x;
@@ -624,7 +624,8 @@ function undo()
 
 function finishAnimation(e)
 {
-   e.target.classList.remove('newPieceAnim');
+    e.target.classList.remove('newPieceAnim');
+    e.target.classList.remove('animMerge');
 }
 
 function debugElements()

@@ -1,13 +1,7 @@
-* {
-    -webkit-tap-highlight-color: rgba(0,0,0,0);
-}
-
 body {
-    -webkit-touch-callout: none;
     -webkit-text-size-adjust: none;
     -webkit-user-select: none;
 	background-color:#E4E4E4;
-    background-image:linear-gradient(top, #A7A7A7 0%, #E4E4E4 51%);
     background-image:-webkit-linear-gradient(top, #A7A7A7 0%, #E4E4E4 51%);
     background-image:-ms-linear-gradient(top, #A7A7A7 0%, #E4E4E4 51%);
     background-image:-webkit-gradient(
@@ -18,14 +12,11 @@ body {
         color-stop(0.51, #E4E4E4)
     );
     background-attachment:fixed;
-    font-family:'HelveticaNeue-Light', 'HelveticaNeue', Helvetica, Arial, sans-serif;
-    font-size:12px;
     height:100%;
     margin:0px;
     padding:0px;
     width:100%;
 	
-    background-color:#32383d;
     font-family: 'RobotoRegular', 'Droid Sans', 'Segoe UI', Segoe, 'San Francisco', 'Helvetica Neue', Helvetica, Arial, Geneva, sans-serif;
     font-size:12px;
 }
@@ -44,7 +35,7 @@ table{
     border: .5vmin solid #666666;
     background-color: #FF874C;
     border-radius: 2vmin;
-    box-shadow: inset 0 0 5px #000;
+    box-shadow: inset 0 0 10px #000;
     width: 20vmin; 
     height: 20vmin;
     margin-right: -2px;
@@ -58,7 +49,7 @@ table{
     top:0vmin;
     margin: 10%;
     text-align: center;
-    background-color: #00fc0d;
+    background-color: #ff0000;
     width: 80%;
     height: 80%;
     border-radius: 10%;
@@ -115,20 +106,21 @@ table{
 }
 
 #infoAndDebug{
-    display: table;
+    display: flex;
+    justify-content: space-between;
+    width: 80vmin;
+    margin: 0 auto;
+}
+
+#scoreDiv{
+    display: inline;
     font-size: 4vmin;
 }
 
-#scoreContainer{
-    display: table-cell;
-    width: 100px;
-}
-
-.switchDiv{
-    
-    display: inline;
-    position: absolute;
-    right: 0px;
+#switchDiv{
+     display: inline;
+    top:0px;
+    float: right;
 }
 
 /* checkbox */
@@ -158,17 +150,18 @@ table{
 .slider:before {
   position: absolute;
   content: "";
-  height: 60%;
-  width: 60%;
+  height: 70%;
+  width: 35%;
   left: 1.2vmin;
-  bottom: 0.4vmin;
+  bottom: 0.5vmin;
   background-color: white;
   -webkit-transition: .4s;
   transition: .4s;
 }
 
 input:checked + .slider {
-  background-color: #2196F3;
+  /*background-color: #2196F3;*/
+    background-color: red;
 }
 
 input:focus + .slider {
@@ -176,7 +169,7 @@ input:focus + .slider {
 }
 
 input:checked + .slider:before {
-  transform: translateX(4vmin);
+  transform: translateX(3vmin);
 }
 
 /* BG */
