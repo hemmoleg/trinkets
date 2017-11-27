@@ -7,6 +7,7 @@ var hasMovedOrMerged = false;
 var hiscore = 0;
 var moving = false;
 var minDistance = 20.8;
+var colorStart = 120;
 
 Direction = {UP:"up", DOWN:"down", LEFT:"left", RIGHT:"right"}
 
@@ -28,15 +29,32 @@ function Piece(x, y, initVal)
     Div.addEventListener("transitionend", finishMove);
     Div.addEventListener("animationend", finishAnimation);
     
-    Div.onclick = function(e)
+    /*Div.onclick = function(e)
     {
         var html = window.getComputedStyle(e.target, null).getPropertyValue("background-color");
         var hex = retardHtmlToHex(html)
         var hsl = hexToHSL(hex)
-        console.log("hex: " + hex );
+        //console.log("hex: " + hex );
         console.log("hsl: " + hsl );
-        console.log("hex: " + hslToHex(hsl[0], hsl[1], hsl[2]) )
+        //console.log("hex: " + hslToHex(hsl[0], hsl[1], hsl[2]) )
         e.target.style.backgroundColor = hslToHex(hsl[0] - 10, hsl[1], hsl[2]);
+    }*/
+
+    this.SetColor = function(val)
+    {
+        var i = 0;
+        while(val != 2)
+        {
+            val = val/2;
+            i++;
+        }
+
+        //way too complex formula for calculating color
+        var mainValue = (360/(2*Math.PI)) * (((2*Math.PI)/360)*colorStart - (i * 0.3));
+        var color = hslToHex(mainValue, 100, 60);
+        Div.style.backgroundColor = color;
+        color = hslToHex(colorStart - ( i * 20), 100, 30);
+        Div.style.borderColor = color;
     }
     
     this.x = x;
@@ -65,12 +83,16 @@ function Piece(x, y, initVal)
     {
         value = parseInt(value) + parseInt(value);
         Div.innerHTML = "<b>" + value + "</b>";
+        this.SetColor(value);
     }
+
+    //initialy set color
+    this.SetColor(initVal);
 }
 
 window.onload = function ()
 {
-    slotsUnordered = $('table div');
+    slotsUnordered = $('table tr div');
 
     var hex = 'FF5300';
     var hsl = hexToHSL(hex);
@@ -97,9 +119,15 @@ window.onload = function ()
     else
         hiscore = 0;
     
+    
+    
     /////////////////////////////
     //add autopaly-mode
     /////////////////////////////
+    
+    $( 'table' ).click(function() {
+        $('table').toggleClass('blurred');
+    });
     
     if(window.localStorage.getItem('debugSetup') == "true")
         initDebugingSetup();
@@ -154,15 +182,15 @@ function initDefaultSetup()
 function initDebugingSetup()
 {
     createNewPiece(0, 0, 2);
-    /*createNewPiece(1, 0, 2);
-    /*createNewPiece(2, 0, 2);
-    createNewPiece(3, 0, 2);
-    createNewPiece(0, 1, 8);
-    createNewPiece(1, 1, 2);
-    createNewPiece(2, 1, 8);
-    createNewPiece(3, 1, 2);
-    createNewPiece(0, 2, 8);
-    createNewPiece(1, 2, 2);
+    createNewPiece(1, 0, 4);
+    createNewPiece(2, 0, 8);
+    createNewPiece(3, 0, 16);
+    createNewPiece(0, 1, 32);
+    createNewPiece(1, 1, 64);
+    createNewPiece(2, 1, 128);
+    createNewPiece(3, 1, 256);
+    createNewPiece(0, 2, 512);
+    /*createNewPiece(1, 2, 2);
     createNewPiece(2, 2, 8);
     createNewPiece(3, 2, 2);
     createNewPiece(0, 3, 8);
@@ -574,7 +602,6 @@ function createNewPiece(x,y,val)
 {
     var newPiece = new Piece(x, y, val);
     pieces[pieces.length] = newPiece;
-    //document.getElementById('pieceContainer').appendChild(newPiece.GetDiv());
     slots[x][y].appendChild(newPiece.GetDiv());
 }
 
