@@ -125,9 +125,7 @@ window.onload = function ()
     //add autopaly-mode
     /////////////////////////////
     
-    $( 'table' ).click(function() {
-        $('table').toggleClass('blurred');
-    });
+    $( 'table' ).click(gameOver);
     
     if(window.localStorage.getItem('debugSetup') == "true")
         initDebugingSetup();
@@ -170,6 +168,15 @@ window.onload = function ()
     });
     
     debugElements();
+}
+
+function gameOver()
+{
+    $('table').toggleClass('blurred');
+    var topOffset = $('table').offset().top + $('table').height() / 2 - $('#gameOver').height() / 2;
+    $('#gameOver').css("display", "block");
+    $('#gameOver').offset({ top:topOffset, left:0 });
+    $('#gameOver').toggleClass('animGameOver');
 }
 
 function initDefaultSetup()
