@@ -98,9 +98,6 @@ window.onload = function ()
     var hsl = hexToHSL(hex);
     var hexNew = hslToHex(hsl[0], hsl[1], hsl[2]);
     
-    console.log("HIER: " + hex + " " + hsl + " " + hexNew);
-    
-    
     var col0 = []; 
     var col1 = [];
     var col2 = [];
@@ -111,7 +108,8 @@ window.onload = function ()
         slots[i % 4][slots[i%4].length] = slotsUnordered[i];
     }
 
-    document.getElementById("btnReset").onclick = reset;
+    $('#btnReset').click(reset);
+    $('#btnPlayAgain').click(btnPlayAgainClicked);
 
     hiscore = parseInt(window.localStorage.getItem('hiscore'));
     if(!isNaN(hiscore))
@@ -119,7 +117,10 @@ window.onload = function ()
     else
         hiscore = 0;
     
-    
+
+    var gameOverScaleX = parseFloat($('.gameOver').css('transform').split(',')[3]);
+    var topOffset = $('table').offset().top + $('table').height() / 2 - ($('.gameOver').height() * gameOverScaleX) / 2;
+    $('.gameOver').offset({ top:topOffset, left:$('.gameOver').offset().left });
     
     /////////////////////////////
     //add autopaly-mode
@@ -168,15 +169,7 @@ window.onload = function ()
     });
     
     debugElements();
-}
-
-function gameOver()
-{
-    $('table').toggleClass('blurred');
-    var topOffset = $('table').offset().top + $('table').height() / 2 - $('#gameOver').height() / 2;
-    $('#gameOver').css("display", "block");
-    $('#gameOver').offset({ top:topOffset, left:0 });
-    $('#gameOver').toggleClass('animGameOver');
+    updateScore();
 }
 
 function initDefaultSetup()
@@ -546,11 +539,11 @@ function updateScore()
     {
         score += pieces[i].GetValue();
     }
-    document.getElementById("score").innerHTML = score;
+    $('#score').text(score);
     
     if(score > hiscore)
     {
-        document.getElementById("hiscore").innerHTML = score;
+        $('#hiscore').text(score);
         window.localStorage.setItem('hiscore', score);
     }
 }
@@ -610,6 +603,19 @@ function createNewPiece(x,y,val)
     var newPiece = new Piece(x, y, val);
     pieces[pieces.length] = newPiece;
     slots[x][y].appendChild(newPiece.GetDiv());
+}
+
+function gameOver()
+{
+    $('table').toggleClass('blurred');
+    $('.gameOver').toggleClass('animGameOver');
+    $('#scoreGameOver').text($('#score').text());
+}
+
+function btnPlayAgainClicked()
+{
+    $('table').toggleClass('blurred');
+    $('.gameOver').toggleClass('animGameOver');
 }
 
 function reset()

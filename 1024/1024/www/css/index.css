@@ -20,7 +20,7 @@ body {
     font-family: 'RobotoRegular', 'Droid Sans', 'Segoe UI', Segoe, 'San Francisco', 'Helvetica Neue', Helvetica, Arial, Geneva, sans-serif;
     font-size:12px;
 
-    --animGameOverTime: 3s;
+    --animDurationGameOver: 3s;
 }
 
 * {
@@ -31,36 +31,42 @@ body {
 table{
     margin: 50px auto auto;
 	border-collapse: collapse;
-    /*filter:blur(3px);*/
-    transition: all var(--animGameOverTime);
+    transition: all var(--animDurationGameOver);
 }
 
 .blurred{
     filter:blur(5px);
 }
 
-#gameOver{
+.gameOver{
     position: relative;
-    display: none;
+    visibility: hidden;
     text-align: center;
     font-size: 6vmin;
     font-weight: 700;
+    width: 50%;
+    margin: auto;
+
+    transform: scale(1.8);
+    opacity: 0;
+    transition: all var(--animDurationGameOver);
 }
 
-.animGameOver {
-    animation: gameOver var(--animGameOverTime);
-}
+#btnPlayAgain {
+    background-color: rgba(255,255,255, .4);
+    border: none;
+    padding: 1vmin 2vmin;
+    text-align: center;
+    font-size: 5vmin;
+    cursor: pointer;
+    border-radius:10px;
+    
+ }
 
-@keyframes gameOver {
-    0% {
-        transform: scale(1.8);
-        opacity: 0;
-    }
-
-    100% {
-        transform: scale(1);
-        opacity: 1;
-    }
+.animGameOver{
+    transform: scale(1);
+    opacity: 1;
+    visibility: visible;
 }
 
 .slot {
