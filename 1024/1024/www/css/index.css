@@ -21,6 +21,7 @@ body {
     font-size:12px;
 
     --animDurationGameOver: 3s;
+    --animDurationNewPiece: 0.5s;
 }
 
 * {
@@ -32,6 +33,7 @@ table{
     margin: 50px auto auto;
 	border-collapse: collapse;
     transition: all var(--animDurationGameOver);
+    transition-delay: calc( var(--animDurationNewPiece)  + .5s);
 }
 
 .blurred{
@@ -39,7 +41,6 @@ table{
 }
 
 .gameOver{
-    /*display: none;*/
     position: relative;
     visibility: hidden;
     text-align: center;
@@ -52,6 +53,7 @@ table{
     opacity: 0;
     transition: all;
     transition-duration: var(--animDurationGameOver); 
+    transition-delay: calc( var(--animDurationNewPiece)  + .5s);
 }
 
 button {
@@ -62,8 +64,18 @@ button {
     font-size: 3vmin;
     cursor: pointer;
     border-radius:10px;
-    
+    outline: none;
+    transition: all 0.2s;
  }
+
+button:hover{
+    background-color: rgba(232, 68, 42, .6);
+}
+
+button:active
+{
+    background-color: rgba(107, 32, 19, .6);
+}
 
 .animGameOver{
     transform: scale(1);
@@ -126,7 +138,7 @@ button {
 }
 
 .newPieceAnim {
-    animation: grow 0.5s;
+    animation: grow var(--animDurationNewPiece);
 }
 
 @keyframes grow {

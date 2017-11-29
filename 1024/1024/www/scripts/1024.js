@@ -8,8 +8,9 @@ var hiscore = 0;
 var moving = false;
 var minDistance = 20.8;
 var colorStart = 120;
-var animGameOverDurationIn;
-var animGameOverDurationOut = '1s';
+var animDurationGameOverIn;
+var animDurationGameOverOut = '1s';
+var animDelayGameOver;
 
 Direction = {UP:"up", DOWN:"down", LEFT:"left", RIGHT:"right"}
 
@@ -108,7 +109,7 @@ window.onload = function ()
 
     $('#btnReset').click(reset);
     $('#btnPlayAgain').click(btnPlayAgainClicked);
-    $('#btnUndo').click(undoLastTurn);
+    $('#btnUndo').click(btnUndoLastTurnClicked);
 
     hiscore = parseInt(window.localStorage.getItem('hiscore'));
     if(!isNaN(hiscore))
@@ -116,13 +117,13 @@ window.onload = function ()
     else
         hiscore = 0;
     
-    animGameOverDurationIn = parseFloat(getComputedStyle($('.gameOver')[0])['transitionDuration']) + 's';
+    animDurationGameOverIn = parseFloat(getComputedStyle($('.gameOver')[0])['transitionDuration']) + 's';
+    animDelayGameOver = parseFloat(getComputedStyle($('.gameOver')[0])['transitionDelay']) + 's';
     var gameOverScaleX = parseFloat($('.gameOver').css('transform').split(',')[3]);
     var topOffset = $('table').offset().top + $('table').height() / 2 - ($('.gameOver').height() * gameOverScaleX) / 2;
     $('.gameOver').offset({ top:topOffset, left:$('.gameOver').offset().left });
-    //$('.gameOver').css('display','none');
+    $('.gameOver').css('margin-bottom', -topOffset);
     
-    //make .gameOver take no space
     //1024 piece
     
     /////////////////////////////
@@ -197,7 +198,7 @@ function initDebugingSetup()
     createNewPiece(2, 2, 64);
     createNewPiece(3, 2, 16);
     createNewPiece(0, 3, 512);
-    createNewPiece(1, 3, 64);
+    createNewPiece(1, 3, 1024);
     createNewPiece(2, 3, 128);
     createNewPiece(3, 3, 256);
 }
@@ -644,24 +645,43 @@ function createNewPiece(x,y,val)
     var newPiece = new Piece(x, y, val);
     pieces[pieces.length] = newPiece;
     slots[x][y].appendChild(newPiece.GetDiv());
+    
+    //$(pieces[pieces.length-1])[0].GetDiv().children[0].offsetWidth
+
+    var divWidth = $(pieces[pieces.length-1])[0].GetDiv().offsetWidth;
+    var text = $(pieces[pieces.length-1])[0].GetDiv().children[0];
+    var fontSize = 8;
+
+    while (text.offsetWidth + 6 > divWidth)
+    {
+        $(text).css("font-size", [(fontSize -= 0.5) + "vmin"])
+        console.log(text.offsetWidth, divWidth);
+    }
 }
 
 function gameOver()
 {
-    $('table').css('transition-duration',animGameOverDurationIn);
+    $('table').css('transition-duration',animDurationGameOverIn);
+    $('table').css('transition-delay',animDelayGameOver);
     $('table').toggleClass('blurred');
-    $('.gameOver').css('display','block');
-    $('.gameOver').css('transition-duration',animGameOverDurationIn);
+    
+    $('.gameOver').css('transition-duration',animDurationGameOverIn);
+    $('.gameOver').css('transition-delay',animDelayGameOver);
     $('.gameOver').toggleClass('animGameOver');
+    
     $('#scoreGameOver').text($('#score').text());
 }
 
 function btnPlayAgainClicked()
 {
-    $('table').css('transition-duration',animGameOverDurationOut);
+    $('table').css('transition-delay', '0s');
+    $('table').css('transition-duration',animDurationGameOverOut);
     $('table').toggleClass('blurred');
-    $('.gameOver').css('transition-duration',animGameOverDurationOut);
+    
+    $('.gameOver').css('transition-delay', '0s');
+    $('.gameOver').css('transition-duration',animDurationGameOverOut);
     $('.gameOver').toggleClass('animGameOver');
+    
     reset();
 }
 
@@ -686,11 +706,14 @@ function reset()
         initDefaultSetup();
 }
 
-function undoLastTurn()
+function btnUndoLastTurnClicked()
 {
-    $('table').css('transition-duration',animGameOverDurationOut);
+    $('table').css('transition-delay', '0s');
+    $('table').css('transition-duration',animDurationGameOverOut);
     $('table').toggleClass('blurred');
-    $('.gameOver').css('transition-duration',animGameOverDurationOut);
+    
+    $('.gameOver').css('transition-delay', '0s');
+    $('.gameOver').css('transition-duration',animDurationGameOverOut);
     $('.gameOver').toggleClass('animGameOver');
     
     undoLastTurnDebug();
