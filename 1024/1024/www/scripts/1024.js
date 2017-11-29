@@ -8,6 +8,8 @@ var hiscore = 0;
 var moving = false;
 var minDistance = 20.8;
 var colorStart = 120;
+var animGameOverDurationIn;
+var animGameOverDurationOut = '1s';
 
 Direction = {UP:"up", DOWN:"down", LEFT:"left", RIGHT:"right"}
 
@@ -94,10 +96,6 @@ window.onload = function ()
 {
     slotsUnordered = $('table tr div');
 
-    var hex = 'FF5300';
-    var hsl = hexToHSL(hex);
-    var hexNew = hslToHex(hsl[0], hsl[1], hsl[2]);
-    
     var col0 = []; 
     var col1 = [];
     var col2 = [];
@@ -110,6 +108,7 @@ window.onload = function ()
 
     $('#btnReset').click(reset);
     $('#btnPlayAgain').click(btnPlayAgainClicked);
+    $('#btnUndo').click(undoLastTurn);
 
     hiscore = parseInt(window.localStorage.getItem('hiscore'));
     if(!isNaN(hiscore))
@@ -117,10 +116,14 @@ window.onload = function ()
     else
         hiscore = 0;
     
-
+    animGameOverDurationIn = parseFloat(getComputedStyle($('.gameOver')[0])['transitionDuration']) + 's';
     var gameOverScaleX = parseFloat($('.gameOver').css('transform').split(',')[3]);
     var topOffset = $('table').offset().top + $('table').height() / 2 - ($('.gameOver').height() * gameOverScaleX) / 2;
     $('.gameOver').offset({ top:topOffset, left:$('.gameOver').offset().left });
+    //$('.gameOver').css('display','none');
+    
+    //make .gameOver take no space
+    //1024 piece
     
     /////////////////////////////
     //add autopaly-mode
@@ -184,19 +187,19 @@ function initDebugingSetup()
     createNewPiece(0, 0, 2);
     createNewPiece(1, 0, 4);
     createNewPiece(2, 0, 8);
-    createNewPiece(3, 0, 16);
-    createNewPiece(0, 1, 32);
-    createNewPiece(1, 1, 64);
-    createNewPiece(2, 1, 128);
-    createNewPiece(3, 1, 256);
-    createNewPiece(0, 2, 512);
-    /*createNewPiece(1, 2, 2);
-    createNewPiece(2, 2, 8);
-    createNewPiece(3, 2, 2);
-    createNewPiece(0, 3, 8);
-    createNewPiece(1, 3, 2);
-    createNewPiece(2, 3, 8);
-    createNewPiece(3, 3, 2);*/
+    createNewPiece(3, 0, 2);
+    createNewPiece(0, 1, 2);
+    createNewPiece(1, 1, 8);
+    createNewPiece(2, 1, 16);
+    createNewPiece(3, 1, 4);
+    createNewPiece(0, 2, 8);
+    createNewPiece(1, 2, 16);
+    createNewPiece(2, 2, 64);
+    createNewPiece(3, 2, 16);
+    createNewPiece(0, 3, 512);
+    createNewPiece(1, 3, 64);
+    createNewPiece(2, 3, 128);
+    createNewPiece(3, 3, 256);
 }
 
 /*
@@ -399,7 +402,7 @@ function finishMove(e)
     piece = getPieceByDiv(e.target);
     
     piece.SetMoving(false);
-    if( document.getElementById("chkBoxShowMoving").checked )
+    if( $('#chkBoxShowMoving').prop('checked') )
     {
         piece.GetDiv().classList.remove("moving");
     }
@@ -449,18 +452,23 @@ function checkMerge(piece)
     allPiecesDoneMoving();
 }
 
+//last call for current turn
 function allPiecesDoneMoving()
 {
     moving = false;
     
-    if (hasMovedOrMerged && pieces.length < 16 && document.getElementById("chkBoxAddRandom").checked)
+    if (hasMovedOrMerged && pieces.length < 16 && $('#chkBoxAddRandom').prop('checked'))
         addRandomPiece();
     
     updateScore();
     
     save(false);
+    
+    if(isGameOver())
+    {
+        gameOver();
+    }
 }
-
 
 //xy1 = coords for piece to remove
 //xy2 = coords for resulting piece
@@ -559,6 +567,39 @@ function addRandomPiece()
    createNewPiece(x,y,2);
 }
 
+function isGameOver()
+{
+    if(pieces.length < 16)
+        return false;
+    
+    var value;
+    for(var x = 0; x < 4; x++)
+    {
+        for(var y = 0; y < 4; y++)
+        {
+            value = getPieceByCoords(x,y).GetValue();
+            
+            //check left
+            if(x > 0 && value == getPieceByCoords(x-1,y).GetValue())
+                return false;
+        
+            //check right
+            if(x < 3 && value == getPieceByCoords(x+1,y).GetValue())
+                return false;
+            
+            //check up
+            if(y > 0 && value == getPieceByCoords(x,y-1).GetValue())
+                return false;
+            
+            //check down
+            if(y < 3 && value == getPieceByCoords(x,y+1).GetValue())
+                return false;
+        }
+    }
+    
+    return true;
+}
+
 function save(savePreviousState)
 {
     var storage = window.localStorage;
@@ -607,15 +648,21 @@ function createNewPiece(x,y,val)
 
 function gameOver()
 {
+    $('table').css('transition-duration',animGameOverDurationIn);
     $('table').toggleClass('blurred');
+    $('.gameOver').css('display','block');
+    $('.gameOver').css('transition-duration',animGameOverDurationIn);
     $('.gameOver').toggleClass('animGameOver');
     $('#scoreGameOver').text($('#score').text());
 }
 
 function btnPlayAgainClicked()
 {
+    $('table').css('transition-duration',animGameOverDurationOut);
     $('table').toggleClass('blurred');
+    $('.gameOver').css('transition-duration',animGameOverDurationOut);
     $('.gameOver').toggleClass('animGameOver');
+    reset();
 }
 
 function reset()
@@ -639,7 +686,17 @@ function reset()
         initDefaultSetup();
 }
 
-function undo()
+function undoLastTurn()
+{
+    $('table').css('transition-duration',animGameOverDurationOut);
+    $('table').toggleClass('blurred');
+    $('.gameOver').css('transition-duration',animGameOverDurationOut);
+    $('.gameOver').toggleClass('animGameOver');
+    
+    undoLastTurnDebug();
+}
+
+function undoLastTurnDebug()
 {
     for(var x = 0; x < 4; x++)
     {
@@ -727,6 +784,5 @@ function debugElements()
     else
         document.getElementById("chkBoxShowMoving").checked = false;
     
-    document.getElementById("btnUndo").onclick = undo;
-
+    $('#btnUndoDebug').click(undoLastTurnDebug);
 }

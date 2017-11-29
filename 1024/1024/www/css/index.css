@@ -39,6 +39,7 @@ table{
 }
 
 .gameOver{
+    /*display: none;*/
     position: relative;
     visibility: hidden;
     text-align: center;
@@ -49,15 +50,16 @@ table{
 
     transform: scale(1.8);
     opacity: 0;
-    transition: all var(--animDurationGameOver);
+    transition: all;
+    transition-duration: var(--animDurationGameOver); 
 }
 
-#btnPlayAgain {
+button {
     background-color: rgba(255,255,255, .4);
     border: none;
     padding: 1vmin 2vmin;
     text-align: center;
-    font-size: 5vmin;
+    font-size: 3vmin;
     cursor: pointer;
     border-radius:10px;
     
