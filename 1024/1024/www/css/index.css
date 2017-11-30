@@ -29,8 +29,19 @@ body {
     padding: 0;
 }
 
+header{
+    display: flex;
+    font-size: 4vmin;
+    color: aqua;
+    background-color: #FF874C;
+}
+
+header div{
+    margin-right: 20px;
+}
+
 table{
-    margin: 50px auto auto;
+    margin: 40px auto auto;
 	border-collapse: collapse;
     transition: all var(--animDurationGameOver);
     transition-delay: calc( var(--animDurationNewPiece)  + .5s);
@@ -57,7 +68,7 @@ table{
 }
 
 button {
-    background-color: rgba(255,255,255, .4);
+    background-color: rgba(255,135,76, .4);
     border: none;
     padding: 1vmin 2vmin;
     text-align: center;
@@ -66,6 +77,8 @@ button {
     border-radius:10px;
     outline: none;
     transition: all 0.2s;
+    box-shadow: 0px 0px 10px rgba(0, 0, 0, 0.6); 
+              
  }
 
 button:hover{
@@ -84,7 +97,7 @@ button:active
 }
 
 .slot {
-    border: .5vmin solid #666666;
+    border: .3vmin solid #666666;
     background-color: #FF874C;
     border-radius: 2vmin;
     box-shadow: inset 0 0 10px #000;
@@ -102,9 +115,10 @@ button:active
     margin: 10%;
     text-align: center;
     background-color: #00ff00;
-    border: .3vmin solid #666666;
-    width: calc(80% - 0.6vmin);
-    height: calc(80% - 0.6vmin);
+    /*border: .3vmin solid #666666;*/
+    box-shadow: 0px 0px 15px rgba(0, 0, 0, 0.6); 
+    width: 80% /*calc(80% - 0.6vmin)*/;
+    height: 80% /*calc(80% - 0.6vmin)*/;
     border-radius: 10%;
     font-size: 8vmin;
     line-height: 12vmin;
@@ -162,16 +176,11 @@ button:active
     display: flex;
     justify-content: space-between;
     width: 80vmin;
-    margin: 0 auto;
-}
-
-#scoreDiv{
-    display: inline;
-    font-size: 4vmin;
+    margin: 2em auto;
 }
 
 #switchDiv{
-     display: inline;
+    display: inline;
     top:0px;
     float: right;
 }

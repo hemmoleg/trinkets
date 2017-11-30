@@ -6,7 +6,7 @@ var dragSrcElement = null;
 var hasMovedOrMerged = false;
 var hiscore = 0;
 var moving = false;
-var minDistance = 20.8;
+var minDistance = 20.9;
 var colorStart = 120;
 var animDurationGameOverIn;
 var animDurationGameOverOut = '1s';
@@ -54,10 +54,13 @@ function Piece(x, y, initVal)
 
         //way too complex formula for calculating color
         var mainValue = (360/(2*Math.PI)) * (((2*Math.PI)/360)*colorStart - (i * 0.3));
-        var color = hslToHex(mainValue, 100, 60);
+        var color = "hsla("+mainValue+", 100%, 60%, .6)";
         Div.style.backgroundColor = color;
-        color = hslToHex(colorStart - ( i * 20), 100, 30);
+        //shadow color?
+        //color = hslToRgba(colorStart - ( i * 10), 100, 30, 1);
+        color = hslToRgba(mainValue, 100, 30, 1);
         Div.style.borderColor = color;
+        Div.style.boxShadow = " 0px 0px 15px " + color;
     }
     
     this.x = x;
@@ -123,8 +126,6 @@ window.onload = function ()
     var topOffset = $('table').offset().top + $('table').height() / 2 - ($('.gameOver').height() * gameOverScaleX) / 2;
     $('.gameOver').offset({ top:topOffset, left:$('.gameOver').offset().left });
     $('.gameOver').css('margin-bottom', -topOffset);
-    
-    //1024 piece
     
     /////////////////////////////
     //add autopaly-mode
@@ -655,7 +656,7 @@ function createNewPiece(x,y,val)
     while (text.offsetWidth + 6 > divWidth)
     {
         $(text).css("font-size", [(fontSize -= 0.5) + "vmin"])
-        console.log(text.offsetWidth, divWidth);
+        //console.log(text.offsetWidth, divWidth);
     }
 }
 

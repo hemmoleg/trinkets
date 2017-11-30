@@ -16,7 +16,11 @@
 </head>
 
 <body>
-   
+    <header>
+        <div>Score: <span id="score">0</span></div>
+        <div>HiScore: <span id="hiscore">0</span></div>
+        <button type="button" id="btnReset">Reset</button>
+    </header>
     <table>
         <tr><td><div class="slot"></div></td><td><div class="slot"></div></td><td>
         <div class="slot"></div></td><td><div class="slot"></div></td></tr>
@@ -28,13 +32,7 @@
         <div class="slot"></div></td><td><div class="slot"></div></td></tr>   
     </table>
     
-    <button type="button" id="btnReset">Reset</button>
-    
     <div id="infoAndDebug">
-        <div id="scoreDiv"> 
-            <p>Score: <span id="score">0</span></p>
-            <p>HiScore: <span id="hiscore">0</span></p>
-        </div>
         <div id="switchDiv">
             <label class="switch">
                 <input type="checkbox" id="chkBoxDebugSetup"> <span class="slider round"></span> 
