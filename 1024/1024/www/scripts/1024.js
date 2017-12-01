@@ -6,11 +6,12 @@ var dragSrcElement = null;
 var hasMovedOrMerged = false;
 var hiscore = 0;
 var moving = false;
-var minDistance = 20.9;
+var minDistance = 20.3;
 var colorStart = 120;
 var animDurationGameOverIn;
 var animDurationGameOverOut = '1s';
 var animDelayGameOver;
+var firstGame = false;
 
 Direction = {UP:"up", DOWN:"down", LEFT:"left", RIGHT:"right"}
 
@@ -56,8 +57,6 @@ function Piece(x, y, initVal)
         var mainValue = (360/(2*Math.PI)) * (((2*Math.PI)/360)*colorStart - (i * 0.3));
         var color = "hsla("+mainValue+", 100%, 60%, .6)";
         Div.style.backgroundColor = color;
-        //shadow color?
-        //color = hslToRgba(colorStart - ( i * 10), 100, 30, 1);
         color = hslToRgba(mainValue, 100, 30, 1);
         Div.style.borderColor = color;
         Div.style.boxShadow = " 0px 0px 15px " + color;
@@ -120,23 +119,34 @@ window.onload = function ()
     else
         hiscore = 0;
     
-    animDurationGameOverIn = parseFloat(getComputedStyle($('.gameOver')[0])['transitionDuration']) + 's';
-    animDelayGameOver = parseFloat(getComputedStyle($('.gameOver')[0])['transitionDelay']) + 's';
-    var gameOverScaleX = parseFloat($('.gameOver').css('transform').split(',')[3]);
-    var topOffset = $('table').offset().top + $('table').height() / 2 - ($('.gameOver').height() * gameOverScaleX) / 2;
-    $('.gameOver').offset({ top:topOffset, left:$('.gameOver').offset().left });
-    $('.gameOver').css('margin-bottom', -topOffset);
+    //.overlay layout stuff
+    animDurationGameOverIn = parseFloat(getComputedStyle($('#gameOver')[0])['transitionDuration']) + 's';
+    animDelayGameOver = parseFloat(getComputedStyle($('#gameOver')[0])['transitionDelay']) + 's';
+    
+    var overlayScaleX = parseFloat($('.overlay').css('transform').split(',')[3]);
+    var topOffset = $('table').offset().top + $('table').height() / 2 - ($('#gameOver').height() * overlayScaleX) / 2;
+    $('#gameOver').offset({ top:topOffset, left:$('#gameOver').offset().left });
+    $('#gameOver').css('margin-bottom', -topOffset);
+    
+    topOffset = $('table').offset().top + $('table').height() / 2 - ($('#tutorial').height() * overlayScaleX) / 2;
+    $('#tutorial').offset({ top:topOffset, left:$('#tutorial').offset().left });
+    $('#tutorial').css('margin-bottom', -topOffset);
     
     /////////////////////////////
     //add autopaly-mode
     /////////////////////////////
+    //block scroll bars when content is too big (only horizontal!!)
+    /////////////////////////////
+    //keep delay for game over intact!
+    /////////////////////////////
+    //on animFirstGame finished initDefaultSetup and restore table transition-delay
+    /////////////////////////////
+    //btnClearLocalStorage
+    /////////////////////////////
     
+    
+    //debug
     $( 'table' ).click(gameOver);
-    
-    if(window.localStorage.getItem('debugSetup') == "true")
-        initDebugingSetup();
-    else
-        load(false);
     
     //keys input
     document.body.addEventListener("keydown", onKeyDown);
@@ -173,8 +183,52 @@ window.onload = function ()
         }
     });
     
+    //debug
+    localStorage.clear();
+    
+    if(localStorage.length === 0)
+    {
+        console.log("new game");
+        setupFirstGame();
+    }
+    else
+    {
+        if(window.localStorage.getItem('debugSetup') == "true")
+            initDebugingSetup();
+        else
+            load(false);
+    }
+    
     debugElements();
     updateScore();
+}
+
+function setupFirstGame()
+{
+    firstGame = true;
+    
+    $('table').css('transition-delay', '0s'); 
+    $('table').css('transition-duration', '0s'); 
+    $('table').toggleClass('blurred');
+    
+    $('#tutorial').css('transition-duration', '0s'); 
+    $('#tutorial').toggleClass('animGameOver');
+}
+
+function startFirstGame()
+{
+    firstGame = false;
+    
+    $('table').css('transition-duration', animDurationGameOverOut); 
+    $('table').toggleClass('blurred');
+    //$('table').css('transition-delay', animDelayGameOver); 
+    
+    $('#tutorial').on("transitionend", function(event) {
+        console.log('done');
+        }, false);
+    
+    $('#tutorial').css('transition-duration', animDurationGameOverOut); 
+    $('#tutorial').toggleClass('animGameOver');
 }
 
 function initDefaultSetup()
@@ -182,6 +236,8 @@ function initDefaultSetup()
     for (var i = 0; i < 2; i++) {
         addRandomPiece();
     }
+    
+    save(false);
 }
 
 function initDebugingSetup()
@@ -216,19 +272,25 @@ function onKeyDown(e)
     console.log(String.fromCharCode(e.keyCode) + " --> " + e.keyCode);
 
     if (e.keyCode !== 37 && e.keyCode !== 38 && e.keyCode !== 39 &&
-        e.keyCode !== 40)
+        e.keyCode !== 40 && e.keyCode !== 68 && e.keyCode !== 65 &&
+        e.keyCode !== 87 && e.keyCode !== 83)
         return;
+    else if(firstGame)
+    {
+        startFirstGame();
+        return;
+    }
 
-    if (e.keyCode === 39)
+    if (e.keyCode === 39  || e.keyCode === 68)
         moveAndMerge(Direction.RIGHT)
     
-    if (e.keyCode === 37)
+    if (e.keyCode === 37  || e.keyCode === 65)
         moveAndMerge(Direction.LEFT)
     
-    if (e.keyCode === 38)
+    if (e.keyCode === 38 || e.keyCode === 87)
         moveAndMerge(Direction.UP)
     
-    if (e.keyCode === 40)
+    if (e.keyCode === 40   || e.keyCode === 83)
         moveAndMerge(Direction.DOWN)
 }
 
@@ -666,9 +728,9 @@ function gameOver()
     $('table').css('transition-delay',animDelayGameOver);
     $('table').toggleClass('blurred');
     
-    $('.gameOver').css('transition-duration',animDurationGameOverIn);
-    $('.gameOver').css('transition-delay',animDelayGameOver);
-    $('.gameOver').toggleClass('animGameOver');
+    $('.overlay').css('transition-duration',animDurationGameOverIn);
+    $('.overlay').css('transition-delay',animDelayGameOver);
+    $('.overlay').toggleClass('animGameOver');
     
     $('#scoreGameOver').text($('#score').text());
 }
@@ -679,9 +741,9 @@ function btnPlayAgainClicked()
     $('table').css('transition-duration',animDurationGameOverOut);
     $('table').toggleClass('blurred');
     
-    $('.gameOver').css('transition-delay', '0s');
-    $('.gameOver').css('transition-duration',animDurationGameOverOut);
-    $('.gameOver').toggleClass('animGameOver');
+    $('.overlay').css('transition-delay', '0s');
+    $('.overlay').css('transition-duration',animDurationGameOverOut);
+    $('.overlay').toggleClass('animGameOver');
     
     reset();
 }
@@ -713,9 +775,9 @@ function btnUndoLastTurnClicked()
     $('table').css('transition-duration',animDurationGameOverOut);
     $('table').toggleClass('blurred');
     
-    $('.gameOver').css('transition-delay', '0s');
-    $('.gameOver').css('transition-duration',animDurationGameOverOut);
-    $('.gameOver').toggleClass('animGameOver');
+    $('.overlay').css('transition-delay', '0s');
+    $('.overlay').css('transition-duration',animDurationGameOverOut);
+    $('.overlay').toggleClass('animGameOver');
     
     undoLastTurnDebug();
 }

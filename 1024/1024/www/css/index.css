@@ -51,7 +51,7 @@ table{
     filter:blur(5px);
 }
 
-.gameOver{
+.overlay{
     position: relative;
     visibility: hidden;
     text-align: center;
@@ -65,6 +65,23 @@ table{
     transition: all;
     transition-duration: var(--animDurationGameOver); 
     transition-delay: calc( var(--animDurationNewPiece)  + .5s);
+}
+
+
+
+#gameOver{
+    
+}
+
+#tutorial{
+    width: 70%;
+    transition-delay: 0s;
+}
+
+.animGameOver{
+    transform: scale(1);
+    opacity: 1;
+    visibility: visible;
 }
 
 button {
@@ -88,12 +105,6 @@ button:hover{
 button:active
 {
     background-color: rgba(107, 32, 19, .6);
-}
-
-.animGameOver{
-    transform: scale(1);
-    opacity: 1;
-    visibility: visible;
 }
 
 .slot {
