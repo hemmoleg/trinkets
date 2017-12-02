@@ -51,37 +51,47 @@ table{
     filter:blur(5px);
 }
 
+.scaleDiv{
+    position: absolute;
+    overflow: hidden;
+}
+
 .overlay{
     position: relative;
-    visibility: hidden;
+    /*visibility: hidden;*/
     text-align: center;
     font-size: 6vmin;
     font-weight: 700;
     width: 50%;
     margin: auto;
 
-    transform: scale(1.8);
+    /*transform: scale(1.8);*/
     opacity: 0;
-    transition: all;
+    transition: transform, opacity;
     transition-duration: var(--animDurationGameOver); 
     transition-delay: calc( var(--animDurationNewPiece)  + .5s);
 }
 
-
-
-#gameOver{
+.transitionTimes{
     
 }
 
+#gameOver{
+    position: absolute;
+}
+
 #tutorial{
-    width: 70%;
+    width: 60%;
     transition-delay: 0s;
 }
 
-.animGameOver{
-    transform: scale(1);
+.big{
+    transform: scale(1.8)
+}
+
+.visible{
     opacity: 1;
-    visibility: visible;
+    /*visibility: visible;*/
 }
 
 button {
@@ -187,7 +197,7 @@ button:active
     display: flex;
     justify-content: space-between;
     width: 80vmin;
-    margin: 2em auto;
+    margin: 2em auto 0 auto;
 }
 
 #switchDiv{

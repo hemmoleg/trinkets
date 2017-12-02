@@ -32,6 +32,22 @@
         <div class="slot"></div></td><td><div class="slot"></div></td></tr>   
     </table>
     
+    <!--<div class="scaleDiv">-->
+    <div class="overlay" id="gameOver">
+        Game Over<br>
+        Score: 
+        <span id="scoreGameOver"></span><br>
+        <button id="btnPlayAgain">Play again</button>
+        <button id="btnUndo">Undo last turn</button>
+    </div>
+    <!--</div>-->
+        
+    <div class="scaleDiv"> 
+    <div class="overlay" id="tutorial">
+        Start playing by pressing arrow keys, WSAD or swiping. 
+    </div>    
+    </div>
+    
     <div id="infoAndDebug">
         <div id="switchDiv">
             <label class="switch">
@@ -65,18 +81,6 @@
             <button type="button" id="btnUndoDebug">Undo</button>
         </div>
     </div>
-    
-    <div class="overlay" id="gameOver">
-        Game Over<br>
-        Score: 
-        <span id="scoreGameOver"></span><br>
-        <button id="btnPlayAgain">Play again</button>
-        <button id="btnUndo">Undo last turn</button>
-    </div>
-       
-    <div class="overlay" id="tutorial">
-        Start playing by pressing arrow keys, WSAD or swiping. 
-    </div>    
         
     <script type="text/javascript" src="cordova.js"></script>
     <script type="text/javascript" src="scripts/platformOverrides.js"></script>
