@@ -17,9 +17,18 @@
 
 <body>
     <header>
+    <ul class="nav">
+      <li>Score:</li>
+      <li id="score"></li>
+      <li>High score:</li>
+      <li id="hiscore"></li>
+      <li id="btnReset">Reset</li>
+    </ul>
+    <!--<div>
         <div>Score: <span id="score">0</span></div>
         <div>HiScore: <span id="hiscore">0</span></div>
         <button type="button" id="btnReset">Reset</button>
+    </div>-->
     </header>
     <table>
         <tr><td><div class="slot"></div></td><td><div class="slot"></div></td><td>
@@ -31,21 +40,19 @@
         <tr><td><div class="slot"></div></td><td><div class="slot"></div></td><td>
         <div class="slot"></div></td><td><div class="slot"></div></td></tr>   
     </table>
-    
-    <!--<div class="scaleDiv">-->
-    <div class="overlay" id="gameOver">
-        Game Over<br>
-        Score: 
-        <span id="scoreGameOver"></span><br>
-        <button id="btnPlayAgain">Play again</button>
-        <button id="btnUndo">Undo last turn</button>
-    </div>
-    <!--</div>-->
         
     <div class="scaleDiv"> 
     <div class="overlay" id="tutorial">
         Start playing by pressing arrow keys, WSAD or swiping. 
     </div>    
+    </div>
+    
+    <div class="overlay" id="gameOver">
+        Game Over<br>
+        Score: 
+        <span id="scoreGameOver"></span><br>
+        <button type="button" id="btnPlayAgain">Play again</button>
+        <button type="button" id="btnUndo">Undo last turn</button>
     </div>
     
     <div id="infoAndDebug">
@@ -79,6 +86,7 @@
             </span>
             <br>
             <button type="button" id="btnUndoDebug">Undo</button>
+            <button type="button" id="btnGameOver">Game Over</button>
         </div>
     </div>
         

@@ -130,20 +130,11 @@ window.onload = function ()
     animDelayGameOver = parseFloat(getComputedStyle($('#gameOver')[0])['transitionDelay']) + 's';
     
     $('#tutorial').css('top', $('.scaleDiv').height()/2 - $('#tutorial').height()/2);
+    
     /////////////////////////////
     //add autopaly-mode
     /////////////////////////////
-    //block scroll bars when content is too big (only horizontal!!)
-    /////////////////////////////
-    //keep delay for game over intact!
-    /////////////////////////////
     //btnClearLocalStorage
-    /////////////////////////////
-    //position absolute for #gameOver and #tutorial
-    
-    
-    //debug
-    $( 'table' ).click(gameOver);
     
     //keys input
     document.body.addEventListener("keydown", onKeyDown);
@@ -637,7 +628,7 @@ function updateScore()
     }
     $('#score').text(score);
     
-    if(score > hiscore)
+    if(score >= hiscore)
     {
         $('#hiscore').text(score);
         window.localStorage.setItem('hiscore', score);
@@ -748,10 +739,13 @@ function createNewPiece(x,y,val)
 
 function gameOver()
 {
+    console.log('gameOver');
+    
     $('table').css('transition-duration',animDurationGameOverIn);
     $('table').css('transition-delay',animDelayGameOver);
     $('table').toggleClass('blurred');
     
+    //scale #gameOver instantly
     $('#gameOver').css('transition-duration','0s');
     $('#gameOver').css('transition-delay','0s');
     $('#gameOver').toggleClass('big');
@@ -772,9 +766,10 @@ function btnPlayAgainClicked()
     $('table').css('transition-duration',animDurationGameOverOut);
     $('table').toggleClass('blurred');
     
-    $('.overlay').css('transition-delay', '0s');
-    $('.overlay').css('transition-duration',animDurationGameOverOut);
-    $('.overlay').toggleClass('animGameOver');
+    $('#gameOver').css('transition-duration',animDurationGameOverOut);
+    $('#gameOver').css('transition-delay','0s');
+    $('#gameOver').toggleClass('big');
+    $('#gameOver').toggleClass('visible');
     
     reset();
 }
@@ -902,4 +897,5 @@ function debugElements()
         document.getElementById("chkBoxShowMoving").checked = false;
     
     $('#btnUndoDebug').click(undoLastTurnDebug);
+    $('#btnGameOver').click(gameOver);
 }
