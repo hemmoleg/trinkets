@@ -18,9 +18,9 @@
 <body>
     <header>
     <ul class="nav">
-      <li>Score:</li>
+      <li>Score :</li>
       <li id="score"></li>
-      <li>High score:</li>
+      <li>High score :</li>
       <li id="hiscore"></li>
       <li id="btnReset">Reset</li>
     </ul>
@@ -56,37 +56,36 @@
     </div>
     
     <div id="infoAndDebug">
-        <div id="switchDiv">
+        <div class="switchDiv">
             <label class="switch">
                 <input type="checkbox" id="chkBoxDebugSetup"> <span class="slider round"></span> 
             </label> 
-            <span style="vertical-align:20%; font-size: 3vmin">
-                    Debug setup
-            </span>  
+            <span>Debug setup</span>  
             <br>
             <label class="switch">
                 <input type="checkbox" id="chkBoxShowMerge"> <span class="slider round"></span> 
             </label> 
-            <span style="vertical-align:20%; font-size: 3vmin">
-                    Show marked for merge
-            </span>
+            <span>Show marked for merge</span>
             <br>
             <label class="switch">
                 <input type="checkbox" id="chkBoxAddRandom"> <span class="slider round"></span> 
             </label> 
-            <span style="vertical-align:20%; font-size: 3vmin">
-                    Add random piece
-            </span>
+            <span>Add random piece</span>
             <br>
             <label class="switch">
                 <input type="checkbox" id="chkBoxShowMoving"> <span class="slider round"></span> 
             </label> 
-            <span style="vertical-align:20%; font-size: 3vmin">
-                    Show moving
-            </span>
+            <span>Show moving</span>
             <br>
             <button type="button" id="btnUndoDebug">Undo</button>
             <button type="button" id="btnGameOver">Game Over</button>
+        </div>
+        <div class="switchDiv">
+            <label class="switch">
+                <input type="checkbox" id="chkBoxAutoplay"> <span class="slider round"></span> 
+            </label> 
+            <span>Autoplay</span>  
+            <br>
         </div>
     </div>
         

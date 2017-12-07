@@ -43,7 +43,14 @@ header{
 }
 .nav li{
     display:inline;
-    padding:10px;
+}
+
+.nav li:nth-child(2n+3){
+    padding-left:10px;
+}
+
+.nav li:last-child:hover{
+    text-decoration: underline;
 }
 
 #btnReset{
@@ -204,7 +211,7 @@ button:active
     margin: 2em auto 0 auto;
 }
 
-#switchDiv{
+.switchDiv{
     display: inline;
     top:0px;
     float: right;
@@ -216,6 +223,11 @@ button:active
   display: inline-block;
   width: 8vmin;
   height: 4vmin;
+}
+
+.switchDiv > span{
+    vertical-align:20%; 
+    font-size: 3vmin;
 }
 
 /* Hide default HTML checkbox */

@@ -12,8 +12,9 @@ var animDurationGameOverIn;
 var animDurationGameOverOut = '1s';
 var animDelayGameOver;
 var firstGame = false;
+var isAutoplay = false;
 
-Direction = {UP:"up", DOWN:"down", LEFT:"left", RIGHT:"right"}
+Direction = {UP:0, DOWN:1, LEFT:2, RIGHT:3}
 
 function Piece(x, y, initVal)
 {
@@ -132,7 +133,7 @@ window.onload = function ()
     $('#tutorial').css('top', $('.scaleDiv').height()/2 - $('#tutorial').height()/2);
     
     /////////////////////////////
-    //add autopaly-mode
+    //remove numbers on autoplay
     /////////////////////////////
     //btnClearLocalStorage
     
@@ -176,7 +177,7 @@ window.onload = function ()
     });
     
     //debug
-    localStorage.clear();
+    //localStorage.clear();
     
     if(localStorage.length === 0)
     {
@@ -474,6 +475,8 @@ function applyMove()
         pieces[i].GetDiv().style.left = pieces[i].tmpLeft.toString() + 'vmin';
         pieces[i].GetDiv().style.top = pieces[i].tmpTop.toString() + 'vmin';
     }
+    if(isAutoplay && !hasMovedOrMerged)
+        autoplay();
 }
 
 function finishMove(e)
@@ -546,6 +549,10 @@ function allPiecesDoneMoving()
     if(isGameOver())
     {
         gameOver();
+    }
+    else if(isAutoplay)
+    {
+        autoplay();
     }
 }
 
@@ -627,12 +634,6 @@ function updateScore()
         score += pieces[i].GetValue();
     }
     $('#score').text(score);
-    
-    if(score >= hiscore)
-    {
-        $('#hiscore').text(score);
-        window.localStorage.setItem('hiscore', score);
-    }
 }
 
 function addRandomPiece()
@@ -699,7 +700,6 @@ function load(loadPreviousState)
     {
         for(var y = 0; y < 4; y++)
         {
-            //storage.setItem(x.toString().concat(y.toString()), getValueByCoords(x,y));
             val = parseInt(storage.getItem(x.toString().concat(y.toString()).concat(loadPreviousState)));
             if(!isNaN(val) && val !== 0)
             {
@@ -758,6 +758,12 @@ function gameOver()
        },100);
     
     $('#scoreGameOver').text($('#score').text());
+    
+    if($('#score').text() >= window.localStorage.getItem('hiscore'))
+    {
+        $('#hiscore').text($('#score').text());
+        window.localStorage.setItem('hiscore', $('#score').text() );
+    }
 }
 
 function btnPlayAgainClicked()
@@ -837,64 +843,48 @@ function finishAnimation(e)
     e.target.classList.remove('animMerge');
 }
 
+function setAutoplay(value)
+{
+    isAutoplay = value;
+    if(isAutoplay) autoplay();
+}
+
+function autoplay()
+{
+    moveAndMerge(Math.floor(Math.random() * (3 - 0 + 1)) + 0);
+}
+
 function debugElements()
 {
-    document.getElementById("chkBoxDebugSetup").onchange = function()
+    $('#chkBoxDebugSetup').change(function()
     {
-        if(document.getElementById("chkBoxDebugSetup").checked)
-            window.localStorage.setItem('debugSetup', 'true');
-        else
-            window.localStorage.setItem('debugSetup', 'false');
-        
+        window.localStorage.setItem('debugSetup', $('#chkBoxDebugSetup').is(':checked'));
         reset();
-    }
+    });
+    $('#chkBoxDebugSetup').prop('checked', window.localStorage.getItem('debugSetup') == "true");
     
-    if(window.localStorage.getItem('debugSetup') == "true")
-        document.getElementById("chkBoxDebugSetup").checked = true;
-    else
-        document.getElementById("chkBoxDebugSetup").checked = false;
-    
-    
-    document.getElementById("chkBoxShowMerge").onchange = function()
+    $('#chkBoxShowMerge').change(function()
     {
-        if(document.getElementById("chkBoxShowMerge").checked)
-            window.localStorage.setItem('showMerge', 'true');
-        else
-            window.localStorage.setItem('showMerge', 'false');
-    }
+        window.localStorage.setItem('showMerge', $('#chkBoxShowMerge').is(':checked'));
+    });
+    $('#chkBoxShowMerge').prop('checked', window.localStorage.getItem('showMerge') == "true");
     
-    if(window.localStorage.getItem('showMerge') == "true")
-        document.getElementById("chkBoxShowMerge").checked = true;
-    else
-        document.getElementById("chkBoxShowMerge").checked = false;
-    
-    
-    document.getElementById("chkBoxAddRandom").onchange = function()
+    $('#chkBoxAddRandom').change(function()
     {
-        if(document.getElementById("chkBoxAddRandom").checked)
-            window.localStorage.setItem('addRandom', 'true');
-        else
-            window.localStorage.setItem('addRandom', 'false');
-    }
+        window.localStorage.setItem('addRandom', $('#chkBoxAddRandom').is(':checked'));
+    });
+    $('#chkBoxAddRandom').prop('checked', window.localStorage.getItem('addRandom') == "true");
     
-    if(window.localStorage.getItem('addRandom') == "true")
-        document.getElementById("chkBoxAddRandom").checked = true;
-    else
-        document.getElementById("chkBoxAddRandom").checked = false;
-    
-    
-    document.getElementById("chkBoxShowMoving").onchange = function()
+    $('#chkBoxShowMoving').change(function()
     {
-        if(document.getElementById("chkBoxShowMoving").checked)
-            window.localStorage.setItem('showMoving', 'true');
-        else
-            window.localStorage.setItem('showMoving', 'false');
-    }
+        window.localStorage.setItem('showMoving', $('#chkBoxShowMoving').is(':checked'));
+    });
+    $('#chkBoxShowMoving').prop('checked', window.localStorage.getItem('showMoving') == "true");
     
-    if(window.localStorage.getItem('showMoving') == "true")
-        document.getElementById("chkBoxShowMoving").checked = true;
-    else
-        document.getElementById("chkBoxShowMoving").checked = false;
+    $('#chkBoxAutoplay').change(function()
+    {
+        setAutoplay($('#chkBoxAutoplay').is(':checked'))
+    });
     
     $('#btnUndoDebug').click(undoLastTurnDebug);
     $('#btnGameOver').click(gameOver);
