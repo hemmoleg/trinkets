@@ -7,15 +7,16 @@ var dragSrcElement = null;
 var hasMovedOrMerged = false;
 var hiscore = 0;
 var moving = false;
-var minDistance = 15.3;
+var minDistance  ;
 var colorStart = 120;
 var animDurationGameOverIn;
 var animDurationGameOverOut = '1s';
 var animDelayGameOver;
 var firstGame = false;
 var isAutoplay = false;
+var randomPieceCount = 0;
 
-Direction = {UP:0, DOWN:1, LEFT:2, RIGHT:3}
+Direction = {UP:'up', DOWN:'down', LEFT:'left', RIGHT:'right'}
 
 function Piece(tableID, x, y, initVal)
 {
@@ -58,7 +59,7 @@ function Piece(tableID, x, y, initVal)
 
         //way too complex formula for calculating color
         var mainValue = (360/(2*Math.PI)) * (((2*Math.PI)/360)*colorStart - (i * 0.3));
-        var color = "hsla("+mainValue+", 100%, 60%, .6)";
+        var color = "hsla("+mainValue+", 100%, 60%, 0.6)";
         Div.style.backgroundColor = color;
         color = hslToRgba(mainValue, 100, 30, 1);
         Div.style.borderColor = color;
@@ -142,9 +143,11 @@ window.onload = function ()
     //animDelayGameOver = parseFloat(getComputedStyle($('#gameOver')[0])['transitionDelay']) + 's';
     
     /////////////////////////////
+    //proper reset animation
+    /////////////////////////////
     //remove numbers on autoplay
     /////////////////////////////
-    //btnClearLocalStorage
+    //on window resize -> start all over
     
     //keys input
     document.body.addEventListener("keydown", onKeyDown);
@@ -183,11 +186,11 @@ window.onload = function ()
     //debug
     //localStorage.clear();
     
-    for(var i = 0; i < 11; i++)
+    initDebugingSetup(0);
+    for(var i = 1; i < 11; i++)
     {
         initDefaultSetup(i);
     }
-    //initDebugingSetup();
     
     //updateScore();
 }
@@ -201,7 +204,12 @@ function resizeWithMargin()
 
 function resizeWithoutMargin()
 {   
-    minDistance = $(tables[11][1][0]).height();    
+    //minimum travel distance = slot height - slot margin 
+    minDistance = $(tables[11][1][0]).outerHeight() - Math.abs(parseInt($(tables[7][1]
+                  [0]).css('margin-right')));
+    
+    //$('.row').css('top', -$(tables[11][1][0]).outerHeight()*2);
+    //$('.row').css('left', -$(tables[11][1][0]).outerHeight()*2);
     
     $('#gameOver').css('top', $('table').offset().top + $('table').height()/2 -                                     $('#gameOver').height()/2);
     $('#gameOver').css('left', parseFloat( $('table').css('margin-left')) + $('table').width()/2 -                 $('#gameOver').width() / 2)
@@ -253,24 +261,24 @@ function initDefaultSetup(tableID)
     //save(false);
 }
 
-function initDebugingSetup()
+function initDebugingSetup(tableID)
 {
-    createNewPiece(11, 0, 0, 2);
-    createNewPiece(11, 1, 0, 2);
-    createNewPiece(11, 2, 0, 2);
-    createNewPiece(11, 3, 0, 2);
-    /*createNewPiece(0, 1, 2);
-    createNewPiece(1, 1, 8);
-    createNewPiece(2, 1, 16);
-    createNewPiece(3, 1, 4);
-    createNewPiece(0, 2, 8);
-    createNewPiece(1, 2, 16);
-    createNewPiece(2, 2, 64);
-    createNewPiece(3, 2, 16);
-    createNewPiece(0, 3, 512);
-    createNewPiece(1, 3, 1024);
-    createNewPiece(2, 3, 128);
-    createNewPiece(3, 3, 256);*/
+    createNewPiece(tableID, 0, 0, 2);
+    createNewPiece(tableID, 1, 0, 4);
+    createNewPiece(tableID, 2, 0, 2);
+    createNewPiece(tableID, 3, 0, 4);
+    createNewPiece(tableID, 0, 1, 4);
+    createNewPiece(tableID, 1, 1, 8);
+    createNewPiece(tableID, 2, 1, 16);
+    createNewPiece(tableID, 3, 1, 8);
+    createNewPiece(tableID, 0, 2, 8);
+    createNewPiece(tableID, 1, 2, 16);
+    createNewPiece(tableID, 2, 2, 64);
+    createNewPiece(tableID, 3, 2, 16);
+    createNewPiece(tableID, 0, 3, 512);
+    createNewPiece(tableID, 1, 3, 1024);
+    createNewPiece(tableID, 2, 3, 128);
+    createNewPiece(tableID, 3, 3, 256);
 }
 
 /*
@@ -314,6 +322,7 @@ function moveAndMerge(direction)
     //set by calculateMove and mergePieces
     hasMovedOrMerged = false;
 
+    console.log("%c Move " + direction, 'background: #222; color: #bada55');
     for(var i = 0; i < tables.length; i++)
     {
         calculateMoves(i, direction);
@@ -442,7 +451,7 @@ function calculateMove(tableID, x1, y1, x2, y2)
     //at this point its enough to check if theres a piece or not
     if(getPieceByCoords(tableID, x2,y2) !== null )
     {
-        console.log("mark for merge " + x2 + "/" + y2);
+        //console.log("mark for merge " + x2 + "/" + y2);
         tables[tableID][x2][y2].markedForMerge = true;
     }
     
@@ -453,7 +462,7 @@ function calculateMove(tableID, x1, y1, x2, y2)
     piece.SetX(x2);
     piece.SetY(y2);
 
-    console.log("going to: " + x2 + " " + y2); 
+    //console.log("going to: " + x2 + " " + y2); 
 
     piece.tmpLeft += (x2 - x1) * minDistance;
     piece.tmpTop += (y2 - y1) * minDistance;
@@ -485,8 +494,8 @@ function finishMove(e)
     prevX = piece.GetX() - Math.round(piece.tmpLeft / minDistance);
     prevY = piece.GetY() - Math.round(piece.tmpTop / minDistance);
     
-    console.log("tempLeft " + piece.tmpLeft + " tempTop " + piece.tmpTop); 
-    console.log("done moving, origin was: " + piece.GetTableID() + " " + prevX + " " + prevY);
+    //console.log("tempLeft " + piece.tmpLeft + " tempTop " + piece.tmpTop); 
+    //console.log("done moving, origin was: " + piece.GetTableID() + " " + prevX + " " + prevY);
     
     piece.tmpLeft = 0;
     piece.tmpTop = 0;
@@ -503,7 +512,7 @@ function finishMove(e)
 //executed when piece is done moving visualy
 function checkMerge(piece) 
 {
-    console.log("checkMerge");
+    //console.log("checkMerge");
     var tableID = piece.GetTableID();
     
     for(var i = 0; i < pieces[tableID].length; i++)
@@ -515,7 +524,7 @@ function checkMerge(piece)
                 break;
             }
     }
-    console.log(piece.GetX() + " " + piece.GetY() + " arrived -> check others moving");
+    //console.log(piece.GetX() + " " + piece.GetY() + " arrived -> check others moving");
    
     for(var i = 0; i < pieces.length; i++)
     {
@@ -523,12 +532,11 @@ function checkMerge(piece)
         {
             if(pieces[i][j].IsMoving())
             {
-                //console.log(pieces[i].GetX() + " " + pieces[i].GetY() + " " + pieces[i].GetValue() + " still moving");
                 return;
             }
         }
     }
-    console.log("none moving");
+    //console.log("none moving");
     allPiecesDoneMoving(tableID);
 }
 
@@ -537,13 +545,19 @@ function allPiecesDoneMoving(tableID)
 {
     moving = false;
     
-    if (hasMovedOrMerged && pieces[tableID].length < 16)
-    {
+    //if (hasMovedOrMerged && pieces[tableID].length < 16)
+    //{
         for(var i = 0; i < tables.length; i++)
         {
-            addRandomPiece(i);
+            if(pieces[i].length >= 16)
+            {
+                reset(i);
+                continue;
+            }
+            //addRandomPiece(i);
         }
-    }
+    //}
+
     //updateScore();
     
     //save(false);
@@ -562,8 +576,8 @@ function allPiecesDoneMoving(tableID)
 //xy2 = coords for resulting piece
 function mergePieces(tableID, x1, y1, x2, y2)
 {
-    console.log("MERGE");
-    recalculateMoveByCoords(tableID, x1, y1);
+    //console.log("MERGE");
+    deletePiece(tableID, x1, y1);
     
     try{
         getPieceByCoords(tableID, x2, y2).DoubleValue();
@@ -588,7 +602,91 @@ function mergePieces(tableID, x1, y1, x2, y2)
     hasMovedOrMerged = true;
 }
 
-function recalculateMoveByCoords(tableID, x, y)
+function addRandomPiece(tableID)
+{
+    do
+    {
+        var x = Math.floor(Math.random() * (3 - 0 + 1)) + 0;
+        var y = Math.floor(Math.random() * (3 - 0 + 1)) + 0;
+    } while (getPieceByCoords(tableID, x, y) != null);
+    
+    createNewPiece(tableID, x, y, 2);
+    
+    randomPieceCount++;
+}
+
+function createNewPiece(tableID, x,y,val)
+{
+    var newPiece = new Piece(tableID, x, y, val);
+    pieces[tableID][pieces[tableID].length] = newPiece;
+    tables[tableID][x][y].appendChild(newPiece.GetDiv());
+    
+    var divWidth = $(pieces[tableID][pieces[tableID].length-1])[0].GetDiv().offsetWidth;
+    var text = $(pieces[tableID][pieces[tableID].length-1])[0].GetDiv().children[0];
+    var fontSize = 8;
+
+    //fit text in slot
+    while (text.offsetWidth + 6 > divWidth)
+    {
+        $(text).css("font-size", [(fontSize -= 0.5) + "vmin"])
+        //console.log(text.offsetWidth, divWidth);
+    }
+}
+
+function finishAnimation(e)
+{
+    e.target.classList.remove('newPieceAnim');
+    e.target.classList.remove('animMerge');
+
+    if(getPieceByDiv(e.target).GetValue() == 2)
+    {
+        randomPieceCount--;
+    }
+    
+    if(randomPieceCount == 0)
+    {
+        autoplay();
+    }
+}
+
+function autoplay()
+{
+    var rand = Math.floor(Math.random() * (3 - 0 + 1)) + 0;
+    switch(rand)
+    {
+        case 0: moveAndMerge(Direction.UP);
+                break;
+        case 1: moveAndMerge(Direction.DOWN);
+                break;
+        case 2: moveAndMerge(Direction.LEFT);
+                break;
+        case 3: moveAndMerge(Direction.RIGHT);
+                break;
+    }
+}
+
+function reset(tableID)
+{
+    console.log("RESET");
+    
+    /*for(var x = 0; x < 4; x++)
+    {
+        for(var y = 0; y < 4; y++)
+        {
+            deletePiece(tableID, x,y);
+        }
+    }*/
+    
+    for(var i = 0; i < pieces[tableID].length; i++)
+    {
+        pieces[tableID][i].GetDiv().classList.toggle("animDelete");
+    }
+    pieces[tableID] = [];
+    
+    initDefaultSetup(tableID);
+}
+
+function deletePiece(tableID, x, y)
 {
     for (var i = 0; i < pieces[tableID].length; i++) 
     {
@@ -614,6 +712,35 @@ function getPieceByCoords(tableID, x, y)
     return null;
 }
 
+function gameOver()
+{
+    console.log('gameOver');
+    
+    $('table').css('transition-duration',animDurationGameOverIn);
+    $('table').css('transition-delay',animDelayGameOver);
+    $('table').toggleClass('blurred');
+    
+    //scale #gameOver instantly
+    $('#gameOver').css('transition-duration','0s');
+    $('#gameOver').css('transition-delay','0s');
+    $('#gameOver').toggleClass('big');
+    
+    setTimeout( function(){
+        $('#gameOver').css('transition-duration',animDurationGameOverIn);
+        $('#gameOver').css('transition-delay',animDelayGameOver);
+        $('#gameOver').toggleClass('big');
+        $('#gameOver').toggleClass('visible');
+       },100);
+    
+    $('#scoreGameOver').text($('#score').text());
+    
+    if($('#score').text() >= window.localStorage.getItem('hiscore'))
+    {
+        $('#hiscore').text($('#score').text());
+        window.localStorage.setItem('hiscore', $('#score').text() );
+    }
+}
+
 function getPieceByDiv(div)
 {
     for(var i = 0; i < pieces.length; i++)
@@ -626,6 +753,12 @@ function getPieceByDiv(div)
     }
 }
 
+function getValueByCoords(x,y)
+{
+    var piece = getPieceByCoords(x,y);
+    return piece != null ? piece.GetValue() : 0;
+}
+
 function updateScore()
 {
     var score = 0;
@@ -634,17 +767,6 @@ function updateScore()
         score += pieces[i].GetValue();
     }
     $('#score').text(score);
-}
-
-function addRandomPiece(tableID)
-{
-    do
-    {
-        var x = Math.floor(Math.random() * (3 - 0 + 1)) + 0;
-        var y = Math.floor(Math.random() * (3 - 0 + 1)) + 0;
-    } while (getPieceByCoords(tableID, x, y) != null);
-    
-    createNewPiece(tableID, x, y, 2);
 }
 
 function isGameOver()
@@ -712,59 +834,6 @@ function load(loadPreviousState)
         initDefaultSetup();
 }
 
-function getValueByCoords(x,y)
-{
-    var piece = getPieceByCoords(x,y);
-    return piece != null ? piece.GetValue() : 0;
-}
-
-function createNewPiece(tableID, x,y,val)
-{
-    var newPiece = new Piece(tableID, x, y, val);
-    pieces[tableID][pieces[tableID].length] = newPiece;
-    tables[tableID][x][y].appendChild(newPiece.GetDiv());
-    
-    var divWidth = $(pieces[tableID][pieces[tableID].length-1])[0].GetDiv().offsetWidth;
-    var text = $(pieces[tableID][pieces[tableID].length-1])[0].GetDiv().children[0];
-    var fontSize = 8;
-
-    //fit text in slot
-    while (text.offsetWidth + 6 > divWidth)
-    {
-        $(text).css("font-size", [(fontSize -= 0.5) + "vmin"])
-        //console.log(text.offsetWidth, divWidth);
-    }
-}
-
-function gameOver()
-{
-    console.log('gameOver');
-    
-    $('table').css('transition-duration',animDurationGameOverIn);
-    $('table').css('transition-delay',animDelayGameOver);
-    $('table').toggleClass('blurred');
-    
-    //scale #gameOver instantly
-    $('#gameOver').css('transition-duration','0s');
-    $('#gameOver').css('transition-delay','0s');
-    $('#gameOver').toggleClass('big');
-    
-    setTimeout( function(){
-        $('#gameOver').css('transition-duration',animDurationGameOverIn);
-        $('#gameOver').css('transition-delay',animDelayGameOver);
-        $('#gameOver').toggleClass('big');
-        $('#gameOver').toggleClass('visible');
-       },100);
-    
-    $('#scoreGameOver').text($('#score').text());
-    
-    if($('#score').text() >= window.localStorage.getItem('hiscore'))
-    {
-        $('#hiscore').text($('#score').text());
-        window.localStorage.setItem('hiscore', $('#score').text() );
-    }
-}
-
 function btnPlayAgainClicked()
 {
     $('table').css('transition-delay', '0s');
@@ -777,27 +846,6 @@ function btnPlayAgainClicked()
     $('#gameOver').toggleClass('visible');
     
     reset();
-}
-
-function reset()
-{
-    console.log("RESET");
-    
-    for(var x = 0; x < 4; x++)
-    {
-        for(var y = 0; y < 4; y++)
-        {
-            recalculateMoveByCoords(x,y);
-        }
-    }
-    
-    pieces = [];
-    document.getElementById("score").innerHTML = 0;
-    
-    if(document.getElementById("chkBoxDebugSetup").checked)
-        initDebugingSetup();
-    else
-        initDefaultSetup();
 }
 
 function btnUndoLastTurnClicked()
@@ -819,7 +867,7 @@ function undoLastTurnDebug()
     {
         for(var y = 0; y < 4; y++)
         {
-            recalculateMoveByCoords(x,y);
+            deletePiece(x,y);
         }
     }
     
@@ -836,19 +884,8 @@ function undoLastTurnDebug()
     load(true);
 }
 
-function finishAnimation(e)
-{
-    e.target.classList.remove('newPieceAnim');
-    e.target.classList.remove('animMerge');
-}
-
 function setAutoplay(value)
 {
     isAutoplay = value;
     if(isAutoplay) autoplay();
-}
-
-function autoplay()
-{
-    moveAndMerge(Math.floor(Math.random() * (3 - 0 + 1)) + 0);
 }
