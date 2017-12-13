@@ -15,6 +15,7 @@ var animDelayGameOver;
 var firstGame = false;
 var isAutoplay = false;
 var randomPieceCount = 0;
+var mergingPieceCount = 0;
 
 Direction = {UP:'up', DOWN:'down', LEFT:'left', RIGHT:'right'}
 
@@ -35,7 +36,7 @@ function Piece(tableID, x, y, initVal)
     Div.classList.add('piece');
     Div.classList.add('newPieceAnim');
     Div.addEventListener("transitionend", finishMove);
-    Div.addEventListener("animationend", finishAnimation);
+    Div.addEventListener("animationend", finishedNewPieceAnim);
     
     /*Div.onclick = function(e)
     {
@@ -126,12 +127,6 @@ window.onload = function ()
         }
     }
     
-    hiscore = parseInt(window.localStorage.getItem('hiscore'));
-    if(!isNaN(hiscore))
-        document.getElementById("hiscore").innerHTML = window.localStorage.getItem('hiscore');
-    else
-        hiscore = 0;
-    
     //increase .scaleDiv height to fit #tutorial scaled to 1.8
     $('.scaleDiv').height($('.scaleDiv').height() * 1.8);
     
@@ -144,6 +139,8 @@ window.onload = function ()
     
     /////////////////////////////
     //proper reset animation
+    /////////////////////////////
+    //table 11 starts late
     /////////////////////////////
     //remove numbers on autoplay
     /////////////////////////////
@@ -263,9 +260,9 @@ function initDefaultSetup(tableID)
 
 function initDebugingSetup(tableID)
 {
-    createNewPiece(tableID, 0, 0, 2);
+    createNewPiece(tableID, 0, 0, 4);
     createNewPiece(tableID, 1, 0, 4);
-    createNewPiece(tableID, 2, 0, 2);
+    createNewPiece(tableID, 2, 0, 4);
     createNewPiece(tableID, 3, 0, 4);
     createNewPiece(tableID, 0, 1, 4);
     createNewPiece(tableID, 1, 1, 8);
@@ -279,6 +276,8 @@ function initDebugingSetup(tableID)
     createNewPiece(tableID, 1, 3, 1024);
     createNewPiece(tableID, 2, 3, 128);
     createNewPiece(tableID, 3, 3, 256);
+    
+    mergingPieceCount = 16;
 }
 
 /*
@@ -537,39 +536,13 @@ function checkMerge(piece)
         }
     }
     //console.log("none moving");
-    allPiecesDoneMoving(tableID);
+    allPiecesDoneMoving();
 }
 
 //last call for current turn
-function allPiecesDoneMoving(tableID)
+function allPiecesDoneMoving()
 {
     moving = false;
-    
-    //if (hasMovedOrMerged && pieces[tableID].length < 16)
-    //{
-        for(var i = 0; i < tables.length; i++)
-        {
-            if(pieces[i].length >= 16)
-            {
-                reset(i);
-                continue;
-            }
-            //addRandomPiece(i);
-        }
-    //}
-
-    //updateScore();
-    
-    //save(false);
-    
-    /*if(isGameOver())
-    {
-        gameOver();
-    }
-    else if(isAutoplay)
-    {
-        autoplay();
-    }*/
 }
 
 //xy1 = coords for piece to remove
@@ -587,6 +560,7 @@ function mergePieces(tableID, x1, y1, x2, y2)
         div.classList.remove('animMerge');
         div.offsetWidth; // Holy Shit!
         div.classList.add('animMerge');
+        mergingPieceCount++;
     }
     catch(err) {
         console.log("could not get piece at " + tableID + " " + x2 + " " + y2);
@@ -604,6 +578,7 @@ function mergePieces(tableID, x1, y1, x2, y2)
 
 function addRandomPiece(tableID)
 {
+    console.log("addrandompiece" + tableID);
     do
     {
         var x = Math.floor(Math.random() * (3 - 0 + 1)) + 0;
@@ -615,25 +590,7 @@ function addRandomPiece(tableID)
     randomPieceCount++;
 }
 
-function createNewPiece(tableID, x,y,val)
-{
-    var newPiece = new Piece(tableID, x, y, val);
-    pieces[tableID][pieces[tableID].length] = newPiece;
-    tables[tableID][x][y].appendChild(newPiece.GetDiv());
-    
-    var divWidth = $(pieces[tableID][pieces[tableID].length-1])[0].GetDiv().offsetWidth;
-    var text = $(pieces[tableID][pieces[tableID].length-1])[0].GetDiv().children[0];
-    var fontSize = 8;
-
-    //fit text in slot
-    while (text.offsetWidth + 6 > divWidth)
-    {
-        $(text).css("font-size", [(fontSize -= 0.5) + "vmin"])
-        //console.log(text.offsetWidth, divWidth);
-    }
-}
-
-function finishAnimation(e)
+function finishedNewPieceAnim(e)
 {
     e.target.classList.remove('newPieceAnim');
     e.target.classList.remove('animMerge');
@@ -642,9 +599,37 @@ function finishAnimation(e)
     {
         randomPieceCount--;
     }
+    else
+    {
+        mergingPieceCount--;
+    }
     
+    console.log("randomPieceCount " + randomPieceCount + " mergingPieceCount " + mergingPieceCount);
+    
+    if(mergingPieceCount == 0 && randomPieceCount == 0)
+    {
+        for(var i = 0; i < tables.length; i++)
+        {
+            if(pieces[i].length === 16)
+                reset(i);
+            else
+            {    
+                addRandomPiece(i);
+            }
+        }
+    }
+    
+    //all new pieces done playing animation
     if(randomPieceCount == 0)
     {
+        /*if(mergingPieceCount == 0)
+        {
+            for(var i = 0; i < tables.length; i++)
+            {
+                addRandomPiece(i);
+            }
+        }*/
+        
         autoplay();
     }
 }
@@ -669,21 +654,12 @@ function reset(tableID)
 {
     console.log("RESET");
     
-    /*for(var x = 0; x < 4; x++)
-    {
-        for(var y = 0; y < 4; y++)
-        {
-            deletePiece(tableID, x,y);
-        }
-    }*/
-    
     for(var i = 0; i < pieces[tableID].length; i++)
     {
+        pieces[tableID][i].GetDiv().removeEventListener("animationend", finishedNewPieceAnim);
+        pieces[tableID][i].GetDiv().addEventListener("animationend", finishedAnimDelete);
         pieces[tableID][i].GetDiv().classList.toggle("animDelete");
     }
-    pieces[tableID] = [];
-    
-    initDefaultSetup(tableID);
 }
 
 function deletePiece(tableID, x, y)
@@ -701,6 +677,16 @@ function deletePiece(tableID, x, y)
     }
 }
 
+function finishedAnimDelete(e)
+{
+    var piece = getPieceByDiv(e.target);
+    
+    deletePiece(piece.GetTableID(), piece.GetX(), piece.GetY());
+
+    if(pieces[piece.GetTableID()].length === 0)
+        initDefaultSetup(piece.GetTableID());
+}
+
 function getPieceByCoords(tableID, x, y)
 {
     for (var i = 0; i < pieces[tableID].length; i++) {
@@ -710,35 +696,6 @@ function getPieceByCoords(tableID, x, y)
     }
     
     return null;
-}
-
-function gameOver()
-{
-    console.log('gameOver');
-    
-    $('table').css('transition-duration',animDurationGameOverIn);
-    $('table').css('transition-delay',animDelayGameOver);
-    $('table').toggleClass('blurred');
-    
-    //scale #gameOver instantly
-    $('#gameOver').css('transition-duration','0s');
-    $('#gameOver').css('transition-delay','0s');
-    $('#gameOver').toggleClass('big');
-    
-    setTimeout( function(){
-        $('#gameOver').css('transition-duration',animDurationGameOverIn);
-        $('#gameOver').css('transition-delay',animDelayGameOver);
-        $('#gameOver').toggleClass('big');
-        $('#gameOver').toggleClass('visible');
-       },100);
-    
-    $('#scoreGameOver').text($('#score').text());
-    
-    if($('#score').text() >= window.localStorage.getItem('hiscore'))
-    {
-        $('#hiscore').text($('#score').text());
-        window.localStorage.setItem('hiscore', $('#score').text() );
-    }
 }
 
 function getPieceByDiv(div)
@@ -759,14 +716,37 @@ function getValueByCoords(x,y)
     return piece != null ? piece.GetValue() : 0;
 }
 
-function updateScore()
+function checkAllTablesForGameOver()
 {
-    var score = 0;
-    for(var i = 0; i < pieces.length; i++)
+    var gameOver = false;
+    for(var i = 0; i < tables.length; i++)
     {
-        score += pieces[i].GetValue();
+        if(pieces[i].length >= 16)
+        {
+            reset(i);
+            gameOver = true;
+            continue;
+        }
     }
-    $('#score').text(score);
+    return gameOver;
+}
+
+function createNewPiece(tableID, x,y,val)
+{
+    var newPiece = new Piece(tableID, x, y, val);
+    pieces[tableID][pieces[tableID].length] = newPiece;
+    tables[tableID][x][y].appendChild(newPiece.GetDiv());
+    
+    var divWidth = $(pieces[tableID][pieces[tableID].length-1])[0].GetDiv().offsetWidth;
+    var text = $(pieces[tableID][pieces[tableID].length-1])[0].GetDiv().children[0];
+    var fontSize = 8;
+
+    //fit text in slot
+    while (text.offsetWidth + 6 > divWidth)
+    {
+        $(text).css("font-size", [(fontSize -= 0.5) + "vmin"])
+        //console.log(text.offsetWidth, divWidth);
+    }
 }
 
 function isGameOver()
