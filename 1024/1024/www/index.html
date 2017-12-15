@@ -1,0 +1,101 @@
+﻿<!DOCTYPE html>
+<html>
+
+<head>
+    <!--
+        Passen Sie die Inhaltssicherheitsrichtlinie im META-Tag unten nach Bedarf an. Fügen Sie "default-src" die Option "unsafe-inline" hinzu, um Inline-JavaScript zu aktivieren.
+        Details finden Sie unter "http://go.microsoft.com/fwlink/?LinkID=617521".
+    -->
+    <meta http-equiv="Content-Security-Policy" content="default-src 'self' data: gap: https://ssl.gstatic.com 'unsafe-eval'; style-src 'self' 'unsafe-inline'; media-src *">
+    <meta http-equiv="content-type" content="text/html; charset=UTF-8" />
+    <meta name="format-detection" content="telephone=no">
+    <meta name="msapplication-tap-highlight" content="no">
+    <meta name="viewport" content="user-scalable=no, initial-scale=1, maximum-scale=1, minimum-scale=1, width=device-width">
+    <link rel="stylesheet" type="text/css" href="css/index.css">
+    <title>_1024</title>
+</head>
+
+<body>
+    <header>
+    <ul class="nav">
+      <li>Score :</li>
+      <li id="score"></li>
+      <li>High score :</li>
+      <li id="hiscore"></li>
+      <li id="btnReset">Reset</li>
+    </ul>
+    <!--<div>
+        <div>Score: <span id="score">0</span></div>
+        <div>HiScore: <span id="hiscore">0</span></div>
+        <button type="button" id="btnReset">Reset</button>
+    </div>-->
+    </header>
+    <table>
+        <tr><td><div class="slot"></div></td><td><div class="slot"></div></td><td>
+        <div class="slot"></div></td><td><div class="slot"></div></td></tr>
+        <tr><td><div class="slot"></div></td><td><div class="slot"></div></td><td>
+        <div class="slot"></div></td><td><div class="slot"></div></td></tr>
+        <tr><td><div class="slot"></div></td><td><div class="slot"></div></td><td>
+        <div class="slot"></div></td><td><div class="slot"></div></td></tr>
+        <tr><td><div class="slot"></div></td><td><div class="slot"></div></td><td>
+        <div class="slot"></div></td><td><div class="slot"></div></td></tr>   
+    </table>
+        
+    <div class="scaleDiv"> 
+    <div class="overlay" id="tutorial">
+        Start playing by pressing arrow keys, WSAD or swiping. 
+    </div>    
+    </div>
+    
+    <div class="overlay" id="gameOver">
+        Game Over<br>
+        Score: 
+        <span id="scoreGameOver"></span><br>
+        <button type="button" id="btnPlayAgain">Play again</button>
+        <button type="button" id="btnUndo">Undo last turn</button>
+    </div>
+    
+    <div id="infoAndDebug">
+        <div class="switchDiv">
+            <label class="switch">
+                <input type="checkbox" id="chkBoxDebugSetup"> <span class="slider round"></span> 
+            </label> 
+            <span>Debug setup</span>  
+            <br>
+            <label class="switch">
+                <input type="checkbox" id="chkBoxShowMerge"> <span class="slider round"></span> 
+            </label> 
+            <span>Show marked for merge</span>
+            <br>
+            <label class="switch">
+                <input type="checkbox" id="chkBoxAddRandom"> <span class="slider round"></span> 
+            </label> 
+            <span>Add random piece</span>
+            <br>
+            <label class="switch">
+                <input type="checkbox" id="chkBoxShowMoving"> <span class="slider round"></span> 
+            </label> 
+            <span>Show moving</span>
+            <br>
+            <button type="button" id="btnUndoDebug">Undo</button>
+            <button type="button" id="btnGameOver">Game Over</button>
+        </div>
+        <div class="switchDiv">
+            <label class="switch">
+                <input type="checkbox" id="chkBoxAutoplay"> <span class="slider round"></span> 
+            </label> 
+            <span>Autoplay</span>  
+            <br>
+        </div>
+    </div>
+        
+    <script type="text/javascript" src="cordova.js"></script>
+    <script type="text/javascript" src="scripts/platformOverrides.js"></script>
+    <script type="text/javascript" src="scripts/index.js"></script>
+    <script type="text/javascript" src="scripts/colorHelpers.js"></script>
+    <script type="text/javascript" src="scripts/1024.js"></script>
+    <script type="text/javascript" src="scripts/hammer.js"></script>
+    <script type="text/javascript" src="scripts/jquery-3.2.1.min.js"></script>
+</body>
+
+</html>
