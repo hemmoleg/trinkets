@@ -32,7 +32,7 @@ function Piece(tableID, x, y, initVal)
     var tmpTop;
     
     Div = document.createElement('div');
-    Div.innerHTML = "<b>" + initVal + "</b>";
+    //Div.innerHTML = "<b>" + initVal + "</b>";
     Div.classList.add('piece');
     Div.classList.add('newPieceAnim');
     Div.addEventListener("transitionend", finishMove);
@@ -95,7 +95,7 @@ function Piece(tableID, x, y, initVal)
     this.DoubleValue = function ()
     {
         value = parseInt(value) + parseInt(value);
-        Div.innerHTML = "<b>" + value + "</b>";
+        //Div.innerHTML = "<b>" + value + "</b>";
         this.SetColor(value);
     }
 
@@ -217,18 +217,6 @@ function resizeWithoutMargin()
     $('.scaleDiv').css('left', parseFloat( $('table').css('margin-left')) + $('table').width()/2 -                 $('.scaleDiv').width() / 2)
 }
 
-function setupFirstGame()
-{
-    firstGame = true;
-    
-    $('table').css('transition-delay', '0s'); 
-    $('table').css('transition-duration', '0s'); 
-    $('table').toggleClass('blurred');
-    
-    $('#tutorial').css('transition-duration', '0s'); 
-    $('#tutorial').toggleClass('visible');
-}
-
 function startFirstGame() 
 {
     firstGame = false;
@@ -241,14 +229,6 @@ function startFirstGame()
     $('#tutorial').css('transition-duration', animDurationGameOverOut);
     $('#tutorial').toggleClass('visible');
     $('#tutorial').toggleClass('big');
-}
-
-function animFirstGameFinished()
-{
-    console.log('done');
-    initDefaultSetup();
-    $('table').css('transition-duration', animDurationGameOverIn); 
-    $(this).off('webkitTransitionEnd transitionend oTransitionEnd');
 }
 
 function initDefaultSetup(tableID)
@@ -546,6 +526,8 @@ function checkMerge(piece)
 function allPiecesDoneMoving()
 {
     moving = false;
+    if(randomPieceCount == 0)
+        autoplay();
 }
 
 //xy1 = coords for piece to remove
@@ -563,7 +545,7 @@ function mergePieces(tableID, x1, y1, x2, y2)
         div.classList.remove('animMerge');
         div.offsetWidth; // Holy Shit!
         div.classList.add('animMerge');
-        mergingPieceCount++;
+        randomPieceCount++;
     }
     catch(err) {
         console.log("could not get piece at " + tableID + " " + x2 + " " + y2);
@@ -608,21 +590,35 @@ function finishedNewPieceAnim(e)
     }*/
     console.log("randomPieceCount " + randomPieceCount + " mergingPieceCount " + mergingPieceCount);
     
+    //seperate function for this
+    var reset = false;
     if(mergingPieceCount == 0 && randomPieceCount == 0)
     {
         for(var i = 0; i < tables.length; i++)
         {
-            if(pieces[i].length === 16)
-                reset(i);
-            else if(hasMovedOrMerged)
+            //if(isGameOver(i))
+            if(pieces[i].length == 16)
+            {
+                resetTable(i);
+                reset = true;
+            }
+        }
+        //wait till all reset animations are done
+        if(reset) return;
+    
+        for(var i = 0; i < tables.length; i++)
+        {
+    
+            if(hasMovedOrMerged)
             {    
-                hasMovedOrMerged = false;
                 addRandomPiece(i);
             }
             else{
                 autoplay();
+                return;
             }
         }
+        hasMovedOrMerged = false;
     }
 }
 
@@ -642,7 +638,7 @@ function autoplay()
     }
 }
 
-function reset(tableID)
+function resetTable(tableID)
 {
     console.log("RESET");
     
@@ -665,7 +661,7 @@ function deletePiece(tableID, x, y)
             }
             catch(err)
             {
-                console.log("Could not DELETE child tabledID:" + tableID + " x:" + x + " y:" + y);
+                console.log("%c Could not DELETE child tabledID:" + tableID + " x:" + x + " y:" + y, "background: #f33; color: #aaa");
                 //find div
                 for(var a = 0; a < tables.length; a++)
                 {
@@ -673,6 +669,7 @@ function deletePiece(tableID, x, y)
                     {
                         for(var c = 0; c < tables[a][b].length; c++)
                         {
+                            //console.log("testing " + a + b + c);
                             if($(tables[a][b][c]) == $(pieces[tableID][i].GetDiv()).parent())
                             {
                                 console.log("Fount parent at " + a + " " + b + " " + c);
@@ -753,16 +750,16 @@ function createNewPiece(tableID, x,y,val)
     var fontSize = 8;
 
     //fit text in slot
-    while (text.offsetWidth + 6 > divWidth)
+    /*while (text.offsetWidth + 6 > divWidth)
     {
         $(text).css("font-size", [(fontSize -= 0.5) + "vmin"])
         //console.log(text.offsetWidth, divWidth);
-    }
+    }*/
 }
 
-function isGameOver()
+function isGameOver(tableID)
 {
-    if(pieces.length < 16)
+    if(pieces[tableID].length < 16)
         return false;
     
     var value;
@@ -770,22 +767,22 @@ function isGameOver()
     {
         for(var y = 0; y < 4; y++)
         {
-            value = getPieceByCoords(x,y).GetValue();
+            value = getPieceByCoords(tableID, x, y).GetValue();
             
             //check left
-            if(x > 0 && value == getPieceByCoords(x-1,y).GetValue())
+            if(x > 0 && value == getPieceByCoords(tableID, x-1, y).GetValue())
                 return false;
         
             //check right
-            if(x < 3 && value == getPieceByCoords(x+1,y).GetValue())
+            if(x < 3 && value == getPieceByCoords(tableID, x+1, y).GetValue())
                 return false;
             
             //check up
-            if(y > 0 && value == getPieceByCoords(x,y-1).GetValue())
+            if(y > 0 && value == getPieceByCoords(tableID, x, y-1).GetValue())
                 return false;
             
             //check down
-            if(y < 3 && value == getPieceByCoords(x,y+1).GetValue())
+            if(y < 3 && value == getPieceByCoords(tableID, x, y+1).GetValue())
                 return false;
         }
     }
