@@ -138,6 +138,8 @@ window.onload = function ()
     //animDelayGameOver = parseFloat(getComputedStyle($('#gameOver')[0])['transitionDelay']) + 's';
     
     /////////////////////////////
+    //use CDN to get jQuery and hammer.js
+    /////////////////////////////
     //proper reset animation
     /////////////////////////////
     //table 11 starts late
