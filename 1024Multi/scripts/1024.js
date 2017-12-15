@@ -279,7 +279,8 @@ function initDebugingSetup(tableID)
     createNewPiece(tableID, 2, 3, 128);
     createNewPiece(tableID, 3, 3, 256);
     
-    mergingPieceCount = 16;
+    //mergingPieceCount = 16;
+    randomPieceCount = 16;
 }
 
 /*
@@ -597,15 +598,14 @@ function finishedNewPieceAnim(e)
     e.target.classList.remove('newPieceAnim');
     e.target.classList.remove('animMerge');
 
-    if(getPieceByDiv(e.target).GetValue() == 2)
-    {
+    //if(getPieceByDiv(e.target).GetValue() == 2)
+    //{
         randomPieceCount--;
-    }
-    else
+    //}
+    /*else
     {
         mergingPieceCount--;
-    }
-    
+    }*/
     console.log("randomPieceCount " + randomPieceCount + " mergingPieceCount " + mergingPieceCount);
     
     if(mergingPieceCount == 0 && randomPieceCount == 0)
@@ -614,25 +614,15 @@ function finishedNewPieceAnim(e)
         {
             if(pieces[i].length === 16)
                 reset(i);
-            else
+            else if(hasMovedOrMerged)
             {    
+                hasMovedOrMerged = false;
                 addRandomPiece(i);
+            }
+            else{
+                autoplay();
             }
         }
-    }
-    
-    //all new pieces done playing animation
-    if(randomPieceCount == 0)
-    {
-        /*if(mergingPieceCount == 0)
-        {
-            for(var i = 0; i < tables.length; i++)
-            {
-                addRandomPiece(i);
-            }
-        }*/
-        
-        autoplay();
     }
 }
 
@@ -670,8 +660,27 @@ function deletePiece(tableID, x, y)
     {
         if (pieces[tableID][i].GetX() === x && pieces[tableID][i].GetY() === y) 
         {
-            tables[tableID][x][y].removeChild(pieces[tableID][i].GetDiv());
-            
+            try{
+                tables[tableID][x][y].removeChild(pieces[tableID][i].GetDiv());
+            }
+            catch(err)
+            {
+                console.log("Could not DELETE child tabledID:" + tableID + " x:" + x + " y:" + y);
+                //find div
+                for(var a = 0; a < tables.length; a++)
+                {
+                    for(var b = 0; b < tables[a].length; b++)
+                    {
+                        for(var c = 0; c < tables[a][b].length; c++)
+                        {
+                            if($(tables[a][b][c]) == $(pieces[tableID][i].GetDiv()).parent())
+                            {
+                                console.log("Fount parent at " + a + " " + b + " " + c);
+                            }
+                        }
+                    }    
+                }
+            }
             pieces[tableID][i].GetDiv().removeEventListener("transitionend", checkMerge);
             pieces[tableID].splice(i, 1);
             return;
