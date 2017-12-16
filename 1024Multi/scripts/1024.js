@@ -185,8 +185,8 @@ window.onload = function ()
     //debug
     //localStorage.clear();
     
-    initDebugingSetup(0);
-    for(var i = 1; i < 11; i++)
+    //initDebugingSetup(0);
+    for(var i = 0; i < tables.length; i++)
     {
         initDefaultSetup(i);
     }

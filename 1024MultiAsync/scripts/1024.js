@@ -19,37 +19,32 @@ var mergingPieceCount = 0;
 
 Direction = {UP:'up', DOWN:'down', LEFT:'left', RIGHT:'right'}
 
-function Piece(tableID, x, y, initVal)
+class Piece
 {
-    var Div = "";
-    var tableID;
-    var x;
-    var y;
-    var value = initVal;
-    var canMerge = true;
-    var moving;
-    var tmpLeft;
-    var tmpTop;
-    
-    Div = document.createElement('div');
-    //Div.innerHTML = "<b>" + initVal + "</b>";
-    Div.classList.add('piece');
-    Div.classList.add('newPieceAnim');
-    Div.addEventListener("transitionend", finishMove);
-    Div.addEventListener("animationend", finishedNewPieceAnim);
-    
-    /*Div.onclick = function(e)
+    constructor(x, y, initVal)
     {
-        var html = window.getComputedStyle(e.target, null).getPropertyValue("background-color");
-        var hex = retardHtmlToHex(html)
-        var hsl = hexToHSL(hex)
-        //console.log("hex: " + hex );
-        console.log("hsl: " + hsl );
-        //console.log("hex: " + hslToHex(hsl[0], hsl[1], hsl[2]) )
-        e.target.style.backgroundColor = hslToHex(hsl[0] - 10, hsl[1], hsl[2]);
-    }*/
-
-    this.SetColor = function(val)
+        this.Div = "";
+        this.X = x;
+        this.Y = y;
+        this.Value = initVal;
+        this.CanMerge = true;
+        this.Moving;
+        this.TmpLeft = 0;
+        this.TmpTop = 0;    
+        
+        
+        this.Div = document.createElement('div');
+        //Div.innerHTML = "<b>" + initVal + "</b>";
+        this.Div.classList.add('piece');
+        this.Div.classList.add('newPieceAnim');
+        this.Div.addEventListener("transitionend", this.FinishMove);
+        this.Div.addEventListener("animationend", finishedNewPieceAnim);
+    
+        //initialy set color
+        this.SetColor(initVal);
+    }
+    
+    SetColor(val)
     {
         var i = 0;
         while(val != 2)
@@ -61,46 +56,266 @@ function Piece(tableID, x, y, initVal)
         //way too complex formula for calculating color
         var mainValue = (360/(2*Math.PI)) * (((2*Math.PI)/360)*colorStart - (i * 0.3));
         var color = "hsla("+mainValue+", 100%, 60%, 0.6)";
-        Div.style.backgroundColor = color;
+        this.Div.style.backgroundColor = color;
         color = hslToRgba(mainValue, 100, 30, 1);
-        Div.style.borderColor = color;
-        Div.style.boxShadow = " 0px 0px 15px " + color;
+        this.Div.style.borderColor = color;
+        this.Div.style.boxShadow = " 0px 0px 15px " + color;
     }
-    this.tableID = tableID;
     
-    this.x = x;
-    this.y = y;
-    
-    this.tmpLeft = 0;
-    this.tmpTop = 0;
-    
-    this.GetTableID = function() {return tableID;}
-    
-    this.GetX = function () { return x; }
-    this.SetX = function (val) { x = val; }
-
-    this.GetY = function () { return y; }
-    this.SetY = function (val) { y = val; }
-    
-    this.GetDiv = function () { return Div; }
-
-    this.GetCanMerge = function () { return canMerge; }
-    this.SetCanMerge = function (val) { canMerge = val; }
-    
-    this.IsMoving = function () { return moving; }
-    this.SetMoving = function (val) { moving = val; }
-    
-    this.GetValue = function () { return value; }
-    this.SetValue = function (val) { value = val; }
-    this.DoubleValue = function ()
+    DoubleValue()
     {
-        value = parseInt(value) + parseInt(value);
+        this.Value = parseInt(this.Value) + parseInt(this.Value);
         //Div.innerHTML = "<b>" + value + "</b>";
-        this.SetColor(value);
+        this.SetColor(this.Value);
+    }
+    
+    FinishMove(e)
+    {
+        //piece = getPieceByDiv(e.target);
+
+        var prevX = this.X - Math.round(this.TmpLeft / minDistance);
+        var prevY = this.Y - Math.round(this.TmpTop / minDistance);
+
+        //console.log("tempLeft " + piece.tmpLeft + " tempTop " + piece.tmpTop); 
+        //console.log("done moving, origin was: " + piece.GetTableID() + " " + prevX + " " + prevY);
+
+        this.TmpLeft = 0;
+        this.TmpTop = 0;
+
+        this.Div.style.left = '0px';
+        this.Div.style.top = '0px';
+
+        this.Slots[prevX][prevY].removeChild(this.Div);
+        this.Slots[X][Y].appendChild(this.Div);
+
+        //checkMerge(piece);
+    }
+}
+
+class Table
+{
+    constructor(slots, id)
+    {
+        this.ID = id;
+        this.Slots = slots;
+        this.Pieces = [];
+        
+        //this.CreateNewPiece(0,0,2);
+        this.InitDefaultSetup();
+    }
+    
+    InitDefaultSetup()
+    {
+        for (var i = 0; i < 2; i++) {
+            this.AddRandomPiece();
+        }
+    }
+    
+    MoveAndMerge(direction)
+    {
+        //set by calculateMove and mergePieces
+        hasMovedOrMerged = false;
+
+        console.log("%c Move " + direction, 'background: #222; color: #bada55');
+        this.CalculateMoves(direction);
+    }
+    
+    CalculateMoves(direction)
+    {
+        var pieceMoved = true;
+        var tempPiece;
+
+        if (direction === Direction.DOWN)
+        {
+            while (pieceMoved)
+            {
+                pieceMoved = false;
+
+                for(var x = 0; x < 4; x++)
+                {
+                    for(var y = 2; y >= 0; y--)
+                    {
+                        var piece = this.GetPieceByCoords(x, y);
+                        if(piece == null) continue;
+
+                        tempPiece = this.GetPieceByCoords(x, y+1);
+                        if(tempPiece === null ||
+                           (piece.Value === tempPiece.Value && !slots[x][y+1].markedForMerge))
+                        {
+                            this.CalculateMove( piece.X, piece.Y, piece.X, piece.Y + 1);
+                            pieceMoved = true;
+                            break;
+                        }
+                    }
+                }
+            }
+        }
+
+        if (direction === Direction.UP)
+        {
+            while (pieceMoved)
+            {
+                pieceMoved = false;
+
+                for(var x = 0; x < 4; x++)
+                {
+                    for(var y = 1; y < 4; y++)
+                    {
+                        var piece = this.GetPieceByCoords(x,y);
+                        if(piece == null) continue;
+
+                        tempPiece = this.GetPieceByCoords(x, y-1);
+                        if(tempPiece === null ||
+                           (piece.Value === tempPiece.Value && !slots[x][y-1].markedForMerge))
+                        {
+                            this.CalculateMove(piece.X, piece.Y, piece.X, piece.Y - 1);
+                            pieceMoved = true;
+                            break;
+                        }
+                    }
+                }
+            }
+        }
+
+        if (direction === Direction.LEFT)
+        {
+            while (pieceMoved)
+            {
+                pieceMoved = false;
+
+                for(var x = 1; x < 4; x++)
+                {
+                    for(var y = 0; y < 4; y++)
+                    {
+                        var piece = this.GetPieceByCoords(x, y);
+                        if(piece == null) continue;
+
+                        tempPiece = this.GetPieceByCoords(x-1, y);
+                        if(tempPiece === null ||
+                           (piece.Value === tempPiece.Value && !slots[x-1][y].markedForMerge))
+                        {
+                            this.CalculateMove(piece.X, piece.Y, piece.X - 1, piece.Y);
+                            pieceMoved = true;
+                        }
+                    }
+                }
+            }
+        }
+
+        if (direction === Direction.RIGHT)
+        {
+            while (pieceMoved)
+            {
+                pieceMoved = false;
+
+                for(var x = 2; x >= 0; x--)
+                {
+                    for(var y = 0; y < 4; y++)
+                    {
+                        var piece = this.GetPieceByCoords(x, y);
+                        if(piece == null) continue;
+
+                        tempPiece = this.GetPieceByCoords(x+1, y);
+                        if(tempPiece === null ||
+                           (piece.Value === tempPiece.Value && !slots[x+1][y].markedForMerge))
+                        {
+                            this.CalculateMove(piece.X, piece.Y, piece.X + 1, piece.Y);
+                            pieceMoved = true;
+                        }
+                    }
+                }
+            }
+        }
+        this.ApplyMove();
+    }
+    
+    CalculateMove(x1, y1, x2, y2)
+    {
+        var piece = this.GetPieceByCoords(x1, y1);
+        //at this point its enough to check if theres a piece or not
+        if(this.GetPieceByCoords(x2,y2) !== null )
+        {
+            //console.log("mark for merge " + x2 + "/" + y2);
+            slots[x2][y2].markedForMerge = true;
+        }
+
+        //useful for debuging
+        //slots[x2][y2].innerHTML = piece.GetValue();
+        //slots[x1][y1].innerHTML = 0;
+
+        piece.X = x2;
+        piece.Y = y2;
+
+        //console.log("going to: " + x2 + " " + y2); 
+
+        piece.TmpLeft += (x2 - x1) * minDistance;
+        piece.TmpTop += (y2 - y1) * minDistance;
+
+        piece.Moving = true;
+
+        moving = true;
+        hasMovedOrMerged = true;
+
+    }
+    
+    ApplyMove()
+    {
+        for(var i = 0; i < this.Pieces.length; i++)
+        {
+            this.Pieces[i].Div.style.left = this.Pieces[i].TmpLeft.toString() + 'px';
+            this.Pieces[i].Div.style.top = this.Pieces[i].TmpTop.toString() + 'px';
+        }
+        if(isAutoplay && !hasMovedOrMerged)
+            autoplay();
+    }
+    
+    /////////UTILITY/////////////////////
+    
+    AddRandomPiece()
+    {
+        console.log("addrandompiece" + this.ID);
+        do
+        {
+            var x = Math.floor(Math.random() * (3 - 0 + 1)) + 0;
+            var y = Math.floor(Math.random() * (3 - 0 + 1)) + 0;
+        } while (this.GetPieceByCoords(x, y) != null);
+
+        this.CreateNewPiece(x, y, 2);
+
+        randomPieceCount++;
+    }
+    
+    GetPieceByCoords(x, y)
+    {
+        for (var i = 0; i < this.Pieces.length; i++) 
+        {
+            if (this.Pieces[i].X === x && this.Pieces[i].Y === y) 
+            {
+                return this.Pieces[i];
+            }
+        }
+
+        return null;
     }
 
-    //initialy set color
-    this.SetColor(initVal);
+    CreateNewPiece (x, y, val)
+    {
+        var newPiece = new Piece(x, y, val);
+        this.Pieces[this.Pieces.length] = newPiece;
+        this.Slots[x][y].appendChild(newPiece.Div);
+    }
+    
+    Reset()
+    {
+        console.log("RESET");
+
+        for(var i = 0; i < this.Pieces.length; i++)
+        {
+            this.Pieces[i].Div.removeEventListener("animationend", finishedNewPieceAnim);
+            this.Pieces[i].Div.addEventListener("animationend", finishedAnimDelete);
+            this.Pieces[i].Div.classList.toggle("animDelete");
+        }
+    }
 }
 
 window.onload = function ()
@@ -122,8 +337,10 @@ window.onload = function ()
             {
                 slots[k % 4][slots[k%4].length] = slotsUnordered[k];
             }
-            tables[tables.length] = slots;
-            pieces[pieces.length] = [];
+            //tables[tables.length] = slots;
+            //pieces[pieces.length] = [];
+        
+            tables[tables.length] = new Table(slots, j-1);
         }
     }
     
@@ -185,11 +402,11 @@ window.onload = function ()
     //debug
     //localStorage.clear();
     
-    initDebugingSetup(0);
-    for(var i = 1; i < 11; i++)
-    {
-        initDefaultSetup(i);
-    }
+    //initDebugingSetup(0);
+    //for(var i = 1; i < 11; i++)
+    //{
+    //    initDefaultSetup(i);
+    //}
     
     //updateScore();
 }
@@ -204,40 +421,8 @@ function resizeWithMargin()
 function resizeWithoutMargin()
 {   
     //minimum travel distance = slot height - slot margin 
-    minDistance = $(tables[11][1][0]).outerHeight() - Math.abs(parseInt($(tables[7][1]
+    minDistance = $(tables[0].Slots[1][0]).outerHeight() - Math.abs(parseInt($(tables[0].Slots[1]
                   [0]).css('margin-right')));
-    
-    //$('.row').css('top', -$(tables[11][1][0]).outerHeight()*2);
-    //$('.row').css('left', -$(tables[11][1][0]).outerHeight()*2);
-    
-    $('#gameOver').css('top', $('table').offset().top + $('table').height()/2 -                                     $('#gameOver').height()/2);
-    $('#gameOver').css('left', parseFloat( $('table').css('margin-left')) + $('table').width()/2 -                 $('#gameOver').width() / 2)
-    
-    $('.scaleDiv').css('top', $('table').offset().top + $('table').height()/2 -                                     $('.scaleDiv').height()/2);
-    $('.scaleDiv').css('left', parseFloat( $('table').css('margin-left')) + $('table').width()/2 -                 $('.scaleDiv').width() / 2)
-}
-
-function startFirstGame() 
-{
-    firstGame = false;
-
-    $('table').css('transition-duration', animDurationGameOverOut);
-    $('table').toggleClass('blurred');
-
-    $('#tutorial').one('transitionend webkitTransitionEnd oTransitionEnd', animFirstGameFinished);
-
-    $('#tutorial').css('transition-duration', animDurationGameOverOut);
-    $('#tutorial').toggleClass('visible');
-    $('#tutorial').toggleClass('big');
-}
-
-function initDefaultSetup(tableID)
-{
-    for (var i = 0; i < 2; i++) {
-        addRandomPiece(tableID);
-    }
-    
-    //save(false);
 }
 
 function initDebugingSetup(tableID)
@@ -292,202 +477,25 @@ function onKeyDown(e)
         moveAndMerge(Direction.DOWN)
 }
 
-function moveAndMerge(direction)
-{
-    if (firstGame)
-    {
-        startFirstGame();
-        return;
-    }
-
-    if(moving)return;
-    //set by calculateMove and mergePieces
-    hasMovedOrMerged = false;
-
-    console.log("%c Move " + direction, 'background: #222; color: #bada55');
-    for(var i = 0; i < tables.length; i++)
-    {
-        calculateMoves(i, direction);
-    }
-    //calculateMoves(tableID, direction);
-}
-
-function calculateMoves(tableID, direction)
-{
-    save(true);
-    /*for (var i = 0; i < pieces.length; i++)
-    {
-        console.log("Piece: " + i + " x: " + pieces[i].GetX() + " y: " + pieces[i].GetY());
-    }*/
-
-    var pieceMoved = true;
-    var tempPiece;
-    
-    if (direction === Direction.DOWN)
-    {
-        while (pieceMoved)
-        {
-            pieceMoved = false;
-            
-            for(var x = 0; x < 4; x++)
-            {
-                for(var y = 2; y >= 0; y--)
-                {
-                    var piece = getPieceByCoords(tableID, x, y);
-                    if(piece == null) continue;
-                    
-                    tempPiece = getPieceByCoords(tableID, x, y+1);
-                    if(tempPiece === null ||
-                       (piece.GetValue() === tempPiece.GetValue() && !tables[tableID][x][y+1].markedForMerge))
-                    {
-                        calculateMove(tableID, piece.GetX(), piece.GetY(), piece.GetX(), piece.GetY() + 1);
-                        pieceMoved = true;
-                        break;
-                    }
-                }
-            }
-        }
-    }
-    
-    if (direction === Direction.UP)
-    {
-        while (pieceMoved)
-        {
-            pieceMoved = false;
-            
-            for(var x = 0; x < 4; x++)
-            {
-                for(var y = 1; y < 4; y++)
-                {
-                    var piece = getPieceByCoords(tableID, x,y);
-                    if(piece == null) continue;
-                    
-                    tempPiece = getPieceByCoords(tableID, x, y-1);
-                    if(tempPiece === null ||
-                       (piece.GetValue() === tempPiece.GetValue() && !tables[tableID][x][y-1].markedForMerge))
-                    {
-                        calculateMove(tableID, piece.GetX(), piece.GetY(), piece.GetX(), piece.GetY() - 1);
-                        pieceMoved = true;
-                        break;
-                    }
-                }
-            }
-        }
-    }
-
-    if (direction === Direction.LEFT)
-    {
-        while (pieceMoved)
-        {
-            pieceMoved = false;
-            
-            for(var x = 1; x < 4; x++)
-            {
-                for(var y = 0; y < 4; y++)
-                {
-                    var piece = getPieceByCoords(tableID, x, y);
-                    if(piece == null) continue;
-                    
-                    tempPiece = getPieceByCoords(tableID, x-1, y);
-                    if(tempPiece === null ||
-                       (piece.GetValue() === tempPiece.GetValue()  && !tables[tableID][x-1][y].markedForMerge))
-                    {
-                        calculateMove(tableID, piece.GetX(), piece.GetY(), piece.GetX() - 1, piece.GetY());
-                        pieceMoved = true;
-                    }
-                }
-            }
-        }
-    }
-
-    if (direction === Direction.RIGHT)
-    {
-        while (pieceMoved)
-        {
-            pieceMoved = false;
-            
-            for(var x = 2; x >= 0; x--)
-            {
-                for(var y = 0; y < 4; y++)
-                {
-                    var piece = getPieceByCoords(tableID, x, y);
-                    if(piece == null) continue;
-                    
-                    tempPiece = getPieceByCoords(tableID, x+1, y);
-                    if(tempPiece === null ||
-                       (piece.GetValue() === tempPiece.GetValue() && !tables[tableID][x+1][y].markedForMerge))
-                    {
-                        calculateMove(tableID, piece.GetX(), piece.GetY(), piece.GetX() + 1, piece.GetY());
-                        pieceMoved = true;
-                    }
-                }
-            }
-        }
-    }
-    applyMove(tableID);
-}
-
-function calculateMove(tableID, x1, y1, x2, y2)
-{
-    var piece = getPieceByCoords(tableID, x1, y1);
-    //at this point its enough to check if theres a piece or not
-    if(getPieceByCoords(tableID, x2,y2) !== null )
-    {
-        //console.log("mark for merge " + x2 + "/" + y2);
-        tables[tableID][x2][y2].markedForMerge = true;
-    }
-    
-    //useful for debuging
-    //slots[x2][y2].innerHTML = piece.GetValue();
-    //slots[x1][y1].innerHTML = 0;
-
-    piece.SetX(x2);
-    piece.SetY(y2);
-
-    //console.log("going to: " + x2 + " " + y2); 
-
-    piece.tmpLeft += (x2 - x1) * minDistance;
-    piece.tmpTop += (y2 - y1) * minDistance;
-    
-    piece.SetMoving(true);
-   
-    moving = true;
-    hasMovedOrMerged = true;
-
-}
-
-function applyMove(tableID)
-{
-    for(var i = 0; i < pieces[tableID].length; i++)
-    {
-        pieces[tableID][i].GetDiv().style.left = pieces[tableID][i].tmpLeft.toString() + 'px';
-        pieces[tableID][i].GetDiv().style.top = pieces[tableID][i].tmpTop.toString() + 'px';
-    }
-    if(isAutoplay && !hasMovedOrMerged)
-        autoplay();
-}
-
 function finishMove(e)
 {
     piece = getPieceByDiv(e.target);
-    
-    piece.SetMoving(false);
-    
-    prevX = piece.GetX() - Math.round(piece.tmpLeft / minDistance);
-    prevY = piece.GetY() - Math.round(piece.tmpTop / minDistance);
-    
+
+    var prevX = piece.GetX() - Math.round(piece.tmpLeft / minDistance);
+    var prevY = piece.GetY() - Math.round(piece.tmpTop / minDistance);
+
     //console.log("tempLeft " + piece.tmpLeft + " tempTop " + piece.tmpTop); 
     //console.log("done moving, origin was: " + piece.GetTableID() + " " + prevX + " " + prevY);
-    
+
     piece.tmpLeft = 0;
     piece.tmpTop = 0;
-    
+
     piece.GetDiv().style.left = '0px';
     piece.GetDiv().style.top = '0px';
-    
+
     tables[piece.GetTableID()][prevX][prevY].removeChild(piece.GetDiv());
     tables[piece.GetTableID()][piece.GetX()][piece.GetY()].appendChild(piece.GetDiv());
-    
+
     checkMerge(piece);
 }
 
@@ -561,33 +569,14 @@ function mergePieces(tableID, x1, y1, x2, y2)
     hasMovedOrMerged = true;
 }
 
-function addRandomPiece(tableID)
-{
-    console.log("addrandompiece" + tableID);
-    do
-    {
-        var x = Math.floor(Math.random() * (3 - 0 + 1)) + 0;
-        var y = Math.floor(Math.random() * (3 - 0 + 1)) + 0;
-    } while (getPieceByCoords(tableID, x, y) != null);
-    
-    createNewPiece(tableID, x, y, 2);
-    
-    randomPieceCount++;
-}
-
 function finishedNewPieceAnim(e)
 {
     e.target.classList.remove('newPieceAnim');
     e.target.classList.remove('animMerge');
 
-    //if(getPieceByDiv(e.target).GetValue() == 2)
-    //{
-        randomPieceCount--;
-    //}
-    /*else
-    {
-        mergingPieceCount--;
-    }*/
+    
+    randomPieceCount--;
+
     console.log("randomPieceCount " + randomPieceCount + " mergingPieceCount " + mergingPieceCount);
     
     //seperate function for this
@@ -596,10 +585,9 @@ function finishedNewPieceAnim(e)
     {
         for(var i = 0; i < tables.length; i++)
         {
-            //if(isGameOver(i))
-            if(pieces[i].length == 16)
+            if(tables[i].Pieces.length == 16)
             {
-                resetTable(i);
+                tables[i].Reset();
                 reset = true;
             }
         }
@@ -611,10 +599,10 @@ function finishedNewPieceAnim(e)
     
             if(hasMovedOrMerged)
             {    
-                addRandomPiece(i);
+                tables[i].AddRandomPiece();
             }
             else{
-                autoplay();
+                autoplay(i);
                 return;
             }
         }
@@ -622,31 +610,19 @@ function finishedNewPieceAnim(e)
     }
 }
 
-function autoplay()
+function autoplay(tableIndex)
 {
     var rand = Math.floor(Math.random() * (3 - 0 + 1)) + 0;
     switch(rand)
     {
-        case 0: moveAndMerge(Direction.UP);
+        case 0: tables[tableIndex].MoveAndMerge(Direction.UP);
                 break;
-        case 1: moveAndMerge(Direction.DOWN);
+        case 1: tables[tableIndex].MoveAndMerge(Direction.DOWN);
                 break;
-        case 2: moveAndMerge(Direction.LEFT);
+        case 2: tables[tableIndex].MoveAndMerge(Direction.LEFT);
                 break;
-        case 3: moveAndMerge(Direction.RIGHT);
+        case 3: tables[tableIndex].MoveAndMerge(Direction.RIGHT);
                 break;
-    }
-}
-
-function resetTable(tableID)
-{
-    console.log("RESET");
-    
-    for(var i = 0; i < pieces[tableID].length; i++)
-    {
-        pieces[tableID][i].GetDiv().removeEventListener("animationend", finishedNewPieceAnim);
-        pieces[tableID][i].GetDiv().addEventListener("animationend", finishedAnimDelete);
-        pieces[tableID][i].GetDiv().classList.toggle("animDelete");
     }
 }
 
@@ -695,17 +671,6 @@ function finishedAnimDelete(e)
         initDefaultSetup(piece.GetTableID());
 }
 
-function getPieceByCoords(tableID, x, y)
-{
-    for (var i = 0; i < pieces[tableID].length; i++) {
-        if (pieces[tableID][i].GetX() === x && pieces[tableID][i].GetY() === y) {
-            return pieces[tableID][i];
-        }
-    }
-    
-    return null;
-}
-
 function getPieceByDiv(div)
 {
     for(var i = 0; i < pieces.length; i++)
@@ -737,24 +702,6 @@ function checkAllTablesForGameOver()
         }
     }
     return gameOver;
-}
-
-function createNewPiece(tableID, x,y,val)
-{
-    var newPiece = new Piece(tableID, x, y, val);
-    pieces[tableID][pieces[tableID].length] = newPiece;
-    tables[tableID][x][y].appendChild(newPiece.GetDiv());
-    
-    var divWidth = $(pieces[tableID][pieces[tableID].length-1])[0].GetDiv().offsetWidth;
-    var text = $(pieces[tableID][pieces[tableID].length-1])[0].GetDiv().children[0];
-    var fontSize = 8;
-
-    //fit text in slot
-    /*while (text.offsetWidth + 6 > divWidth)
-    {
-        $(text).css("font-size", [(fontSize -= 0.5) + "vmin"])
-        //console.log(text.offsetWidth, divWidth);
-    }*/
 }
 
 function isGameOver(tableID)
