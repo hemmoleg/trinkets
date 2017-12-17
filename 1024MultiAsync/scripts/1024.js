@@ -3,8 +3,7 @@ var slotsUnordered = [];
 var slots = [];
 var pieces = [];
 var prevPieces;
-var dragSrcElement = null;
-var hasMovedOrMerged = false;
+
 var hiscore = 0;
 var moving = false;
 var minDistance  ;
@@ -12,16 +11,13 @@ var colorStart = 120;
 var animDurationGameOverIn;
 var animDurationGameOverOut = '1s';
 var animDelayGameOver;
-var firstGame = false;
-var isAutoplay = false;
-var randomPieceCount = 0;
-var mergingPieceCount = 0;
+
 
 Direction = {UP:'up', DOWN:'down', LEFT:'left', RIGHT:'right'}
 
 class Piece
 {
-    constructor(x, y, initVal)
+    constructor(tableIndex, x, y, initVal)
     {
         this.Div = "";
         this.X = x;
@@ -31,15 +27,16 @@ class Piece
         this.Moving;
         this.TmpLeft = 0;
         this.TmpTop = 0;    
-        
+        this.TableIndex = tableIndex;
         
         this.Div = document.createElement('div');
-        //Div.innerHTML = "<b>" + initVal + "</b>";
+        this.Div.innerHTML = "<b>" + initVal + "</b>";
         this.Div.classList.add('piece');
         this.Div.classList.add('newPieceAnim');
         this.Div.addEventListener("transitionend", this.FinishMove);
-        this.Div.addEventListener("animationend", finishedNewPieceAnim);
-    
+        this.Div.addEventListener("animationend", tables[tableIndex].FinishedNewPieceAnim);
+        this.Div.TableIndex = tableIndex;
+        
         //initialy set color
         this.SetColor(initVal);
     }
@@ -65,30 +62,39 @@ class Piece
     DoubleValue()
     {
         this.Value = parseInt(this.Value) + parseInt(this.Value);
-        //Div.innerHTML = "<b>" + value + "</b>";
+        this.Div.innerHTML = "<b>" + this.Value + "</b>";
         this.SetColor(this.Value);
     }
     
     FinishMove(e)
     {
-        //piece = getPieceByDiv(e.target);
+        //'this' points to the Div, not the piece!
+        var piece = getPieceByDiv(this);
+        var prevX = piece.X - Math.round(piece.TmpLeft / minDistance);
+        var prevY = piece.Y - Math.round(piece.TmpTop / minDistance);
 
-        var prevX = this.X - Math.round(this.TmpLeft / minDistance);
-        var prevY = this.Y - Math.round(this.TmpTop / minDistance);
+        piece.TmpLeft = 0;
+        piece.TmpTop = 0;
+        piece.Moving = false;
+        
+        this.style.left = '0px';
+        this.style.top = '0px';
 
-        //console.log("tempLeft " + piece.tmpLeft + " tempTop " + piece.tmpTop); 
-        //console.log("done moving, origin was: " + piece.GetTableID() + " " + prevX + " " + prevY);
-
-        this.TmpLeft = 0;
-        this.TmpTop = 0;
-
-        this.Div.style.left = '0px';
-        this.Div.style.top = '0px';
-
-        this.Slots[prevX][prevY].removeChild(this.Div);
-        this.Slots[X][Y].appendChild(this.Div);
-
-        //checkMerge(piece);
+        var table = getTableByPiece(piece);
+        
+        table.Slots[prevX][prevY].removeChild(this);
+        table.Slots[piece.X][piece.Y].appendChild(this);
+        
+        table.CheckMerge(piece);
+    
+        //check of any piece is still moving
+        for(var i = 0; i < table.Pieces.length; i++)
+        {
+            if(table.Pieces[i].Moving)
+                return;  
+        }
+        
+        table.AllPiecesDoneMoving();
     }
 }
 
@@ -99,9 +105,11 @@ class Table
         this.ID = id;
         this.Slots = slots;
         this.Pieces = [];
+        this.HasMovedOrMerged = false;
+        this.PiecesTransitioning = 0;
         
         //this.CreateNewPiece(0,0,2);
-        this.InitDefaultSetup();
+        //this.InitDefaultSetup();
     }
     
     InitDefaultSetup()
@@ -114,9 +122,9 @@ class Table
     MoveAndMerge(direction)
     {
         //set by calculateMove and mergePieces
-        hasMovedOrMerged = false;
+        this.HasMovedOrMerged = false;
 
-        console.log("%c Move " + direction, 'background: #222; color: #bada55');
+        console.log("%c Move " + direction + " " + this.ID, 'background: #222; color: #bada55');
         this.CalculateMoves(direction);
     }
     
@@ -253,8 +261,7 @@ class Table
 
         piece.Moving = true;
 
-        moving = true;
-        hasMovedOrMerged = true;
+        this.HasMovedOrMerged = true;
 
     }
     
@@ -265,15 +272,93 @@ class Table
             this.Pieces[i].Div.style.left = this.Pieces[i].TmpLeft.toString() + 'px';
             this.Pieces[i].Div.style.top = this.Pieces[i].TmpTop.toString() + 'px';
         }
-        if(isAutoplay && !hasMovedOrMerged)
-            autoplay();
+        if(!this.HasMovedOrMerged)
+            autoplay(this.ID);
+    }
+    
+    //Piece.FinishMove
+    
+    //called when piece is done moving visualy
+    CheckMerge(piece) 
+    {
+
+        for(var i = 0; i < this.Pieces.length; i++)
+        {
+            if(this.Pieces[i].X === piece.X && this.Pieces[i].Y === piece.Y &&
+               this.Pieces[i] !== piece && !piece.Moving && !this.Pieces[i].Moving)
+                {
+                    this.MergePieces(this.Pieces[i], piece);
+                    break;
+                }
+        }
+    }
+    
+    //xy1 = coords for piece to remove
+    //xy2 = coords for resulting piece
+    MergePieces(pieceToRemove, resultingPiece)
+    {
+        //console.log("MERGE");
+        this.DeletePiece(pieceToRemove);
+
+        
+        resultingPiece.DoubleValue();
+        resultingPiece.Div.markedForMerge = false;
+
+        resultingPiece.Div.classList.remove('newPieceAnim');
+        resultingPiece.Div.classList.remove('animMerge');
+        resultingPiece.Div.offsetWidth; // Holy Shit!
+        resultingPiece.Div.classList.add('animMerge');
+
+        this.PiecesTransitioning++;
+    }        
+           
+    FinishedNewPieceAnim(e)
+    {
+        e.target.classList.remove('newPieceAnim');
+        e.target.classList.remove('animMerge');
+        
+        var table = getTableByPiece(getPieceByDiv(e.target));
+        
+        table.PiecesTransitioning--;
+        
+        console.log("-PiecesTransitioning: " + table.PiecesTransitioning);
+        
+        
+        if(table.PiecesTransitioning != 0)
+            return;
+        
+        //seperate function for this
+        if(table.Pieces.length == 16)
+        {
+            table.Reset();
+            return;
+        }
+
+        if(table.HasMovedOrMerged)
+        {    
+            table.HasMovedOrMerged = false;
+            table.AddRandomPiece();
+        }
+        else
+        {
+            autoplay(table.ID);
+        }
+    }
+    
+    //last call for current turn
+    AllPiecesDoneMoving()
+    {
+        if(this.PiecesTransitioning == 0)
+        {
+            this.HasMovedOrMerged = false;
+            this.AddRandomPiece();    
+        }
     }
     
     /////////UTILITY/////////////////////
     
     AddRandomPiece()
     {
-        console.log("addrandompiece" + this.ID);
         do
         {
             var x = Math.floor(Math.random() * (3 - 0 + 1)) + 0;
@@ -281,8 +366,6 @@ class Table
         } while (this.GetPieceByCoords(x, y) != null);
 
         this.CreateNewPiece(x, y, 2);
-
-        randomPieceCount++;
     }
     
     GetPieceByCoords(x, y)
@@ -300,9 +383,12 @@ class Table
 
     CreateNewPiece (x, y, val)
     {
-        var newPiece = new Piece(x, y, val);
+        var newPiece = new Piece(this.ID, x, y, val);
         this.Pieces[this.Pieces.length] = newPiece;
         this.Slots[x][y].appendChild(newPiece.Div);
+        
+        this.PiecesTransitioning++;
+        console.log("+PiecesTransitioning: " + this.PiecesTransitioning);
     }
     
     Reset()
@@ -311,10 +397,27 @@ class Table
 
         for(var i = 0; i < this.Pieces.length; i++)
         {
-            this.Pieces[i].Div.removeEventListener("animationend", finishedNewPieceAnim);
-            this.Pieces[i].Div.addEventListener("animationend", finishedAnimDelete);
+            this.Pieces[i].Div.removeEventListener("animationend", this.FinishedNewPieceAnim);
+            this.Pieces[i].Div.addEventListener("animationend", this.FinishedAnimDelete);
             this.Pieces[i].Div.classList.toggle("animDelete");
         }
+    }
+
+    FinishedAnimDelete(e)
+    {
+        var piece = getPieceByDiv(e.target);
+        var table = getTableByPiece(piece);
+        table.DeletePiece(piece);
+
+        if(table.Pieces.length === 0)
+            table.InitDefaultSetup();
+    }
+    
+    DeletePiece(piece)
+    {
+        this.Slots[piece.X][piece.Y].removeChild(piece.Div);
+        piece.Div.removeEventListener("transitionend", piece.FinishMove);
+        this.Pieces.splice(this.Pieces.indexOf(piece), 1);        
     }
 }
 
@@ -344,6 +447,12 @@ window.onload = function ()
         }
     }
     
+    tables[0].InitDefaultSetup();
+    /*for(var i = 0; i < tables.length; i++)
+    {
+        tables[i].InitDefaultSetup();
+    }*/
+    
     //increase .scaleDiv height to fit #tutorial scaled to 1.8
     $('.scaleDiv').height($('.scaleDiv').height() * 1.8);
     
@@ -355,13 +464,15 @@ window.onload = function ()
     //animDelayGameOver = parseFloat(getComputedStyle($('#gameOver')[0])['transitionDelay']) + 's';
     
     /////////////////////////////
+    //pieces not merging!
+    /////////////////////////////
     //use CDN to get jQuery and hammer.js
+    /////////////////////////////
+    //proper reset check
     /////////////////////////////
     //proper reset animation
     /////////////////////////////
     //table 11 starts late
-    /////////////////////////////
-    //remove numbers on autoplay
     /////////////////////////////
     //on window resize -> start all over
     
@@ -477,141 +588,9 @@ function onKeyDown(e)
         moveAndMerge(Direction.DOWN)
 }
 
-function finishMove(e)
-{
-    piece = getPieceByDiv(e.target);
-
-    var prevX = piece.GetX() - Math.round(piece.tmpLeft / minDistance);
-    var prevY = piece.GetY() - Math.round(piece.tmpTop / minDistance);
-
-    //console.log("tempLeft " + piece.tmpLeft + " tempTop " + piece.tmpTop); 
-    //console.log("done moving, origin was: " + piece.GetTableID() + " " + prevX + " " + prevY);
-
-    piece.tmpLeft = 0;
-    piece.tmpTop = 0;
-
-    piece.GetDiv().style.left = '0px';
-    piece.GetDiv().style.top = '0px';
-
-    tables[piece.GetTableID()][prevX][prevY].removeChild(piece.GetDiv());
-    tables[piece.GetTableID()][piece.GetX()][piece.GetY()].appendChild(piece.GetDiv());
-
-    checkMerge(piece);
-}
-
-//executed when piece is done moving visualy
-function checkMerge(piece) 
-{
-    //console.log("checkMerge");
-    var tableID = piece.GetTableID();
-    
-    for(var i = 0; i < pieces[tableID].length; i++)
-    {
-        if(pieces[tableID][i].GetX() === piece.GetX() && pieces[tableID][i].GetY() === piece.GetY() &&
-           pieces[tableID][i] !== piece && !piece.IsMoving() && !pieces[tableID][i].IsMoving())
-            {
-                mergePieces(piece.GetTableID(), piece.GetX(), piece.GetY(), piece.GetX(), piece.GetY());
-                break;
-            }
-    }
-    //console.log(piece.GetX() + " " + piece.GetY() + " arrived -> check others moving");
-   
-    for(var i = 0; i < pieces.length; i++)
-    {
-        for(var j = 0; j < pieces[i].length; j++)
-        {
-            if(pieces[i][j].IsMoving())
-            {
-                return;
-            }
-        }
-    }
-    //console.log("none moving");
-    allPiecesDoneMoving();
-}
-
-//last call for current turn
-function allPiecesDoneMoving()
-{
-    moving = false;
-    if(randomPieceCount == 0)
-        autoplay();
-}
-
-//xy1 = coords for piece to remove
-//xy2 = coords for resulting piece
-function mergePieces(tableID, x1, y1, x2, y2)
-{
-    //console.log("MERGE");
-    deletePiece(tableID, x1, y1);
-    
-    try{
-        getPieceByCoords(tableID, x2, y2).DoubleValue();
-        tables[tableID][x2][y2].markedForMerge = false;
-        var div = getPieceByCoords(tableID, x2, y2).GetDiv(); 
-        div.classList.remove('newPieceAnim');
-        div.classList.remove('animMerge');
-        div.offsetWidth; // Holy Shit!
-        div.classList.add('animMerge');
-        randomPieceCount++;
-    }
-    catch(err) {
-        console.log("could not get piece at " + tableID + " " + x2 + " " + y2);
-        console.log("Pieces are:");
-        for(var i = 0; i < pieces[tableID].length; i++)
-        {
-            console.log("Piece: " + i + " x: " + pieces[tableID][i].GetX() + " y: " + pieces[tableID][i].GetY());
-        }
-        console.log(err);
-        return;
-    }
-
-    hasMovedOrMerged = true;
-}
-
-function finishedNewPieceAnim(e)
-{
-    e.target.classList.remove('newPieceAnim');
-    e.target.classList.remove('animMerge');
-
-    
-    randomPieceCount--;
-
-    console.log("randomPieceCount " + randomPieceCount + " mergingPieceCount " + mergingPieceCount);
-    
-    //seperate function for this
-    var reset = false;
-    if(mergingPieceCount == 0 && randomPieceCount == 0)
-    {
-        for(var i = 0; i < tables.length; i++)
-        {
-            if(tables[i].Pieces.length == 16)
-            {
-                tables[i].Reset();
-                reset = true;
-            }
-        }
-        //wait till all reset animations are done
-        if(reset) return;
-    
-        for(var i = 0; i < tables.length; i++)
-        {
-    
-            if(hasMovedOrMerged)
-            {    
-                tables[i].AddRandomPiece();
-            }
-            else{
-                autoplay(i);
-                return;
-            }
-        }
-        hasMovedOrMerged = false;
-    }
-}
-
 function autoplay(tableIndex)
 {
+    console.log("autoplay called with tableIndex " + tableIndex);
     var rand = Math.floor(Math.random() * (3 - 0 + 1)) + 0;
     switch(rand)
     {
@@ -626,60 +605,13 @@ function autoplay(tableIndex)
     }
 }
 
-function deletePiece(tableID, x, y)
-{
-    for (var i = 0; i < pieces[tableID].length; i++) 
-    {
-        if (pieces[tableID][i].GetX() === x && pieces[tableID][i].GetY() === y) 
-        {
-            try{
-                tables[tableID][x][y].removeChild(pieces[tableID][i].GetDiv());
-            }
-            catch(err)
-            {
-                console.log("%c Could not DELETE child tabledID:" + tableID + " x:" + x + " y:" + y, "background: #f33; color: #aaa");
-                //find div
-                for(var a = 0; a < tables.length; a++)
-                {
-                    for(var b = 0; b < tables[a].length; b++)
-                    {
-                        for(var c = 0; c < tables[a][b].length; c++)
-                        {
-                            //console.log("testing " + a + b + c);
-                            if($(tables[a][b][c]) == $(pieces[tableID][i].GetDiv()).parent())
-                            {
-                                console.log("Fount parent at " + a + " " + b + " " + c);
-                            }
-                        }
-                    }    
-                }
-            }
-            pieces[tableID][i].GetDiv().removeEventListener("transitionend", checkMerge);
-            pieces[tableID].splice(i, 1);
-            return;
-        }
-    }
-}
-
-function finishedAnimDelete(e)
-{
-    var piece = getPieceByDiv(e.target);
-    
-    deletePiece(piece.GetTableID(), piece.GetX(), piece.GetY());
-
-    if(pieces[piece.GetTableID()].length === 0)
-        initDefaultSetup(piece.GetTableID());
-}
-
 function getPieceByDiv(div)
 {
-    for(var i = 0; i < pieces.length; i++)
+    var table = tables[div.TableIndex];
+    for (var i = 0; i < table.Pieces.length; i++)
     {
-        for (var j = 0; j < pieces[i].length; j++)
-        {
-            if(pieces[i][j].GetDiv() === div)
-                return pieces[i][j];
-        }
+        if(table.Pieces[i].Div === div)
+            return table.Pieces[i];
     }
 }
 
@@ -687,6 +619,17 @@ function getValueByCoords(x,y)
 {
     var piece = getPieceByCoords(x,y);
     return piece != null ? piece.GetValue() : 0;
+}
+
+function getTableByPiece(piece)
+{
+    for(var i = 0; i < tables.length; i++)
+    {
+        if( tables[i].Pieces.indexOf(piece) != -1)
+            return tables[i];
+    }
+    console.log("ERROR: could not find table by piece: " + piece);
+    return null;
 }
 
 function checkAllTablesForGameOver()
