@@ -1,11 +1,6 @@
 ﻿var tables = [];
-var slotsUnordered = [];
-var slots = [];
-var pieces = [];
-var prevPieces;
 
 var hiscore = 0;
-var moving = false;
 var minDistance  ;
 var colorStart = 120;
 var animDurationGameOverIn;
@@ -30,7 +25,7 @@ class Piece
         this.TableIndex = tableIndex;
         
         this.Div = document.createElement('div');
-        this.Div.innerHTML = "<b>" + initVal + "</b>";
+        //this.Div.innerHTML = "<b>" + initVal + "</b>";
         this.Div.classList.add('piece');
         this.Div.classList.add('newPieceAnim');
         this.Div.addEventListener("transitionend", this.FinishMove);
@@ -62,7 +57,7 @@ class Piece
     DoubleValue()
     {
         this.Value = parseInt(this.Value) + parseInt(this.Value);
-        this.Div.innerHTML = "<b>" + this.Value + "</b>";
+        //this.Div.innerHTML = "<b>" + this.Value + "</b>";
         this.SetColor(this.Value);
     }
     
@@ -148,7 +143,7 @@ class Table
 
                         tempPiece = this.GetPieceByCoords(x, y+1);
                         if(tempPiece === null ||
-                           (piece.Value === tempPiece.Value && !slots[x][y+1].markedForMerge))
+                           (piece.Value === tempPiece.Value && !this.Slots[x][y+1].markedForMerge))
                         {
                             this.CalculateMove( piece.X, piece.Y, piece.X, piece.Y + 1);
                             pieceMoved = true;
@@ -174,7 +169,7 @@ class Table
 
                         tempPiece = this.GetPieceByCoords(x, y-1);
                         if(tempPiece === null ||
-                           (piece.Value === tempPiece.Value && !slots[x][y-1].markedForMerge))
+                           (piece.Value === tempPiece.Value && !this.Slots[x][y-1].markedForMerge))
                         {
                             this.CalculateMove(piece.X, piece.Y, piece.X, piece.Y - 1);
                             pieceMoved = true;
@@ -200,7 +195,7 @@ class Table
 
                         tempPiece = this.GetPieceByCoords(x-1, y);
                         if(tempPiece === null ||
-                           (piece.Value === tempPiece.Value && !slots[x-1][y].markedForMerge))
+                           (piece.Value === tempPiece.Value && !this.Slots[x-1][y].markedForMerge))
                         {
                             this.CalculateMove(piece.X, piece.Y, piece.X - 1, piece.Y);
                             pieceMoved = true;
@@ -225,7 +220,7 @@ class Table
 
                         tempPiece = this.GetPieceByCoords(x+1, y);
                         if(tempPiece === null ||
-                           (piece.Value === tempPiece.Value && !slots[x+1][y].markedForMerge))
+                           (piece.Value === tempPiece.Value && !this.Slots[x+1][y].markedForMerge))
                         {
                             this.CalculateMove(piece.X, piece.Y, piece.X + 1, piece.Y);
                             pieceMoved = true;
@@ -244,7 +239,7 @@ class Table
         if(this.GetPieceByCoords(x2,y2) !== null )
         {
             //console.log("mark for merge " + x2 + "/" + y2);
-            slots[x2][y2].markedForMerge = true;
+            this.Slots[x2][y2].markedForMerge = true;
         }
 
         //useful for debuging
@@ -302,7 +297,7 @@ class Table
 
         
         resultingPiece.DoubleValue();
-        resultingPiece.Div.markedForMerge = false;
+        this.Slots[resultingPiece.X][resultingPiece.Y].markedForMerge = false;
 
         resultingPiece.Div.classList.remove('newPieceAnim');
         resultingPiece.Div.classList.remove('animMerge');
@@ -421,8 +416,74 @@ class Table
     }
 }
 
+class TableMover
+{
+    constructor()
+    {
+        this.MaxOffsetHorizontal = document.documentElement.clientWidth - $('.row:first-child').children().length * $('.row:first-child table:first-child').outerWidth();
+        
+        this.MaxOffsetVertical = document.documentElement.clientHeight - $('.row').length * $('.row:first-child table:first-child').outerHeight();
+    
+        this.MinMove = 100;//$(tables[0].Slots[0][0]).outerWidth();
+        
+        this.TransitionTime = parseFloat(getComputedStyle($('.row')[0])['transitionDuration']) * 1000;
+    
+        $('.row:first-child').on('transitionend webkitTransitionEnd oTransitionEnd', function () {
+            window.TableMover.Move.call(window.TableMover)
+                });
+    }
+    
+    Move()
+    {
+        var left;
+        var currentLeft = parseInt($('.row').css('left'));
+        var cantShiftRight = currentLeft + this.MinMove > 0
+        var cantShiftLeft = currentLeft - this.MinMove < this.MaxOffsetHorizontal;
+        if((Math.random() > 0.5 || cantShiftRight) && !cantShiftLeft)
+        {
+            //move right (maxOffset --- offset)
+            //console.log("shift tables left");
+            left = Math.random() * ((currentLeft - this.MinMove) - this.MaxOffsetHorizontal) +              this.MaxOffsetHorizontal;
+            //console.log("min = " + this.MaxOffsetHorizontal + " // max = " + (currentLeft - this.MinMove));
+        }
+        else //currentLeft + minMove > 0
+        {
+            //move left (offset --- 0)
+            //console.log("shift tables right");
+            left = Math.random() * (0 - (currentLeft + this.MinMove)) + (currentLeft + this.MinMove);
+            //console.log("min = " + (currentLeft + this.MinMove) + " // max = 0");
+        }
+        console.log("move to " + left + " diff: " + Math.abs(currentLeft - left));
+        
+        var top;
+        var currentTop = parseInt($('.row').css('top'));
+        var cantShiftUp = currentTop + this.MinMove > 0
+        var cantShiftDown = currentTop - this.MinMove < this.MaxOffsetVertical;
+        if((Math.random() > 0.5 || cantShiftUp) && !cantShiftDown)
+        {
+            //move right (maxOffset --- offset)
+            //console.log("shift tables left");
+            top = Math.random() * ((currentTop - this.MinMove) - this.MaxOffsetVertical) +              this.MaxOffsetVertical;
+            //console.log("min = " + this.MaxOffsetVertical + " // max = " + (currentTop - this.MinMove));
+        }
+        else //currentLeft + minMove > 0
+        {
+            //move left (offset --- 0)
+            //console.log("shift tables right");
+            top = Math.random() * (0 - (currentTop + this.MinMove)) + (currentTop + this.MinMove);
+            //console.log("min = " + (currentTop + this.MinMove) + " // max = 0");
+        }
+        console.log("move to " + top + " diff: " + Math.abs(currentTop - top));
+        
+        
+        $('.row').css('left', left + 'px');
+        $('.row').css('top', top + 'px');
+    }
+}
+
 window.onload = function ()
 {
+    var slots = [];
     for(var i = 1; i <= $('.row').length; i++)
     {
         //console.log("i " + i);
@@ -443,20 +504,20 @@ window.onload = function ()
             //tables[tables.length] = slots;
             //pieces[pieces.length] = [];
         
-            tables[tables.length] = new Table(slots, j-1);
+            tables[tables.length] = new Table(slots, tables.length);
         }
     }
     
-    tables[0].InitDefaultSetup();
+    //tables[4].InitDefaultSetup();
     /*for(var i = 0; i < tables.length; i++)
     {
         tables[i].InitDefaultSetup();
     }*/
+
+    window.TableMover = new TableMover();
+    window.TableMover.Move();
+    //window.TableMover.Move.call(window.TableMover)
     
-    //increase .scaleDiv height to fit #tutorial scaled to 1.8
-    $('.scaleDiv').height($('.scaleDiv').height() * 1.8);
-    
-    //.overlay layout stuff
     $( window ).resize(resizeWithoutMargin);
     resizeWithoutMargin();
     
@@ -464,13 +525,9 @@ window.onload = function ()
     //animDelayGameOver = parseFloat(getComputedStyle($('#gameOver')[0])['transitionDelay']) + 's';
     
     /////////////////////////////
-    //pieces not merging!
-    /////////////////////////////
     //use CDN to get jQuery and hammer.js
     /////////////////////////////
     //proper reset check
-    /////////////////////////////
-    //proper reset animation
     /////////////////////////////
     //table 11 starts late
     /////////////////////////////
@@ -613,12 +670,7 @@ function getPieceByDiv(div)
         if(table.Pieces[i].Div === div)
             return table.Pieces[i];
     }
-}
-
-function getValueByCoords(x,y)
-{
-    var piece = getPieceByCoords(x,y);
-    return piece != null ? piece.GetValue() : 0;
+    console.log("ERROR: could not find piece by div: " + div);
 }
 
 function getTableByPiece(piece)
@@ -680,38 +732,6 @@ function isGameOver(tableID)
     return true;
 }
 
-function save(savePreviousState)
-{
-    var storage = window.localStorage;
-    for(var x = 0; x < 4; x++)
-    {
-        for(var y = 0; y < 4; y++)
-        {
-            storage.setItem(x.toString().concat(y.toString()) + savePreviousState, getValueByCoords(x,y));
-        }
-    }
-}
-
-function load(loadPreviousState)
-{
-    var storage = window.localStorage;
-    var val = 0;
-    for(var x = 0; x < 4; x++)
-    {
-        for(var y = 0; y < 4; y++)
-        {
-            val = parseInt(storage.getItem(x.toString().concat(y.toString()).concat(loadPreviousState)));
-            if(!isNaN(val) && val !== 0)
-            {
-                createNewPiece(x,y,val);
-            }
-        }
-    }
-    
-    if(pieces.length == 0)
-        initDefaultSetup();
-}
-
 function btnPlayAgainClicked()
 {
     $('table').css('transition-delay', '0s');
@@ -737,29 +757,6 @@ function btnUndoLastTurnClicked()
     $('.overlay').toggleClass('animGameOver');
     
     undoLastTurnDebug();
-}
-
-function undoLastTurnDebug()
-{
-    for(var x = 0; x < 4; x++)
-    {
-        for(var y = 0; y < 4; y++)
-        {
-            deletePiece(x,y);
-        }
-    }
-    
-    for(var i = 0; i < slotsUnordered.length; i++)
-    {
-        if(slotsUnordered[i].markedForMerge)
-        {
-            slotsUnordered[i].markedForMerge = false;
-            if(document.getElementById("chkBoxShowMerge").checked)
-                slotsUnordered[i].classList.toggle("markedForMerge");
-        }
-    }
-    
-    load(true);
 }
 
 function setAutoplay(value)

@@ -38,13 +38,15 @@ body {
 .row{
     min-width: 2600px;
     position: relative;
-    /*top: -30.9vmin;
-    left: -30.9vmin;*/
+    top: -30.9vmin;
+    left: -30.9vmin;
+    transition: all 2s ease-in-out;
+    transform: translateZ(0);
 }
 
 table{
     /*margin: 40px auto auto;*/
-	border: .3vmin solid #66ff66;
+	/*border: .3vmin solid #66ff66;*/
     border-collapse: collapse;
     /*transition: all var(--animDurationGameOver);*/
     transition-delay: calc( var(--animDurationNewPiece)  + .5s);
@@ -55,35 +57,6 @@ table{
 table:nth-child(1){
     clear: both;
 }
-
-/*table:nth-child(1)
-{
-    position: absolute;
-    right: -100px;
-}'/
-
-.blurred{
-    filter:blur(5px);
-}
-
-.scaleDiv{
-    position: absolute;
-    overflow: hidden;
-}
-
-.overlay{
-    text-align: center;
-    font-size: 6vmin;
-    font-weight: 700;
-    width: 50%;
-    margin: auto;
-
-    /*transform: scale(1.8);*/
-    /*opacity: 0;
-    transition: transform, opacity;
-    transition-duration: var(--animDurationGameOver); 
-    transition-delay: calc( var(--animDurationNewPiece)  + .5s);
-}*/
 
 .transitionTimes{
     
@@ -109,14 +82,14 @@ table:nth-child(1){
 }
 
 .slot {
-    border: .3vmin solid #666666;
+    border: .2vmin solid #666666;
     background-color: #FF874C;
     border-radius: 1vmin;
     box-shadow: inset 0 0 10px #000;
-    /*width: 15vmin;
-    height: 15vmin;*/
-    width: 8vmin; 
-    height: 8vmin;
+    width: 15vmin;
+    height: 15vmin;
+    /*width: 8vmin; 
+    height: 8vmin;*/
     
     max-width: 150px;
     max-height: 150px;
