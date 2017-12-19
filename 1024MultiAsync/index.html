@@ -16,6 +16,7 @@
 </head>
 
 <body>
+   
     <div class="row">
     <table>
         <tr><td><div class="slot"></div></td><td><div class="slot"></div></td><td>
@@ -144,19 +145,34 @@
         <div class="slot"></div></td><td><div class="slot"></div></td></tr>   
     </table>
     </div>
-    <!--<div class="scaleDiv"> 
-    <div class="overlay" id="tutorial">
-        Start playing by pressing arrow keys, WSAD or swiping. 
-    </div>    
-    </div>-->
     
-    <!--<div class="overlay" id="gameOver">
-        Game Over<br>
-        Score: 
-        <span id="scoreGameOver"></span><br>
-        <button type="button" id="btnPlayAgain">Play again</button>
-        <button type="button" id="btnUndo">Undo last turn</button>
-    </div>-->
+    <div id="settings">
+        <div class="spaceBetween">
+            <span>Moving Tables</span>
+            <label class="switch">
+                <input type="checkbox" id="chkBoxMovingTables"> <span class="slider round"></span> 
+            </label>
+        </div>   
+        <div class="spaceBetween">
+            <span>Show marked for merge</span>
+            <label class="switch">
+                <input type="checkbox" id="chkBoxShowMerge"> <span class="slider round"></span> 
+            </label> 
+        </div>
+        <div class="spaceBetween">
+            <span>Add random piece</span>
+            <label class="switch">
+                <input type="checkbox" id="chkBoxAddRandom"> <span class="slider round"></span> 
+            </label> 
+        </div>
+        <div class="spaceBetween">
+            <span>Show moving</span>
+            <label class="switch">
+                <input type="checkbox" id="chkBoxShowMoving"> <span class="slider round"></span> 
+            </label> 
+        </div>
+    </div>
+    
         
     <!--<script type="text/javascript" src="cordova.js"></script>
     <script type="text/javascript" src="scripts/platformOverrides.js"></script>-->

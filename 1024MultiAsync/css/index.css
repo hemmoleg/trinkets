@@ -31,10 +31,6 @@ body {
     padding: 0;
 }
 
-#btnReset{
-    cursor: pointer;
-}
-
 .row{
     min-width: 2600px;
     position: relative;
@@ -45,10 +41,8 @@ body {
 }
 
 table{
-    /*margin: 40px auto auto;*/
 	/*border: .3vmin solid #66ff66;*/
     border-collapse: collapse;
-    /*transition: all var(--animDurationGameOver);*/
     transition-delay: calc( var(--animDurationNewPiece)  + .5s);
     display: inline-block;
     float:left;
@@ -166,28 +160,31 @@ table:nth-child(1){
     }
 }
 
-#infoAndDebug{
-    display: flex;
-    justify-content: space-between;
-    width: 80vmin;
-    margin: 2em auto 0 auto;
+#settings{
+    display: none;
+    width: 40vw;
+    position: fixed;
+    background-color: hsla(281, 100%, 56%, 0.52);
+    margin-left: 1vmin;
+    margin-top: 1vmin;
+    padding: 2vmin;
+    border-radius: 15px;
 }
 
-.switchDiv{
-    display: inline;
-    top:0px;
-    float: right;
+.spaceBetween{
+    display: flex;
+    justify-content: space-between;
 }
 
 /* checkbox */
 .switch {
   position: relative;
   display: inline-block;
-  width: 8vmin;
-  height: 4vmin;
+  width: 6vmin;
+  height: 3.5vmin;
 }
 
-.switchDiv > span{
+#settings > div > span{
     vertical-align:20%; 
     font-size: 3vmin;
 }
@@ -212,9 +209,9 @@ table:nth-child(1){
   position: absolute;
   content: "";
   height: 70%;
-  width: 35%;
-  left: 1.2vmin;
-  bottom: 0.5vmin;
+  width: 40%;
+  left: 0.7vmin;
+  bottom: 15%;
   background-color: white;
   -webkit-transition: .4s;
   transition: .4s;
@@ -230,7 +227,7 @@ input:focus + .slider {
 }
 
 input:checked + .slider:before {
-  transform: translateX(3vmin);
+  transform: translateX(2vmin);
 }
 
 /* BG */

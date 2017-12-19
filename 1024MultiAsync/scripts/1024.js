@@ -63,6 +63,7 @@ class Piece
     
     FinishMove(e)
     {
+        e.stopPropagation();
         //'this' points to the Div, not the piece!
         var piece = getPieceByDiv(this);
         var prevX = piece.X - Math.round(piece.TmpLeft / minDistance);
@@ -119,7 +120,7 @@ class Table
         //set by calculateMove and mergePieces
         this.HasMovedOrMerged = false;
 
-        console.log("%c Move " + direction + " " + this.ID, 'background: #222; color: #bada55');
+        //console.log("%c Move " + direction + " " + this.ID, 'background: #222; color: #bada55');
         this.CalculateMoves(direction);
     }
     
@@ -316,7 +317,7 @@ class Table
         
         table.PiecesTransitioning--;
         
-        console.log("-PiecesTransitioning: " + table.PiecesTransitioning);
+        //console.log("-PiecesTransitioning: " + table.PiecesTransitioning);
         
         
         if(table.PiecesTransitioning != 0)
@@ -383,12 +384,12 @@ class Table
         this.Slots[x][y].appendChild(newPiece.Div);
         
         this.PiecesTransitioning++;
-        console.log("+PiecesTransitioning: " + this.PiecesTransitioning);
+        //console.log("+PiecesTransitioning: " + this.PiecesTransitioning);
     }
     
     Reset()
     {
-        console.log("RESET");
+        //console.log("RESET");
 
         for(var i = 0; i < this.Pieces.length; i++)
         {
@@ -428,13 +429,17 @@ class TableMover
         
         this.TransitionTime = parseFloat(getComputedStyle($('.row')[0])['transitionDuration']) * 1000;
     
-        $('.row:first-child').on('transitionend webkitTransitionEnd oTransitionEnd', function () {
-            window.TableMover.Move.call(window.TableMover)
+        $('.row:first-child').on('transitionend webkitTransitionEnd oTransitionEnd', function (e) {
+            window.TableMover.MoveTables.call(window.TableMover, e)
                 });
     }
     
-    Move()
+    MoveTables(e)
     {
+        if (e != null && e.originalEvent.propertyName != 'top') return;
+        console.log("MoveTables");
+        if(!$('#chkBoxMovingTables').prop('checked'))   return;
+        
         var left;
         var currentLeft = parseInt($('.row').css('left'));
         var cantShiftRight = currentLeft + this.MinMove > 0
@@ -453,7 +458,7 @@ class TableMover
             left = Math.random() * (0 - (currentLeft + this.MinMove)) + (currentLeft + this.MinMove);
             //console.log("min = " + (currentLeft + this.MinMove) + " // max = 0");
         }
-        console.log("move to " + left + " diff: " + Math.abs(currentLeft - left));
+        //console.log("move to " + left + " diff: " + Math.abs(currentLeft - left));
         
         var top;
         var currentTop = parseInt($('.row').css('top'));
@@ -473,7 +478,7 @@ class TableMover
             top = Math.random() * (0 - (currentTop + this.MinMove)) + (currentTop + this.MinMove);
             //console.log("min = " + (currentTop + this.MinMove) + " // max = 0");
         }
-        console.log("move to " + top + " diff: " + Math.abs(currentTop - top));
+        //console.log("move to " + top + " diff: " + Math.abs(currentTop - top));
         
         
         $('.row').css('left', left + 'px');
@@ -509,20 +514,18 @@ window.onload = function ()
     }
     
     //tables[4].InitDefaultSetup();
-    /*for(var i = 0; i < tables.length; i++)
+    for(var i = 0; i < tables.length; i++)
     {
         tables[i].InitDefaultSetup();
-    }*/
+    }
 
     window.TableMover = new TableMover();
-    window.TableMover.Move();
-    //window.TableMover.Move.call(window.TableMover)
+    //window.TableMover.MoveTables();
+    
     
     $( window ).resize(resizeWithoutMargin);
     resizeWithoutMargin();
     
-    //animDurationGameOverIn = parseFloat(getComputedStyle($('#gameOver')[0])['transitionDuration']) + 's';
-    //animDelayGameOver = parseFloat(getComputedStyle($('#gameOver')[0])['transitionDelay']) + 's';
     
     /////////////////////////////
     //use CDN to get jQuery and hammer.js
@@ -570,13 +573,7 @@ window.onload = function ()
     //debug
     //localStorage.clear();
     
-    //initDebugingSetup(0);
-    //for(var i = 1; i < 11; i++)
-    //{
-    //    initDefaultSetup(i);
-    //}
-    
-    //updateScore();
+    initSettings();
 }
 
 //currently not used
@@ -647,7 +644,6 @@ function onKeyDown(e)
 
 function autoplay(tableIndex)
 {
-    console.log("autoplay called with tableIndex " + tableIndex);
     var rand = Math.floor(Math.random() * (3 - 0 + 1)) + 0;
     switch(rand)
     {
@@ -732,35 +728,22 @@ function isGameOver(tableID)
     return true;
 }
 
-function btnPlayAgainClicked()
-{
-    $('table').css('transition-delay', '0s');
-    $('table').css('transition-duration',animDurationGameOverOut);
-    $('table').toggleClass('blurred');
-    
-    $('#gameOver').css('transition-duration',animDurationGameOverOut);
-    $('#gameOver').css('transition-delay','0s');
-    $('#gameOver').toggleClass('big');
-    $('#gameOver').toggleClass('visible');
-    
-    reset();
-}
-
-function btnUndoLastTurnClicked()
-{
-    $('table').css('transition-delay', '0s');
-    $('table').css('transition-duration',animDurationGameOverOut);
-    $('table').toggleClass('blurred');
-    
-    $('.overlay').css('transition-delay', '0s');
-    $('.overlay').css('transition-duration',animDurationGameOverOut);
-    $('.overlay').toggleClass('animGameOver');
-    
-    undoLastTurnDebug();
-}
-
 function setAutoplay(value)
 {
     isAutoplay = value;
     if(isAutoplay) autoplay();
+}
+
+function initSettings()
+{
+    $('#chkBoxMovingTables').prop('checked', localStorage.getItem('MovingTables') === "true");
+    if($('#chkBoxMovingTables').prop('checked'))
+        window.TableMover.MoveTables();
+    
+    $('#chkBoxMovingTables').on('click', function(){
+        localStorage.setItem('MovingTables', $('#chkBoxMovingTables').prop('checked'));
+        
+        if($('#chkBoxMovingTables').prop('checked'))
+           window.TableMover.MoveTables(); 
+    })
 }
