@@ -34,10 +34,9 @@ body {
 .row{
     min-width: 2600px;
     position: relative;
-    top: -30.9vmin;
-    left: -30.9vmin;
     transition: all 2s ease-in-out;
-    transform: translateZ(0);
+    /*transform: translate(-30.9vmin, -30.9vmin);*/
+    transform: translate(0, 0);
 }
 
 table{
@@ -50,29 +49,6 @@ table{
 
 table:nth-child(1){
     clear: both;
-}
-
-.transitionTimes{
-    
-}
-
-#gameOver{
-    position: absolute;
-}
-
-#tutorial{
-    position: relative;
-    width: 60%;
-    transition-delay: 0s;
-}
-
-.big{
-    transform: scale(1.8)
-}
-
-.visible{
-    opacity: 1;
-    /*visibility: visible;*/
 }
 
 .slot {
@@ -94,8 +70,7 @@ table:nth-child(1){
 
 .piece {
     position: relative;
-    left: 0vmin;
-    top:0vmin;
+    transform: translate(0px, 0px);
     margin: 10%;
     text-align: center;
     background-color: #00ff00;
@@ -109,8 +84,7 @@ table:nth-child(1){
     line-height: 5vmin;
     text-align: center;
     
-    transition: left ease-in-out, top ease-in-out;
-    transform: translateZ(0);
+    transition: transform ease-in-out;
     transition-duration: 1s;
 }
 
@@ -161,7 +135,7 @@ table:nth-child(1){
 }
 
 #settings{
-    display: none;
+    /*display: none;*/
     width: 40vw;
     position: fixed;
     background-color: hsla(281, 100%, 56%, 0.52);

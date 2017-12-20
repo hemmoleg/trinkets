@@ -73,8 +73,10 @@ class Piece
         piece.TmpTop = 0;
         piece.Moving = false;
         
-        this.style.left = '0px';
-        this.style.top = '0px';
+        $(this).css('transform', 'translate(0px, 0px)');
+        
+        /*this.style.left = '0px';
+        this.style.top = '0px';*/
 
         var table = getTableByPiece(piece);
         
@@ -263,10 +265,11 @@ class Table
     
     ApplyMove()
     {
+        
         for(var i = 0; i < this.Pieces.length; i++)
         {
-            this.Pieces[i].Div.style.left = this.Pieces[i].TmpLeft.toString() + 'px';
-            this.Pieces[i].Div.style.top = this.Pieces[i].TmpTop.toString() + 'px';
+            this.Pieces[i].Div.offsetHeight;
+            $(this.Pieces[i].Div).css('transform', 'translate(' + this.Pieces[i].TmpLeft + 'px, ' + this.Pieces[i].TmpTop + 'px)');
         }
         if(!this.HasMovedOrMerged)
             autoplay(this.ID);
@@ -436,12 +439,12 @@ class TableMover
     
     MoveTables(e)
     {
-        if (e != null && e.originalEvent.propertyName != 'top') return;
+        
         console.log("MoveTables");
         if(!$('#chkBoxMovingTables').prop('checked'))   return;
         
         var left;
-        var currentLeft = parseInt($('.row').css('left'));
+        var currentLeft = parseInt($('.row').css('transform').split(',')[4]);
         var cantShiftRight = currentLeft + this.MinMove > 0
         var cantShiftLeft = currentLeft - this.MinMove < this.MaxOffsetHorizontal;
         if((Math.random() > 0.5 || cantShiftRight) && !cantShiftLeft)
@@ -458,10 +461,10 @@ class TableMover
             left = Math.random() * (0 - (currentLeft + this.MinMove)) + (currentLeft + this.MinMove);
             //console.log("min = " + (currentLeft + this.MinMove) + " // max = 0");
         }
-        //console.log("move to " + left + " diff: " + Math.abs(currentLeft - left));
+        //console.log("move LEFT to " + left + " diff: " + Math.abs(currentLeft - left));
         
         var top;
-        var currentTop = parseInt($('.row').css('top'));
+        var currentTop = parseInt($('.row').css('transform').split(',')[5]);
         var cantShiftUp = currentTop + this.MinMove > 0
         var cantShiftDown = currentTop - this.MinMove < this.MaxOffsetVertical;
         if((Math.random() > 0.5 || cantShiftUp) && !cantShiftDown)
@@ -478,11 +481,13 @@ class TableMover
             top = Math.random() * (0 - (currentTop + this.MinMove)) + (currentTop + this.MinMove);
             //console.log("min = " + (currentTop + this.MinMove) + " // max = 0");
         }
-        //console.log("move to " + top + " diff: " + Math.abs(currentTop - top));
+        //console.log("move TOP to " + top + " diff: " + Math.abs(currentTop - top));
         
         
-        $('.row').css('left', left + 'px');
-        $('.row').css('top', top + 'px');
+        //$('.row').css('left', left + 'px');
+        //$('.row').css('top', top + 'px');
+    
+        $('.row').css('transform', 'translate(' + left + 'px, ' + top + 'px)');
     }
 }
 
@@ -513,7 +518,7 @@ window.onload = function ()
         }
     }
     
-    //tables[4].InitDefaultSetup();
+    //tables[0].InitDefaultSetup();
     for(var i = 0; i < tables.length; i++)
     {
         tables[i].InitDefaultSetup();
@@ -535,40 +540,6 @@ window.onload = function ()
     //table 11 starts late
     /////////////////////////////
     //on window resize -> start all over
-    
-    //keys input
-    document.body.addEventListener("keydown", onKeyDown);
-
-    var hammertime = new Hammer(document.getElementsByTagName("body")[0]);
-    
-    hammertime.get("swipe").set({ direction: Hammer.DIRECTION_ALL });
-    
-    hammertime.on("swipeleft swiperight swipeup swipedown", function (ev) {
-
-        if (ev.type === "swipeleft")
-        {
-            moveAndMerge(Direction.LEFT);
-            console.log("swipe left");
-        }
-        
-        if (ev.type === "swiperight")
-        {
-            moveAndMerge(Direction.RIGHT);
-            console.log("swipe right");
-        }
-       
-        if (ev.type === "swipeup")
-        {
-            moveAndMerge(Direction.UP);
-            console.log("swipe up");
-        }
-        
-        if (ev.type === "swipedown")
-        {
-            moveAndMerge(Direction.DOWN);
-            console.log("swipe down");
-        }
-    });
     
     //debug
     //localStorage.clear();
@@ -745,5 +716,16 @@ function initSettings()
         
         if($('#chkBoxMovingTables').prop('checked'))
            window.TableMover.MoveTables(); 
+    })
+    
+    
+    $('#chkBoxTranslateZ').prop('checked', localStorage.getItem('TranslateZ') === "true");
+    $('#chkBoxTranslateZ').on('click', function(){
+        if($('#chkBoxTranslateZ').prop('checked'))
+            $('.row').css('transform', 'translateZ(0)')
+        else
+            $('.row').css('transform', '')
+        
+        localStorage.setItem('TranslateZ', $('#chkBoxTranslateZ').prop('checked'));
     })
 }
