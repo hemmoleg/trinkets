@@ -6,12 +6,15 @@
         Passen Sie die Inhaltssicherheitsrichtlinie im META-Tag unten nach Bedarf an. Fügen Sie "default-src" die Option "unsafe-inline" hinzu, um Inline-JavaScript zu aktivieren.
         Details finden Sie unter "http://go.microsoft.com/fwlink/?LinkID=617521".
     -->
+    <meta http-equiv="Content-Security-Policy" content="style-src 'self' 'unsafe-inline' https://fonts.googleapis.com">
+    
     <meta http-equiv="Content-Security-Policy" content="default-src 'self' data: gap: https://ssl.gstatic.com 'unsafe-eval'; style-src 'self' 'unsafe-inline'; media-src *">
     <meta http-equiv="content-type" content="text/html; charset=UTF-8" />
     <meta name="format-detection" content="telephone=no">
     <meta name="msapplication-tap-highlight" content="no">
     <meta name="viewport" content="user-scalable=no, initial-scale=1, maximum-scale=1, minimum-scale=1, width=device-width">
     <link rel="stylesheet" type="text/css" href="css/index.css">
+    <link rel="stylesheet" href="https://fonts.googleapis.com/icon?family=Material+Icons">
     <title>_1024Multi</title>
 </head>
 
@@ -160,10 +163,8 @@
             </label> 
         </div>
         <div class="spaceBetween">
-            <span>Add random piece</span>
-            <label class="switch">
-                <input type="checkbox" id="chkBoxAddRandom"> <span class="slider round"></span> 
-            </label> 
+            <span>Piece count:</span>
+            <span id="lblTotalPieceCount">0</span> 
         </div>
         <div class="spaceBetween">
             <span>Show moving</span>
@@ -171,6 +172,12 @@
                 <input type="checkbox" id="chkBoxShowMoving"> <span class="slider round"></span> 
             </label> 
         </div>
+    </div>
+    
+    <div id="restart">
+        <button type="button">Restart
+            <i class="material-icons">refresh</i>
+        </button>
     </div>
     
         

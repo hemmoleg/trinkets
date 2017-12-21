@@ -627,6 +627,8 @@ function autoplay(tableIndex)
         case 3: tables[tableIndex].MoveAndMerge(Direction.RIGHT);
                 break;
     }
+    
+    $('#lblTotalPieceCount').text($('.piece').length);
 }
 
 function getPieceByDiv(div)
@@ -707,7 +709,13 @@ function setAutoplay(value)
 
 function initSettings()
 {
+    if(localStorage.getItem('MovingTables') == null)
+    {
+        localStorage.setItem('MovingTables', true);
+    }
+    
     $('#chkBoxMovingTables').prop('checked', localStorage.getItem('MovingTables') === "true");
+    
     if($('#chkBoxMovingTables').prop('checked'))
         window.TableMover.MoveTables();
     
