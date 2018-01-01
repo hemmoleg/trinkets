@@ -6,21 +6,21 @@
         Passen Sie die Inhaltssicherheitsrichtlinie im META-Tag unten nach Bedarf an. Fügen Sie "default-src" die Option "unsafe-inline" hinzu, um Inline-JavaScript zu aktivieren.
         Details finden Sie unter "http://go.microsoft.com/fwlink/?LinkID=617521".
     -->
-    <meta http-equiv="Content-Security-Policy" content="style-src 'self' 'unsafe-inline' https://fonts.googleapis.com">
+    <meta http-equiv="Content-Security-Policy" content="style-src 'self' https://fonts.googleapis.com">
     
-    <meta http-equiv="Content-Security-Policy" content="default-src 'self' data: gap: https://ssl.gstatic.com 'unsafe-eval'; style-src 'self' 'unsafe-inline'; media-src *">
     <meta http-equiv="content-type" content="text/html; charset=UTF-8" />
     <meta name="format-detection" content="telephone=no">
     <meta name="msapplication-tap-highlight" content="no">
     <meta name="viewport" content="user-scalable=no, initial-scale=1, maximum-scale=1, minimum-scale=1, width=device-width">
     <link rel="stylesheet" type="text/css" href="css/index.css">
-    <link rel="stylesheet" href="https://fonts.googleapis.com/icon?family=Material+Icons">
+    
+    <link rel="stylesheet" href="https://fonts.googleapis.com/icon?family=Material+Icons" type="text/css">
     <title>_1024Multi</title>
 </head>
 
 <body>
    
-    <div class="row">
+    <div class="row" id="test">
     <table>
         <tr><td><div class="slot"></div></td><td><div class="slot"></div></td><td>
         <div class="slot"></div></td><td><div class="slot"></div></td></tr>
@@ -150,6 +150,7 @@
     </div>
     
     <div id="settings">
+        <div id="scaleWrapper">
         <div class="spaceBetween">
             <span>Moving Tables</span>
             <label class="switch">
@@ -157,9 +158,9 @@
             </label>
         </div>   
         <div class="spaceBetween">
-            <span>translateZ(0)</span>
+            <span>Autoplay</span>
             <label class="switch">
-                <input type="checkbox" id="chkBoxTranslateZ"> <span class="slider round"></span> 
+                <input type="checkbox" id="chkBoxAutoplay"> <span class="slider round"></span> 
             </label> 
         </div>
         <div class="spaceBetween">
@@ -167,16 +168,18 @@
             <span id="lblTotalPieceCount">0</span> 
         </div>
         <div class="spaceBetween">
-            <span>Show moving</span>
+            <span>Show all</span>
             <label class="switch">
-                <input type="checkbox" id="chkBoxShowMoving"> <span class="slider round"></span> 
+                <input type="checkbox" id="chkBoxShowAll"> <span class="slider round"></span> 
             </label> 
+        </div>
         </div>
     </div>
     
     <div id="restart">
-        <button type="button">Restart
-            <i class="material-icons">refresh</i>
+        <button type="button">
+            <i id="iconReload" class="material-icons">refresh</i>
+            <span>Restart</span>
         </button>
     </div>
     
@@ -188,6 +191,8 @@
     <script type="text/javascript" src="scripts/1024.js"></script>
     <script type="text/javascript" src="scripts/hammer.js"></script>
     <script type="text/javascript" src="scripts/jquery-3.2.1.min.js"></script>
+    <!--<script type="text/javascript" src="scripts/TweenLite.min.js"></script>-->
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/gsap/1.20.3/TweenMax.min.js"></script>
 </body>
 
 </html>

@@ -1,11 +1,14 @@
 ﻿var tables = [];
-
+var isAutoplay = true;
 var hiscore = 0;
-var minDistance  ;
+var minDistance;
 var colorStart = 120;
+var tweenTables;
 var animDurationGameOverIn;
 var animDurationGameOverOut = '1s';
 var animDelayGameOver;
+var regExDuration = /([0-9]+\.?([0-9]+)?)/g;
+var animDurationMoveTables;
 
 
 Direction = {UP:'up', DOWN:'down', LEFT:'left', RIGHT:'right'}
@@ -428,66 +431,82 @@ class TableMover
         
         this.MaxOffsetVertical = document.documentElement.clientHeight - $('.row').length * $('.row:first-child table:first-child').outerHeight();
     
-        this.MinMove = 100;//$(tables[0].Slots[0][0]).outerWidth();
+        this.MinMove = 150;//$(tables[0].Slots[0][0]).outerWidth();
         
         this.TransitionTime = parseFloat(getComputedStyle($('.row')[0])['transitionDuration']) * 1000;
     
-        $('.row:first-child').on('transitionend webkitTransitionEnd oTransitionEnd', function (e) {
-            window.TableMover.MoveTables.call(window.TableMover, e)
-                });
+        //$('.row:first-child').on('transitionend webkitTransitionEnd oTransitionEnd', function (e) {
+          //  window.TableMover.MoveTables.call(window.TableMover, e)
+            //    });
+    
+        animDurationMoveTables = $('.row').css('transitionDuration');
+        animDurationMoveTables = animDurationMoveTables.match(regExDuration)[0];
+        animDurationMoveTables = animDurationMoveTables * 0.8;
     }
     
-    MoveTables(e)
+    CalculateAnchors()
     {
-        
-        console.log("MoveTables");
-        if(!$('#chkBoxMovingTables').prop('checked'))   return;
-        
-        var left;
-        var currentLeft = parseInt($('.row').css('transform').split(',')[4]);
-        var cantShiftRight = currentLeft + this.MinMove > 0
-        var cantShiftLeft = currentLeft - this.MinMove < this.MaxOffsetHorizontal;
-        if((Math.random() > 0.5 || cantShiftRight) && !cantShiftLeft)
+        var left = parseInt($('.row').css('transform').split(',')[4]);
+        var top = parseInt($('.row').css('transform').split(',')[5]);
+        var anchors = [{x: left, y: top}];
+            
+        for(var i = 0; i < 10; i++)
         {
-            //move right (maxOffset --- offset)
-            //console.log("shift tables left");
-            left = Math.random() * ((currentLeft - this.MinMove) - this.MaxOffsetHorizontal) +              this.MaxOffsetHorizontal;
-            //console.log("min = " + this.MaxOffsetHorizontal + " // max = " + (currentLeft - this.MinMove));
+            var currentLeft = left;//parseInt($('.row').css('transform').split(',')[4]);
+            var cantShiftRight = currentLeft + this.MinMove > 0
+            var cantShiftLeft = currentLeft - this.MinMove < this.MaxOffsetHorizontal;
+            if((Math.random() > 0.5 || cantShiftRight) && !cantShiftLeft)
+            {
+                //move right (maxOffset --- offset)
+                left = Math.random() * ((currentLeft - this.MinMove) - this.MaxOffsetHorizontal) +                  this.MaxOffsetHorizontal;
+            }
+            else //currentLeft + minMove > 0
+            {
+                //move left (offset --- 0)
+                left = Math.random() * (0 - (currentLeft + this.MinMove)) + (currentLeft + this.MinMove);
+            }
+            //console.log("move LEFT to " + left + " diff: " + Math.abs(currentLeft - left));
+
+            var currentTop = top;//parseInt($('.row').css('transform').split(',')[5]);
+            var cantShiftUp = currentTop + this.MinMove > 0
+            var cantShiftDown = currentTop - this.MinMove < this.MaxOffsetVertical;
+            if((Math.random() > 0.5 || cantShiftUp) && !cantShiftDown)
+            {
+                //move right (maxOffset --- offset)
+                top = Math.random() * ((currentTop - this.MinMove) - this.MaxOffsetVertical) +                      this.MaxOffsetVertical;
+            }
+            else //currentLeft + minMove > 0
+            {
+                //move left (offset --- 0)
+                top = Math.random() * (0 - (currentTop + this.MinMove)) + (currentTop + this.MinMove);
+            }
+
+            anchors[anchors.length] = {x: left, y: top};
         }
-        else //currentLeft + minMove > 0
-        {
-            //move left (offset --- 0)
-            //console.log("shift tables right");
-            left = Math.random() * (0 - (currentLeft + this.MinMove)) + (currentLeft + this.MinMove);
-            //console.log("min = " + (currentLeft + this.MinMove) + " // max = 0");
-        }
-        //console.log("move LEFT to " + left + " diff: " + Math.abs(currentLeft - left));
+        anchors[anchors.length] = anchors[0];
         
-        var top;
-        var currentTop = parseInt($('.row').css('transform').split(',')[5]);
-        var cantShiftUp = currentTop + this.MinMove > 0
-        var cantShiftDown = currentTop - this.MinMove < this.MaxOffsetVertical;
-        if((Math.random() > 0.5 || cantShiftUp) && !cantShiftDown)
-        {
-            //move right (maxOffset --- offset)
-            //console.log("shift tables left");
-            top = Math.random() * ((currentTop - this.MinMove) - this.MaxOffsetVertical) +              this.MaxOffsetVertical;
-            //console.log("min = " + this.MaxOffsetVertical + " // max = " + (currentTop - this.MinMove));
-        }
-        else //currentLeft + minMove > 0
-        {
-            //move left (offset --- 0)
-            //console.log("shift tables right");
-            top = Math.random() * (0 - (currentTop + this.MinMove)) + (currentTop + this.MinMove);
-            //console.log("min = " + (currentTop + this.MinMove) + " // max = 0");
-        }
-        //console.log("move TOP to " + top + " diff: " + Math.abs(currentTop - top));
+        console.log(anchors);
+        this.OuputAnchors(anchors);
+        return anchors;
         
         
-        //$('.row').css('left', left + 'px');
-        //$('.row').css('top', top + 'px');
+        //ZOOM stuff
+        //var zoom = Math.random() + 0.5;
+        //console.log("zoom " + zoom);
+        
+        //$('.row').css('transform', 'translate(' + left + 'px, ' + top + 'px)' + 
+        //              'scale(' + zoom + ')' );
+    }
     
-        $('.row').css('transform', 'translate(' + left + 'px, ' + top + 'px)');
+    OuputAnchors(anchors)
+    {
+        for(var i = 0; i < anchors.length-1; i++)
+        {
+            var a = Math.abs( anchors[i].x - anchors[i+1].x );
+            var b = Math.abs( anchors[i].y - anchors[i+1].y );
+            
+            console.log(i + " " + Math.sqrt(a*a + b*b));
+        }
     }
 }
 
@@ -511,8 +530,6 @@ window.onload = function ()
             {
                 slots[k % 4][slots[k%4].length] = slotsUnordered[k];
             }
-            //tables[tables.length] = slots;
-            //pieces[pieces.length] = [];
         
             tables[tables.length] = new Table(slots, tables.length);
         }
@@ -523,21 +540,34 @@ window.onload = function ()
     {
         tables[i].InitDefaultSetup();
     }
-
+    
     window.TableMover = new TableMover();
-    //window.TableMover.MoveTables();
+    var anchors = window.TableMover.CalculateAnchors();
     
+    tweenTables = TweenMax.to($('.row'), 25, {bezier: anchors, ease:Power1.easeInOut, repeat: -1});
+    tweenTables.pause();
     
-    $( window ).resize(resizeWithoutMargin);
-    resizeWithoutMargin();
+    $( window ).resize(resize);
+    resize();
     
+    $('#settings').toggleClass('scaled');
+    $('#scaleWrapper').toggleClass('hidden')
     
+    setTimeout(function(){
+      $('#settings').toggleClass('transitionSettings');
+      $('#scaleWrapper').toggleClass('transitionScaleWrapper');
+    }, 100)
+    
+    $('#restart button').on('click', restartAll);
+    
+    /////////////////////////////
+    //use transform translate for all movement!
+    /////////////////////////////
+    //re-implement zoom
     /////////////////////////////
     //use CDN to get jQuery and hammer.js
     /////////////////////////////
     //proper reset check
-    /////////////////////////////
-    //table 11 starts late
     /////////////////////////////
     //on window resize -> start all over
     
@@ -547,18 +577,28 @@ window.onload = function ()
     initSettings();
 }
 
-//currently not used
-function resizeWithMargin()
-{   
-    $('#gameOver').css('top', $('table').offset().top + parseFloat( $('table').css('margin-top')) +                 $('table').height()/2 - $('#gameOver').height()/2);
-    $('#gameOver').css('left', parseFloat( $('table').css('margin-left')) + $('table').width()/2 -                 $('#gameOver').width() / 2)
-}
-
-function resizeWithoutMargin()
+function resize(e)
 {   
     //minimum travel distance = slot height - slot margin 
     minDistance = $(tables[0].Slots[1][0]).outerHeight() - Math.abs(parseInt($(tables[0].Slots[1]
                   [0]).css('margin-right')));
+
+    $('#settings').height($('#settings').height());
+    
+    if(e != null)
+    {
+        isAutoplay = false;
+        $('#restart').css('display', 'block');
+    }
+}
+
+function restartAll()
+{
+    $('#restart').css('display', 'none');
+    $( tables ).each(function( index ) 
+        {tables[index].Reset();});
+    isAutoplay = true;
+    window.TableMover.MoveTables(); 
 }
 
 function initDebugingSetup(tableID)
@@ -615,6 +655,7 @@ function onKeyDown(e)
 
 function autoplay(tableIndex)
 {
+    if(!isAutoplay) return;
     var rand = Math.floor(Math.random() * (3 - 0 + 1)) + 0;
     switch(rand)
     {
@@ -701,14 +742,13 @@ function isGameOver(tableID)
     return true;
 }
 
-function setAutoplay(value)
-{
-    isAutoplay = value;
-    if(isAutoplay) autoplay();
-}
-
 function initSettings()
 {
+    $('#settings').on('click', function() {
+        $(this).toggleClass('scaled');
+        $('#scaleWrapper').toggleClass('hidden')
+    })
+    
     if(localStorage.getItem('MovingTables') == null)
     {
         localStorage.setItem('MovingTables', true);
@@ -717,23 +757,55 @@ function initSettings()
     $('#chkBoxMovingTables').prop('checked', localStorage.getItem('MovingTables') === "true");
     
     if($('#chkBoxMovingTables').prop('checked'))
-        window.TableMover.MoveTables();
+        tweenTables.play();
     
     $('#chkBoxMovingTables').on('click', function(){
         localStorage.setItem('MovingTables', $('#chkBoxMovingTables').prop('checked'));
         
         if($('#chkBoxMovingTables').prop('checked'))
-           window.TableMover.MoveTables(); 
+            tweenTables.play();
+        else
+            tweenTables.pause();
     })
     
     
-    $('#chkBoxTranslateZ').prop('checked', localStorage.getItem('TranslateZ') === "true");
-    $('#chkBoxTranslateZ').on('click', function(){
-        if($('#chkBoxTranslateZ').prop('checked'))
-            $('.row').css('transform', 'translateZ(0)')
-        else
-            $('.row').css('transform', '')
+    $('#chkBoxAutoplay').prop('checked', localStorage.getItem('IsAutoplay') === "true");
+    
+    if($('#chkBoxAutoplay').prop('checked'))
+        isAutoplay = true;
+    
+    $('#chkBoxAutoplay').on('click', function(){
+        localStorage.setItem('IsAutoplay', $('#chkBoxAutoplay').prop('checked'));
         
-        localStorage.setItem('TranslateZ', $('#chkBoxTranslateZ').prop('checked'));
+        if($('#chkBoxAutoplay').prop('checked'))
+        {
+            isAutoplay = true;
+            for(var i = 0; i < tables.length; i++)
+            {
+                autoplay(tables[i].ID);
+            }
+        }
+        else
+            isAutoplay = false;
+    })
+    
+    $('#chkBoxShowAll').on('click', function(){
+        if($('#chkBoxShowAll').prop('checked'))
+        {
+            isAutoplay = false;
+            tweenTables.pause();
+            $('.row').css('transform', 'translate(0px, 0px)');
+            $('.slot').css('width', '8vmin');
+            $('.slot').css('height', '8vmin');
+            resize();
+        }
+        else
+        {
+            isAutoplay = true;
+            $('.slot').css('width', '15vmin');
+            $('.slot').css('height', '15vmin');
+            resize();
+            restartAll();
+        }
     })
 }
