@@ -35,11 +35,12 @@ body {
     min-width: 2600px;
     position: relative;
     /*transition: all 2s ease-in-out;*/
-    transform: translate3d(-150px, -150px, 0);
+    /*transform: translate3d(-200px, -200px, 0);*/
+    transform: translate3d(-90px, -90px, 0);
 }
 
 table{
-	/*border: .3vmin solid #66ff66;*/
+	border: .3vmin solid #66ff66;
     border-collapse: collapse;
     transition-delay: calc( var(--animDurationNewPiece)  + .5s);
     display: inline-block;
@@ -83,8 +84,8 @@ table:nth-child(1){
     line-height: 5vmin;
     text-align: center;
     
-    transition: transform ease-in-out;
-    transition-duration: 1s;
+    /*transition: transform ease-in-out;
+    transition-duration: 1s;*/
 }
 
 .animMerge {
@@ -136,7 +137,7 @@ table:nth-child(1){
 #settings{
     /*display: none;*/
     width: 30vw;
-    max-width: 233px;
+    max-width: 283px;
     position: fixed;
     background-color: hsla(281, 100%, 56%, 0.52);
     margin-left: 1vmin;
@@ -174,17 +175,15 @@ table:nth-child(1){
 /* checkbox */
 .switch {
   position: relative;
-  display: inline-block;
   width: 6vmin;
-  height: 3.5vmin;
+  height: 3vw;
+  top: 0.5vw;
 }
 
 #settings > div > div > span{
-    vertical-align:20%; 
-    font-size: 3vmin;
+    font-size: 3vw;
 }
 
-/* Hide default HTML checkbox */
 .switch input {display:none;}
 
 /* The slider */
@@ -213,8 +212,7 @@ table:nth-child(1){
 }
 
 input:checked + .slider {
-  /*background-color: #2196F3;*/
-    background-color: red;
+    background-color: green;
 }
 
 input:focus + .slider {
