@@ -1,12 +1,14 @@
 ﻿var tables = [];
 var isAutoplay = true;
-var hiscore = 0;
 var colorStart = 120;
-var animDurationGameOverIn;
-var animDurationGameOverOut = '1s';
-var animDelayGameOver;
-var regExDuration = /([0-9]+\.?([0-9]+)?)/g;
 var tableTween;
+var zoomTween;
+var docHeight = document.documentElement.clientHeight;
+var docWidth = document.documentElement.clientWidth;
+var tableHeight;
+var tableWidth;
+var tablesHeight;
+var tablesWidth;
 
 
 Direction = {UP:'up', DOWN:'down', LEFT:'left', RIGHT:'right'}
@@ -47,12 +49,11 @@ class Piece
         }
 
         //way too complex formula for calculating color
-        var mainValue = (360/(2*Math.PI)) * (((2*Math.PI)/360)*colorStart - (i * 0.3));
-        var color = "hsla("+mainValue+", 100%, 60%, 0.6)";
+        var mainValue = (360/(2*Math.PI)) * (((2*Math.PI)/360)*colorStart - (i * 0.5));
+        var color = "hsla("+ mainValue +", 100%, 60%, 0.6)";
         this.Div.style.backgroundColor = color;
-        color = hslToRgba(mainValue, 100, 30, 1);
-        this.Div.style.borderColor = color;
-        this.Div.style.boxShadow = " 0px 0px 15px " + color;
+        color = "hsla("+ (mainValue+90) +", 50%, 50%, 1)";
+        //this.Div.style.borderColor = color;
     }
     
     DoubleValue()
@@ -78,7 +79,7 @@ class Piece
         
         table.Slots[prevX][prevY].removeChild(div);
         table.Slots[piece.X][piece.Y].appendChild(div);
-
+        
         table.CheckMerge(piece);
    
         //check of any piece is still moving
@@ -101,9 +102,7 @@ class Table
         this.Pieces = [];
         this.HasMovedOrMerged = false;
         this.PiecesTransitioning = 0;
-        
-        //this.CreateNewPiece(0,0,2);
-        //this.InitDefaultSetup();
+        this.IsVisible;
     }
     
     InitDefaultSetup()
@@ -114,8 +113,22 @@ class Table
     }
     InitDebugingSetup()
     {
-        this.CreateNewPiece(0, 0, 4);
-        this.CreateNewPiece(0, 3, 4);
+        this.CreateNewPiece(0, 0, 2);
+        this.CreateNewPiece(1, 0, 2);
+        this.CreateNewPiece(2, 0, 8);
+        this.CreateNewPiece(3, 0, 16);
+        this.CreateNewPiece(0, 1, 32);
+        this.CreateNewPiece(1, 1, 64);
+        this.CreateNewPiece(2, 1, 128);
+        this.CreateNewPiece(3, 1, 256);
+        this.CreateNewPiece(0, 2, 2);
+        this.CreateNewPiece(1, 2, 2);
+        this.CreateNewPiece(2, 2, 8);
+        this.CreateNewPiece(3, 2, 16);
+        this.CreateNewPiece(0, 3, 32);
+        this.CreateNewPiece(1, 3, 64);
+        this.CreateNewPiece(2, 3, 128);
+        //this.CreateNewPiece(3, 3, 256);
     }
         
     MoveAndMerge(direction)
@@ -274,11 +287,11 @@ class Table
             this.Pieces[i].Div.offsetHeight;
             //$(this.Pieces[i].Div).css('transform', 'translate(' + this.Pieces[i].TmpLeft + 'px, ' + this.Pieces[i].TmpTop + 'px)');
         
-            TweenMax.to($(this.Pieces[i].Div), 1, {x: this.Pieces[i].TmpLeft, y: this.Pieces[i].TmpTop, ease:  Power1.easeInOut, onComplete: this.Pieces[i].FinishMove, onCompleteParams:[this.Pieces[i].Div],
-            onUpdate: this.blub, onUpdateParams:[this.Pieces[i].Div]});
+            TweenMax.to($(this.Pieces[i].Div), 1, {x: this.Pieces[i].TmpLeft, y: this.Pieces[i].TmpTop, ease:  Power1.easeInOut, onComplete: this.Pieces[i].FinishMove, onCompleteParams:[this.Pieces[i].Div]});
         }
+        //happens when move-direction is the same two times in a row and no merging occured
         if(!this.HasMovedOrMerged)
-            autoplay(this.ID);
+            CheckVisibilityAndAutoplay(this.ID);
     }
     
     //called when piece is done moving visualy
@@ -290,35 +303,44 @@ class Table
             if(this.Pieces[i].X === piece.X && this.Pieces[i].Y === piece.Y &&
                this.Pieces[i] !== piece && !piece.Moving && !this.Pieces[i].Moving)
                 {
-                    this.MergePieces(this.Pieces[i], piece);
+                    this.StartMergePieces(this.Pieces[i], piece);
                     break;
                 }
         }
     }
     
-    //xy1 = coords for piece to remove
-    //xy2 = coords for resulting piece
-    MergePieces(pieceToRemove, resultingPiece)
+    StartMergePieces(pieceToRemove, resultingPiece)
     {
         //console.log("MERGE");
         this.DeletePiece(pieceToRemove);
 
-        
-        resultingPiece.DoubleValue();
         this.Slots[resultingPiece.X][resultingPiece.Y].markedForMerge = false;
 
         resultingPiece.Div.classList.remove('newPieceAnim');
-        resultingPiece.Div.classList.remove('animMerge');
-        resultingPiece.Div.offsetWidth; // Holy Shit!
-        resultingPiece.Div.classList.add('animMerge');
-
+        
+        TweenMax.to(resultingPiece.Div, 0.5, {rotationY: 90, ease: Power1.easeIn, onComplete:this.FinishMergePieces, onCompleteParams:[ resultingPiece.Div]});
+        
         this.PiecesTransitioning++;
     }        
-           
+         
+    FinishMergePieces(div)
+    {
+        var piece = getPieceByDiv(div);
+        piece.DoubleValue();
+        var table = getTableByPiece(piece)
+        TweenMax.to(div, 0.5, {rotationY: 180, ease: Power1.easeOut, onComplete:table.FinishedNewPieceAnim, onCompleteParams:[div]});
+    }
+    
     FinishedNewPieceAnim(e)
     {
+        if(e.animationName == null)
+        {
+            var div = e;
+            e = {};
+            e.target = div;
+        }
         e.target.classList.remove('newPieceAnim');
-        e.target.classList.remove('animMerge');
+        TweenMax.set(e.target, {rotationY: 0});
         
         var table = getTableByPiece(getPieceByDiv(e.target));
         
@@ -342,7 +364,7 @@ class Table
         }
         else
         {
-            autoplay(table.ID);
+            CheckVisibilityAndAutoplay(table.ID);
         }
     }
     
@@ -382,7 +404,7 @@ class Table
         return null;
     }
 
-    CreateNewPiece (x, y, val)
+    CreateNewPiece(x, y, val)
     {
         var newPiece = new Piece(this.ID, x, y, val);
         this.Pieces[this.Pieces.length] = newPiece;
@@ -425,20 +447,13 @@ class Table
 class TableMover
 {
     constructor()
-    {
-        window.scrollTo(0,0); 
-    
-        this.THeight = $('.row').length * $('.row:first-child table:first-child').outerHeight();
-        this.TWidth = $('.row:first-child').children().length *                                                     $('.row:first-child table:first-child').outerWidth();
-        this.DocHeight = document.documentElement.clientHeight;
-        this.DocWidth = document.documentElement.clientWidth;
-        
-        this.MinMoveX = 350;
-        this.MinMoveY = 100;
-        this.Safety = $('.row:first-child table:first-child div').outerHeight();
+    {   
+        this.MinMoveX = 100;
+        this.MinMoveY = 150;
+        this.Safety = $('.row:first-child table:first-child td').outerHeight();
         this.Anchors;
         
-        if(this.THeight - this.DocHeight < this.MinMoveY + this.Safety)
+        if(tableHeight - this.DocHeight < this.MinMoveY + this.Safety)
             return;
         
         this.CalculateAnchors();
@@ -446,20 +461,25 @@ class TableMover
     
     CalculateAnchors()
     {
-        var left = parseInt($('.row').css('transform').split(',')[4]);
-        var top = parseInt($('.row').css('transform').split(',')[5]);
+        var left = parseInt($('#tableContainer').css('transform').split(',')[4]);
+        var top = parseInt($('#tableContainer').css('transform').split(',')[5]);
         var anchors = [{x: left, y: top}];
             
         for(var i = 0; i < 10; i++)
         {
             var currentLeft = left;
             
-            var canShiftLeft = this.TWidth - this.DocWidth - Math.abs(currentLeft) - this.Safety >                              this.MinMoveX;
-            var canShiftRight = Math.abs(currentLeft) - this.Safety > this.MinMoveX;
-
-            if(!canShiftLeft)
+            var canShiftLeft = tablesWidth - docWidth - Math.abs(currentLeft) - this.Safety > this.MinMoveX;
+            var canShiftRight = currentLeft + this.Safety < -this.MinMoveX;
+            
+            //fallback
+            if(!canShiftLeft && !canShiftRight)
             {
-                //shift down        
+                console.log("Cant shift left AND cant shift right!");
+            }
+            else if(!canShiftLeft)
+            {
+                //shift right
                 var min = this.MinMoveX;
                 var max = Math.abs(currentLeft) - this.Safety;
                 
@@ -468,42 +488,42 @@ class TableMover
                 
             } else if(!canShiftRight)
             {
-                //shift up
+                //shift left
                 var min = this.MinMoveX;
-                var max = this.TWidth - this.DocWidth - Math.abs(currentLeft) - this.Safety;
+                var max = tablesWidth - docWidth - Math.abs(currentLeft) - this.Safety;
                 
                 var distance = Math.random() * (max - min) + min;
                 left = left - distance;
             }
             else if(Math.random() > 0.5)
             {
-                //shift up
+                //shift left
                 var min = this.MinMoveX;
-                var max = this.TWidth - this.DocWidth - Math.abs(currentLeft) - this.Safety;
+                var max = tablesWidth - docWidth - Math.abs(currentLeft) - this.Safety;
                 
                 var distance = Math.random() * (max - min) + min;
                 left = left - distance;
             }
             else
             {
-                //shift down
+                //shift right
                 var min = this.MinMoveX;
                 var max = Math.abs(currentLeft) - this.Safety;
                 
                 var distance = Math.random() * (max - min) + min;
                 left = left + distance;
             }
-            
-            
-            
+            //console.log("canShiftLeft " + canShiftLeft + " canShiftRight " + canShiftRight)
+            //console.log("result left: " + left);
             
             
             
             var currentTop = top;
             
-            var canShiftUp = this.THeight - this.DocHeight - Math.abs(currentTop) - this.Safety >                              this.MinMoveY;
-            var canShiftDown = Math.abs(currentTop) - this.Safety > this.MinMoveY;
-
+            var canShiftUp = tablesHeight - docHeight - Math.abs(currentTop) - this.Safety > this.MinMoveY;
+            //var canShiftDown = Math.abs(currentTop) - this.Safety > this.MinMoveY;
+            var canShiftDown = currentTop + this.Safety < -this.MinMoveY;
+            
             if(!canShiftUp)
             {
                 //shift down        
@@ -511,13 +531,13 @@ class TableMover
                 var max = Math.abs(currentTop) - this.Safety;
                 
                 var distance = Math.random() * (max - min) + min;
-                top = top + distance;
-                
+                top = top + distance;  
             } else if(!canShiftDown)
             {
                 //shift up
                 var min = this.MinMoveY;
-                var max = this.THeight - this.DocHeight - Math.abs(currentTop) - this.Safety;
+                var max = tablesHeight - docHeight - Math.abs(currentTop) - this.Safety;
+                //var max = Math.abs(currentTop + this.Safety);
                 
                 var distance = Math.random() * (max - min) + min;
                 top = top - distance;
@@ -526,7 +546,7 @@ class TableMover
             {
                 //shift up
                 var min = this.MinMoveY;
-                var max = this.THeight - this.DocHeight - Math.abs(currentTop) - this.Safety;
+                var max = tablesHeight - docHeight - Math.abs(currentTop) - this.Safety;
                 
                 var distance = Math.random() * (max - min) + min;
                 top = top - distance;
@@ -541,33 +561,39 @@ class TableMover
                 top = top + distance;
             }
             
-            
             anchors[anchors.length] = {x: left, y: top};
         }
         anchors[anchors.length] = anchors[0];
         
         this.Anchors = anchors;
         
-        this.OuputAnchors(anchors);
+        //this.OuputAnchors(anchors);
+        //this.ShowOverflow(anchors);
         
-        //ZOOM stuff
-        //var zoom = Math.random() + 0.5;
-        //console.log("zoom " + zoom);
-        
-        //$('.row').css('transform', 'translate(' + left + 'px, ' + top + 'px)' + 
-        //              'scale(' + zoom + ')' );
+        this.CheckAnchorsForSafety(anchors);
     }
     
     StartMoving(anchors)
     {
-        tableTween = TweenMax.to($('.row'), 30, {bezier:{curviness:1.2, values:anchors}, ease:Power0.easeInOut, repeat: -1});
+        tableTween = TweenMax.to($('#tableContainer'), 45, {bezier:{curviness:1.2, values:anchors}, ease:Power0.easeInOut,onUpdate:this.Update, repeat: -1});
         tableTween.pause();
+    }
+    
+    Update()
+    {
+        //console.log("adsf" + window.TableMover.DocHeight);
+        var left = parseInt($('#tableContainer').css('transform').split(',')[4]);
+        var top = parseInt($('#tableContainer').css('transform').split(',')[5]);
+        $('#tableContainer').css('perspective-origin', (docWidth/2 + Math.abs(left)) + 'px ' + (docHeight/2 + Math.abs(top)) + 'px');
+    }
+    
+    Zoom()
+    {
+        var zoom = Math.round((Math.random() * (1.5 - 1) + 1) * 10) / 10;
+        //var zoom = Math.round(Math.random() * 10 ) / 10 + 1;
+        console.log("zoom " + zoom);
         
-        //TweenLite.to(window, 2, {scrollTo:{x:Math.abs(anchors[i].x), y:Math.abs(anchors[i].y)}, onComplete:window.TableMover.StartMoving, onCompleteParams:[anchors, i+1]});
-        
-         //TweenMax.to($('.row'), 2, {x:anchors[i].x, y:anchors[i].y, onComplete:window.TableMover.StartMoving, onCompleteParams:[anchors, i+1]});
-        
-        //TweenLite.to(window, 5, {scrollTo:{x:100, y:100}});
+        zoomTween = TweenMax.to($('#tableContainer'), 8, {scale: zoom, ease:Power2.easeInOut, onComplete:window.TableMover.Zoom});
     }
     
     OuputAnchors(anchors)
@@ -577,24 +603,71 @@ class TableMover
             var a = Math.abs( anchors[i].x - anchors[i+1].x );
             var b = Math.abs( anchors[i].y - anchors[i+1].y );
             
-            console.log(i + " " + Math.sqrt(a*a + b*b));
-            //console.log(i + " " + anchors[i].x); 
+            //console.log(i + " " + Math.sqrt(a*a + b*b));
+            console.log(i + " " + anchors[i].x); 
+        }
+    }
+    
+    CheckAnchorsForSafety(anchors)
+    {
+        for(var i  = 0; i < anchors.length; i++)
+        {
+            if(anchors[i].x > -this.Safety)
+            {
+                console.log("%ctoo far right moved " + anchors[i].x, 'background: #ff5555; color: #000000');
+            }
+            if(tablesWidth - Math.abs(anchors[i].x) - docWidth < this.Safety)  
+            {
+                console.log("%ctoo far left moved " + anchors[i].x, 'background: #ff5555; color: #000000');
+            }
+            
+            if(anchors[i].y > -this.Safety)
+            {
+                console.log("%ctoo far down moved " + anchors[i].y, 'background: #ff5555; color: #000000');
+            }
+            if(tablesHeight - Math.abs(anchors[i].y) - docHeight < this.Safety)  
+            {
+                console.log("%ctoo far up moved " + anchors[i].y, 'background: #ff5555; color: #000000');
+            }
+        }
+    }
+    
+    ShowOverflow(anchors)
+    {
+        for(var i  = 0; i < anchors.length; i++)
+        {
+            var overflowLeft = Math.abs(anchors[i].x);
+            var overflowRight = tablesWidth - overflowLeft - docWidth;
+            console.log("Horizontal " + overflowLeft + "  " + overflowRight);
+            
+            var overflowTop = Math.abs(anchors[i].y);
+            var overflowBottom = tablesHeight - overflowTop - docHeight;
+            console.log("Vertical " + overflowTop + "  " + overflowBottom);
         }
     }
 }
 
 window.onload = function ()
-//$( document ).ready(function()
 {
-    window.scrollTo(0,0); 
+    docHeight = document.documentElement.clientHeight;
+    docWidth = document.documentElement.clientWidth;
+    
+    tableHeight = $('table').outerHeight();
+    tableWidth = $('table').outerWidth();
+    
+    createDocument();
+    
+    tablesHeight = $('.row').length * $('.row:first-child table:first-child').outerHeight();
+    tablesWidth = $('.row:first-child').children().length * $('.row:first-child table:first-child').outerWidth();
+    
     var slots = [];
     for(var i = 1; i <= $('.row').length; i++)
     {
         //console.log("i " + i);
-        for(var j = 1; j <= $('div:nth-child('+i+') table').length; j++)
+        for(var j = 1; j <= $('div div:nth-child('+i+') table').length; j++)
         {
             //console.log("table " + i + j);
-            slotsUnordered = $('div:nth-child('+i+') table:nth-child('+j+') tr div');  
+            slotsUnordered = $('div div:nth-child('+i+') table:nth-child('+j+') tr td');  
      
             var col0 = []; 
             var col1 = [];
@@ -610,6 +683,8 @@ window.onload = function ()
         }
     }
     
+    setBackgroundColors();
+    
     //tables[0].InitDefaultSetup();
     for(var i = 0; i < tables.length; i++)
     {
@@ -619,16 +694,14 @@ window.onload = function ()
     
     window.TableMover = new TableMover();
     window.TableMover.StartMoving(window.TableMover.Anchors);
+    window.TableMover.Zoom();
+    zoomTween.pause();
     
-    /*setTimeout(function(){
-        window.TableMover = new TableMover();
-        window.TableMover.StartMoving(window.TableMover.Anchors, 1);
-    }, 10)*/
-   
+    $( window ).resize(function(){location.reload()});
     
-    $( window ).resize(resize);
-    resize();
-    
+    //minimum travel distance = slot height - slot margin 
+    minDistance = $(tables[0].Slots[1][0]).outerHeight();
+    $('#settings').height($('#settings').height());
     $('#settings').toggleClass('scaled');
     $('#scaleWrapper').toggleClass('hidden')
     
@@ -639,10 +712,14 @@ window.onload = function ()
     
     $('#restart button').on('click', restartAll);
     
-    /////////////////////////////
-    //re-implement zoom
-    /////////////////////////////
-    //use CDN to get jQuery and hammer.js
+    ///////////////////////
+    //piece on end of move still snapping!
+    ///////////////////////
+    //fps anzeigen
+    ///////////////////////
+    //random horizontal and vertical flip on merge
+    ///////////////////////
+    //set perspective once on doc load
     
     //debug
     //localStorage.clear();
@@ -651,25 +728,89 @@ window.onload = function ()
 
 }
 
-function resize(e)
-{   
-    //minimum travel distance = slot height - slot margin 
-    minDistance = $(tables[0].Slots[1][0]).outerHeight() - Math.abs(parseInt($(tables[0].Slots[1]
-                  [0]).css('margin-right')));
-
+function createDocument()
+{
+    var tablesPerRow = Math.ceil(docWidth / tableWidth) + 1;
+    var rowsNeeded = Math.ceil(docHeight / tableHeight) + 1;
     
-    
-    
-    if(e != null)
+    while($('.row').children().length < tablesPerRow)
     {
-        isAutoplay = false;
-        $('#restart').css('display', 'block');
-        tableTween.pause();
+        var table = $('table').first().clone();
+        $('.row').append(table);
+    }
+    
+    while($('.row').length < rowsNeeded)
+    {
+        var row = $('.row').first().clone();
+        $('#tableContainer').append(row);
+    }
+    console.log("table count: " + tablesPerRow * rowsNeeded);
+}
+
+function setBackgroundColors()
+{
+    var rows = $('.row').length;
+    var cols = $('.row:first-child table').length;
+    
+    var colIncrease = (180 / (cols*4));
+    var rowIncrease = (180 / (rows*4));
+    
+    
+    for(var i = 0; i < tables.length; i++)
+    {
+        for(var j = 0; j < 4; j++)
+        {
+            for(var k = 0; k < 4; k++)
+            {
+                //var colorVal = colIncrease * (j + ((i % cols) *4)) + rowIncrease * (k + ((i % rows) *4));
+                var colorVal = colIncrease * (j + ((i % cols) *4)) + rowIncrease * (k + (Math.floor(i / cols) *4));
+                
+                //var colorVal = 180 / 4 * j + 180 / 4 * k;
+                tables[i].Slots[j][k].style.backgroundColor = "hsla("+ colorVal +", 100%, 60%, 0.6)";
+            }
+        }
+    }
+}
+
+function CheckVisibilityAndAutoplay(id)
+{
+    if(isVisible(id))
+    {
+        tables[id].IsVisible = true;
+        autoplay(id);
     }
     else
-        {
-            $('#settings').height($('#settings').height());
-        }
+    {
+        //console.log("table was not visible " + id)
+        //setTimeout( this.CheckVisibilityAndAutoplay.call(this), 10000);
+        tables[id].IsVisible = false;
+        setTimeout( function(){
+            CheckVisibilityAndAutoplay(id)
+        }, 1000 );
+    }
+
+}
+
+function isVisible(tableID)
+{
+    return true;
+    //if table is right of viewport
+    if($(tables[tableID].Slots[2][2]).offset().left > docWidth)
+        return false;
+        
+    //if table is left of viewport
+    if($(tables[tableID].Slots[2][2]).offset().left < 0)
+        return false;
+
+    //if table is below of viewport
+    if($(tables[tableID].Slots[2][2]).offset().top > docHeight)
+        return false;
+        
+    //if table is above of viewport
+    if($(tables[tableID].Slots[2][2]).offset().top < 0)
+        return false;
+    
+    return true;
 }
 
 function restartAll()
@@ -709,35 +850,6 @@ function initDebugingSetup(tableID)
     
     //mergingPieceCount = 16;
     randomPieceCount = 16;
-}
-
-/*
-    <- 37
-    ^  38
-    -> 39
-    v  40
-*/
-
-function onKeyDown(e)
-{
-    console.log(String.fromCharCode(e.keyCode) + " --> " + e.keyCode);
-
-    if (e.keyCode !== 37 && e.keyCode !== 38 && e.keyCode !== 39 &&
-        e.keyCode !== 40 && e.keyCode !== 68 && e.keyCode !== 65 &&
-        e.keyCode !== 87 && e.keyCode !== 83)
-        return;
-
-    if (e.keyCode === 39  || e.keyCode === 68)
-        moveAndMerge(Direction.RIGHT)
-    
-    if (e.keyCode === 37  || e.keyCode === 65)
-        moveAndMerge(Direction.LEFT)
-    
-    if (e.keyCode === 38 || e.keyCode === 87)
-        moveAndMerge(Direction.UP)
-    
-    if (e.keyCode === 40   || e.keyCode === 83)
-        moveAndMerge(Direction.DOWN)
 }
 
 function autoplay(tableIndex)
@@ -856,6 +968,11 @@ function initSettings()
     })
     
     
+    if(localStorage.getItem('IsAutoplay') == null)
+    {
+        localStorage.setItem('IsAutoplay', true);
+    }
+    
     $('#chkBoxAutoplay').prop('checked', localStorage.getItem('IsAutoplay') === "true");
     
     isAutoplay = $('#chkBoxAutoplay').prop('checked');
@@ -876,10 +993,31 @@ function initSettings()
             isAutoplay = false;
     })
     
+    if(localStorage.getItem('IsZoom') == null)
+    {
+        localStorage.setItem('IsZoom', false);
+    }
+    
+    $('#chkBoxZoom').prop('checked', localStorage.getItem('IsZoom') === "true");
+    
+    if($('#chkBoxZoom').prop('checked'))
+        zoomTween.play();
+    
+    $('#chkBoxZoom').on('click', function(){
+        localStorage.setItem('IsZoom', $('#chkBoxZoom').prop('checked'));
+        
+        if($('#chkBoxZoom').prop('checked'))
+        {
+            zoomTween.play();
+        }
+        else
+            zoomTween.pause();
+    })
+    
     
     if(localStorage.getItem('ShowAll') == null)
     {
-        localStorage.setItem('ShowAll', true);
+        localStorage.setItem('ShowAll', false);
     }
     
     $('#chkBoxShowAll').prop('checked', localStorage.getItem('ShowAll') === "true");
@@ -887,9 +1025,9 @@ function initSettings()
     if($('#chkBoxShowAll').prop('checked'))
     {
         $('.row').css('transform', 'translate(0px, 0px)');
-        $('.slot').css('width', '8vmin');
-        $('.slot').css('height', '8vmin');
-        resize();
+        $('.slot').css('width', '6vmin');
+        $('.slot').css('height', '6vmin');
+        //resize();
     }
     
     
@@ -898,18 +1036,16 @@ function initSettings()
         if($('#chkBoxShowAll').prop('checked'))
         {
             isAutoplay = false;
-            tweenTables.pause();
+            tableTween.pause();
             $('.row').css('transform', 'translate(0px, 0px)');
-            $('.slot').css('width', '8vmin');
-            $('.slot').css('height', '8vmin');
-            resize();
+            $('.slot').css('width', '6vmin');
+            $('.slot').css('height', '6vmin');
         }
         else
         {
             isAutoplay = true;
             $('.slot').css('width', '15vmin');
             $('.slot').css('height', '15vmin');
-            resize();
             restartAll();
         }
     })
