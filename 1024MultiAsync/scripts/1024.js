@@ -26,6 +26,7 @@ class Piece
         this.TmpLeft = 0;
         this.TmpTop = 0;    
         this.TableIndex = tableIndex;
+        this.Direction;
         
         this.Div = document.createElement('div');
         //this.Div.innerHTML = "<b>" + initVal + "</b>";
@@ -100,6 +101,7 @@ class Table
         this.ID = id;
         this.Slots = slots;
         this.Pieces = [];
+        this.CurrentMoveDirection;
         this.HasMovedOrMerged = false;
         this.PiecesTransitioning = 0;
         this.IsVisible;
@@ -114,7 +116,7 @@ class Table
     InitDebugingSetup()
     {
         this.CreateNewPiece(0, 0, 2);
-        this.CreateNewPiece(1, 0, 2);
+        /*this.CreateNewPiece(1, 0, 2);
         this.CreateNewPiece(2, 0, 8);
         this.CreateNewPiece(3, 0, 16);
         this.CreateNewPiece(0, 1, 32);
@@ -127,7 +129,7 @@ class Table
         this.CreateNewPiece(3, 2, 16);
         this.CreateNewPiece(0, 3, 32);
         this.CreateNewPiece(1, 3, 64);
-        this.CreateNewPiece(2, 3, 128);
+        this.CreateNewPiece(2, 3, 128);*/
         //this.CreateNewPiece(3, 3, 256);
     }
         
@@ -136,6 +138,8 @@ class Table
         //set by calculateMove and mergePieces
         this.HasMovedOrMerged = false;
 
+        this.CurrentMoveDirection = direction;
+        
         //console.log("%c Move " + direction + " " + this.ID, 'background: #222; color: #bada55');
         this.CalculateMoves(direction);
     }
@@ -268,7 +272,7 @@ class Table
 
         //console.log("going to: " + x2 + " " + y2); 
 
-        piece.TmpLeft += (x2 - x1) * minDistance;
+        piece.TmpLeft += (x2 - x1) * (minDistance+1);
         piece.TmpTop += (y2 - y1) * minDistance;
 
         piece.Moving = true;
@@ -285,8 +289,9 @@ class Table
                 continue;
             
             this.Pieces[i].Div.offsetHeight;
-            //$(this.Pieces[i].Div).css('transform', 'translate(' + this.Pieces[i].TmpLeft + 'px, ' + this.Pieces[i].TmpTop + 'px)');
         
+            this.Pieces[i].Direction = this.CurrentMoveDirection;
+            
             TweenMax.to($(this.Pieces[i].Div), 1, {x: this.Pieces[i].TmpLeft, y: this.Pieces[i].TmpTop, ease:  Power1.easeInOut, onComplete: this.Pieces[i].FinishMove, onCompleteParams:[this.Pieces[i].Div]});
         }
         //happens when move-direction is the same two times in a row and no merging occured
@@ -318,7 +323,14 @@ class Table
 
         resultingPiece.Div.classList.remove('newPieceAnim');
         
-        TweenMax.to(resultingPiece.Div, 0.5, {rotationY: 90, ease: Power1.easeIn, onComplete:this.FinishMergePieces, onCompleteParams:[ resultingPiece.Div]});
+        if(resultingPiece.Direction == Direction.LEFT || resultingPiece.Direction == Direction.RIGHT)
+        {
+            TweenMax.to(resultingPiece.Div, 0.5, {rotationY: 90, ease: Power1.easeIn, onComplete:this.FinishMergePieces, onCompleteParams:[ resultingPiece.Div]});
+        }
+        else
+        {
+            TweenMax.to(resultingPiece.Div, 0.5, {rotationX: 90, ease: Power1.easeIn, onComplete:this.FinishMergePieces, onCompleteParams:[ resultingPiece.Div]});
+        }
         
         this.PiecesTransitioning++;
     }        
@@ -328,7 +340,14 @@ class Table
         var piece = getPieceByDiv(div);
         piece.DoubleValue();
         var table = getTableByPiece(piece)
-        TweenMax.to(div, 0.5, {rotationY: 180, ease: Power1.easeOut, onComplete:table.FinishedNewPieceAnim, onCompleteParams:[div]});
+        if(piece.Direction == Direction.LEFT || piece.Direction == Direction.RIGHT)
+        {
+            TweenMax.to(div, 0.5, {rotationY: 180, ease: Power1.easeOut, onComplete:table.FinishedNewPieceAnim, onCompleteParams:[div]});
+        }
+        else
+        {
+            TweenMax.to(div, 0.5, {rotationX: 180, ease: Power1.easeOut, onComplete:table.FinishedNewPieceAnim, onCompleteParams:[div]});
+        }
     }
     
     FinishedNewPieceAnim(e)
@@ -685,11 +704,11 @@ window.onload = function ()
     
     setBackgroundColors();
     
-    //tables[0].InitDefaultSetup();
+    //tables[0].InitDebugingSetup();
     for(var i = 0; i < tables.length; i++)
     {
         tables[i].InitDefaultSetup();
-        //tables[i].InitDebugingSetup();
+        tables[i].InitDebugingSetup();
     }
     
     window.TableMover = new TableMover();
@@ -700,7 +719,7 @@ window.onload = function ()
     $( window ).resize(function(){location.reload()});
     
     //minimum travel distance = slot height - slot margin 
-    minDistance = $(tables[0].Slots[1][0]).outerHeight();
+    minDistance = $(tables[0].Slots[1][0]).outerHeight();// + parseFloat($('td').css('border-width'));
     $('#settings').height($('#settings').height());
     $('#settings').toggleClass('scaled');
     $('#scaleWrapper').toggleClass('hidden')
@@ -713,11 +732,7 @@ window.onload = function ()
     $('#restart button').on('click', restartAll);
     
     ///////////////////////
-    //piece on end of move still snapping!
-    ///////////////////////
     //fps anzeigen
-    ///////////////////////
-    //random horizontal and vertical flip on merge
     ///////////////////////
     //set perspective once on doc load
     
