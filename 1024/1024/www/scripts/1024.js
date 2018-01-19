@@ -111,7 +111,7 @@ window.onload = function ()
     }
 
     $('#btnReset').click(reset);
-    $('#btnPlayAgain').click(btnPlayAgainClicked);
+    
     $('#btnUndo').click(btnUndoLastTurnClicked);
 
     hiscore = parseInt(window.localStorage.getItem('hiscore'));
@@ -132,8 +132,7 @@ window.onload = function ()
     
     $('#tutorial').css('top', $('.scaleDiv').height()/2 - $('#tutorial').height()/2);
     
-    /////////////////////////////
-    //remove numbers on autoplay
+
     /////////////////////////////
     //btnClearLocalStorage
     
@@ -194,13 +193,6 @@ window.onload = function ()
     
     debugElements();
     updateScore();
-}
-
-//currently not used
-function resizeWithMargin()
-{   
-    $('#gameOver').css('top', $('table').offset().top + parseFloat( $('table').css('margin-top')) +                 $('table').height()/2 - $('#gameOver').height()/2);
-    $('#gameOver').css('left', parseFloat( $('table').css('margin-left')) + $('table').width()/2 -                 $('#gameOver').width() / 2)
 }
 
 function resizeWithoutMargin()
@@ -284,6 +276,10 @@ function initDebugingSetup()
 
 function onKeyDown(e)
 {
+    // space and arrow keys
+    if([32, 37, 38, 39, 40].indexOf(e.keyCode) > -1) 
+        e.preventDefault();
+    
     console.log(String.fromCharCode(e.keyCode) + " --> " + e.keyCode);
 
     if (e.keyCode !== 37 && e.keyCode !== 38 && e.keyCode !== 39 &&
@@ -741,20 +737,19 @@ function gameOver()
 {
     console.log('gameOver');
     
+    $('#btnPlayAgain').one("click", btnPlayAgainClicked);
+    
     $('table').css('transition-duration',animDurationGameOverIn);
     $('table').css('transition-delay',animDelayGameOver);
-    $('table').toggleClass('blurred');
+    $('table').addClass('blurred');
     
-    //scale #gameOver instantly
-    $('#gameOver').css('transition-duration','0s');
-    $('#gameOver').css('transition-delay','0s');
-    $('#gameOver').toggleClass('big');
+    $('#gameOver').css('display','block');
     
     setTimeout( function(){
         $('#gameOver').css('transition-duration',animDurationGameOverIn);
         $('#gameOver').css('transition-delay',animDelayGameOver);
-        $('#gameOver').toggleClass('big');
-        $('#gameOver').toggleClass('visible');
+        $('#gameOver').removeClass('big');
+        $('#gameOver').addClass('visible');
        },100);
     
     $('#scoreGameOver').text($('#score').text());
@@ -767,15 +762,19 @@ function gameOver()
 }
 
 function btnPlayAgainClicked()
-{
+{ 
     $('table').css('transition-delay', '0s');
     $('table').css('transition-duration',animDurationGameOverOut);
-    $('table').toggleClass('blurred');
+    $('table').removeClass('blurred');
     
     $('#gameOver').css('transition-duration',animDurationGameOverOut);
     $('#gameOver').css('transition-delay','0s');
-    $('#gameOver').toggleClass('big');
-    $('#gameOver').toggleClass('visible');
+    $('#gameOver').addClass('big');
+    $('#gameOver').removeClass('visible');
+    
+    setTimeout(function(){
+        $('#gameOver').css('display','none');
+    }, 1000);
     
     reset();
 }

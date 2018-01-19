@@ -35,22 +35,14 @@ header{
     background-color: #FF874C;
 }
 
-.nav{
-    list-style:none;
-    margin:0;
-    padding:0;
-    text-align:center;
-}
-.nav li{
-    display:inline;
+#top{
+    display: flex;
+    justify-content: space-around;
+    margin: 0 20%;
 }
 
-.nav li:nth-child(2n+3){
-    padding-left:10px;
-}
-
-.nav li:last-child:hover{
-    text-decoration: underline;
+#top div p:first-child{
+    font-size: 3vmin
 }
 
 #btnReset{
@@ -80,7 +72,6 @@ table{
     width: 50%;
     margin: auto;
 
-    /*transform: scale(1.8);*/
     opacity: 0;
     transition: transform, opacity;
     transition-duration: var(--animDurationGameOver); 
@@ -92,6 +83,7 @@ table{
 }
 
 #gameOver{
+    display: none;
     position: absolute;
 }
 
@@ -107,7 +99,6 @@ table{
 
 .visible{
     opacity: 1;
-    /*visibility: visible;*/
 }
 
 button {
@@ -145,7 +136,6 @@ button:active
 }
 
 .piece {
-    /*display: block;*/
     position: relative;
     left: 0vmin;
     top:0vmin;
