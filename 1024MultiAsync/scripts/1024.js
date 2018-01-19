@@ -467,9 +467,9 @@ class TableMover
 {
     constructor()
     {   
-        this.MinMoveX = 100;
-        this.MinMoveY = 150;
         this.Safety = $('.row:first-child table:first-child td').outerHeight();
+        this.MinMoveX = this.Safety;
+        this.MinMoveY = this.Safety*2;
         this.Anchors;
         
         if(tableHeight - this.DocHeight < this.MinMoveY + this.Safety)
@@ -594,11 +594,11 @@ class TableMover
     
     StartMoving(anchors)
     {
-        tableTween = TweenMax.to($('#tableContainer'), 45, {bezier:{curviness:1.2, values:anchors}, ease:Power0.easeInOut,onUpdate:this.Update, repeat: -1});
+        tableTween = TweenMax.to($('#tableContainer'), 45, {bezier:{curviness:1.2, values:anchors}, ease:Power0.easeInOut,onUpdate:this.UpdatePerspectiveOrigin, repeat: -1});
         tableTween.pause();
     }
     
-    Update()
+    UpdatePerspectiveOrigin()
     {
         //console.log("adsf" + window.TableMover.DocHeight);
         var left = parseInt($('#tableContainer').css('transform').split(',')[4]);
@@ -712,14 +712,14 @@ window.onload = function ()
     }
     
     window.TableMover = new TableMover();
+    window.TableMover.UpdatePerspectiveOrigin();
     window.TableMover.StartMoving(window.TableMover.Anchors);
     window.TableMover.Zoom();
     zoomTween.pause();
     
     $( window ).resize(function(){location.reload()});
     
-    //minimum travel distance = slot height - slot margin 
-    minDistance = $(tables[0].Slots[1][0]).outerHeight();// + parseFloat($('td').css('border-width'));
+    minDistance = $(tables[0].Slots[1][0]).outerHeight();
     $('#settings').height($('#settings').height());
     $('#settings').toggleClass('scaled');
     $('#scaleWrapper').toggleClass('hidden')
@@ -730,11 +730,6 @@ window.onload = function ()
     }, 100)
     
     $('#restart button').on('click', restartAll);
-    
-    ///////////////////////
-    //fps anzeigen
-    ///////////////////////
-    //set perspective once on doc load
     
     //debug
     //localStorage.clear();
