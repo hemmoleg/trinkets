@@ -17,38 +17,20 @@
 
 <body>
     <header>
-    <!--<ul class="nav">
-      <li>
-          <div>
-              <p>Score</p>
-              <p id="score">234234</p>
-          </div>
-      </li>
-      <li>
-          <div>
-              <p>Best</p>
-              <p id="hiscore">234234</p>
-          </div>
-      </li>
-      <li id="btnReset">Reset</li>
-    </ul>-->
-    
+   
     <div id="top">
-      <div>
-          <p>Score</p>
-          <p id="score">234234</p>
-      </div>
-      <div>
-          <p>Best</p>
-          <p id="hiscore">234234</p>
-      </div>
+        <button type="button" id="btnNewGame">New Game</button>
+        <button type="button" id="btnUndoDebug">Undo</button>
+        <span id="first">
+            <p>Score</p>
+            <p id="score">234234</p>
+        </span>
+        <span>
+            <p>Best</p>
+            <p id="hiscore">234234</p>
+        </span>
     </div>
     
-    <!--<div>
-        <div>Score: <span id="score">0</span></div>
-        <div>HiScore: <span id="hiscore">0</span></div>
-        <button type="button" id="btnReset">Reset</button>
-    </div>-->
     </header>
     <table>
         <tr><td><div class="slot"></div></td><td><div class="slot"></div></td><td>
@@ -63,7 +45,7 @@
         
     <div class="scaleDiv"> 
     <div class="overlay" id="tutorial">
-        Start playing by pressing arrow keys, WSAD or swiping. 
+        Start playing by pressing arrow keys or swiping. 
     </div>    
     </div>
     
@@ -97,7 +79,6 @@
             </label> 
             <span>Show moving</span>
             <br>
-            <button type="button" id="btnUndoDebug">Undo</button>
             <button type="button" id="btnGameOver">Game Over</button>
         </div>
         <div class="switchDiv">

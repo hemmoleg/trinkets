@@ -6,7 +6,7 @@ var dragSrcElement = null;
 var hasMovedOrMerged = false;
 var hiscore = 0;
 var moving = false;
-var minDistance = 20.3;
+var minDistance = 19.3;
 var colorStart = 120;
 var animDurationGameOverIn;
 var animDurationGameOverOut = '1s';
@@ -99,7 +99,7 @@ function Piece(x, y, initVal)
 window.onload = function ()
 {
     slotsUnordered = $('table tr div');
-
+    
     var col0 = []; 
     var col1 = [];
     var col2 = [];
@@ -110,10 +110,11 @@ window.onload = function ()
         slots[i % 4][slots[i%4].length] = slotsUnordered[i];
     }
 
-    $('#btnReset').click(reset);
+    minDistance = $(slots[0]).outerHeight() - 2;
     
     $('#btnUndo').click(btnUndoLastTurnClicked);
-
+    $('#btnNewGame').one(reset);
+    
     hiscore = parseInt(window.localStorage.getItem('hiscore'));
     if(!isNaN(hiscore))
         document.getElementById("hiscore").innerHTML = window.localStorage.getItem('hiscore');
@@ -132,9 +133,9 @@ window.onload = function ()
     
     $('#tutorial').css('top', $('.scaleDiv').height()/2 - $('#tutorial').height()/2);
     
-
     /////////////////////////////
-    //btnClearLocalStorage
+    //test several tables behind each other (increase transparency, paralaxe)
+    //displayed on new game started, one after another
     
     //keys input
     document.body.addEventListener("keydown", onKeyDown);
@@ -176,7 +177,7 @@ window.onload = function ()
     });
     
     //debug
-    //localStorage.clear();
+    localStorage.clear();
     
     if(localStorage.length === 0)
     {
@@ -282,27 +283,27 @@ function onKeyDown(e)
     
     console.log(String.fromCharCode(e.keyCode) + " --> " + e.keyCode);
 
-    if (e.keyCode !== 37 && e.keyCode !== 38 && e.keyCode !== 39 &&
+    if(e.keyCode !== 37 && e.keyCode !== 38 && e.keyCode !== 39 &&
         e.keyCode !== 40 && e.keyCode !== 68 && e.keyCode !== 65 &&
         e.keyCode !== 87 && e.keyCode !== 83)
         return;
 
-    if (e.keyCode === 39  || e.keyCode === 68)
+    if(e.keyCode === 39 || e.keyCode === 68)
         moveAndMerge(Direction.RIGHT)
     
-    if (e.keyCode === 37  || e.keyCode === 65)
+    if(e.keyCode === 37 || e.keyCode === 65)
         moveAndMerge(Direction.LEFT)
     
-    if (e.keyCode === 38 || e.keyCode === 87)
+    if(e.keyCode === 38 || e.keyCode === 87)
         moveAndMerge(Direction.UP)
     
-    if (e.keyCode === 40   || e.keyCode === 83)
+    if(e.keyCode === 40 || e.keyCode === 83)
         moveAndMerge(Direction.DOWN)
 }
 
 function moveAndMerge(direction)
 {
-    if (firstGame)
+    if(firstGame)
     {
         startFirstGame();
         return;
@@ -468,8 +469,8 @@ function applyMove()
 {
     for(var i = 0; i < pieces.length; i++)
     {
-        pieces[i].GetDiv().style.left = pieces[i].tmpLeft.toString() + 'vmin';
-        pieces[i].GetDiv().style.top = pieces[i].tmpTop.toString() + 'vmin';
+        pieces[i].GetDiv().style.left = pieces[i].tmpLeft.toString() + 'px';
+        pieces[i].GetDiv().style.top = pieces[i].tmpTop.toString() + 'px';
     }
     if(isAutoplay && !hasMovedOrMerged)
         autoplay();
@@ -719,8 +720,6 @@ function createNewPiece(x,y,val)
     var newPiece = new Piece(x, y, val);
     pieces[pieces.length] = newPiece;
     slots[x][y].appendChild(newPiece.GetDiv());
-    
-    //$(pieces[pieces.length-1])[0].GetDiv().children[0].offsetWidth
 
     var divWidth = $(pieces[pieces.length-1])[0].GetDiv().offsetWidth;
     var text = $(pieces[pieces.length-1])[0].GetDiv().children[0];
@@ -729,7 +728,6 @@ function createNewPiece(x,y,val)
     while (text.offsetWidth + 6 > divWidth)
     {
         $(text).css("font-size", [(fontSize -= 0.5) + "vmin"])
-        //console.log(text.offsetWidth, divWidth);
     }
 }
 
@@ -738,6 +736,7 @@ function gameOver()
     console.log('gameOver');
     
     $('#btnPlayAgain').one("click", btnPlayAgainClicked);
+    $('#btnNewGame').one("click", btnPlayAgainClicked);
     
     $('table').css('transition-duration',animDurationGameOverIn);
     $('table').css('transition-delay',animDelayGameOver);
@@ -759,6 +758,7 @@ function gameOver()
         $('#hiscore').text($('#score').text());
         window.localStorage.setItem('hiscore', $('#score').text() );
     }
+    $('#btnUndoDebug').prop('disabled', true);
 }
 
 function btnPlayAgainClicked()
@@ -798,6 +798,9 @@ function reset()
         initDebugingSetup();
     else
         initDefaultSetup();
+    
+    $('#btnUndoDebug').prop('disabled', true);
+    $('#btnNewGame').one("click", reset);
 }
 
 function btnUndoLastTurnClicked()
@@ -840,6 +843,12 @@ function finishAnimation(e)
 {
     e.target.classList.remove('newPieceAnim');
     e.target.classList.remove('animMerge');
+    
+    if(pieces.length > 2)
+    {
+        $('#btnUndoDebug').prop('disabled', false);
+        $('#btnNewGame').prop('disabled', false);
+    }
 }
 
 function setAutoplay(value)
@@ -868,6 +877,9 @@ function debugElements()
     });
     $('#chkBoxShowMerge').prop('checked', window.localStorage.getItem('showMerge') == "true");
     
+    if(window.localStorage.getItem('addRandom') == null)
+        window.localStorage.setItem('addRandom', 'true');
+        
     $('#chkBoxAddRandom').change(function()
     {
         window.localStorage.setItem('addRandom', $('#chkBoxAddRandom').is(':checked'));
@@ -885,6 +897,20 @@ function debugElements()
         setAutoplay($('#chkBoxAutoplay').is(':checked'))
     });
     
+    
+    
     $('#btnUndoDebug').click(undoLastTurnDebug);
+    
+    if(pieces.length < 3)
+    {
+        $('#btnUndoDebug').prop('disabled', true);
+        $('#btnNewGame').prop('disabled', true);
+    }
     $('#btnGameOver').click(gameOver);
+    
+    if(window.localStorage.getItem('hiscore') == null)
+    {
+        window.localStorage.setItem('hiscore', '0');
+        $('#hiscore').text("0");
+    }
 }
