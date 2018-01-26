@@ -98,7 +98,7 @@ function Piece(x, y, initVal)
 
 window.onload = function ()
 {
-    slotsUnordered = $('table tr div');
+    slotsUnordered = $('table tr td');
     
     var col0 = []; 
     var col1 = [];
@@ -110,10 +110,18 @@ window.onload = function ()
         slots[i % 4][slots[i%4].length] = slotsUnordered[i];
     }
 
-    minDistance = $(slots[0]).outerHeight() - 2;
+    minDistance = $(slots[0]).outerHeight();
+    
+    let newTable = $('table').clone(false);
+    $(newTable).css('display', 'block');
+    $(newTable).css('height', '0px');
+    $(newTable).css('left', document.documentElement.clientWidth/2 - $(newTable).outerWidth/2);
+    
+    
+    $('#tableContainer').append( newTable );
     
     $('#btnUndo').click(btnUndoLastTurnClicked);
-    $('#btnNewGame').one(reset);
+    $('#btnNewGame').one("click", reset);
     
     hiscore = parseInt(window.localStorage.getItem('hiscore'));
     if(!isNaN(hiscore))
@@ -133,9 +141,15 @@ window.onload = function ()
     
     $('#tutorial').css('top', $('.scaleDiv').height()/2 - $('#tutorial').height()/2);
     
+    ////////////////////////////
+    //properly position new tables
     /////////////////////////////
     //test several tables behind each other (increase transparency, paralaxe)
     //displayed on new game started, one after another
+    /////////////////////////////
+    //remove frame on button click
+    /////////////////////////////
+    //reload page on client resize
     
     //keys input
     document.body.addEventListener("keydown", onKeyDown);
@@ -177,7 +191,7 @@ window.onload = function ()
     });
     
     //debug
-    localStorage.clear();
+    //localStorage.clear();
     
     if(localStorage.length === 0)
     {
@@ -251,21 +265,14 @@ function initDefaultSetup()
 function initDebugingSetup()
 {
     createNewPiece(0, 0, 2);
-    createNewPiece(1, 0, 4);
-    createNewPiece(2, 0, 8);
-    createNewPiece(3, 0, 2);
-    createNewPiece(0, 1, 2);
-    createNewPiece(1, 1, 8);
-    createNewPiece(2, 1, 16);
-    createNewPiece(3, 1, 4);
-    createNewPiece(0, 2, 8);
-    createNewPiece(1, 2, 16);
-    createNewPiece(2, 2, 64);
-    createNewPiece(3, 2, 16);
-    createNewPiece(0, 3, 512);
-    createNewPiece(1, 3, 1024);
-    createNewPiece(2, 3, 128);
-    createNewPiece(3, 3, 256);
+    createNewPiece(2, 0, 4);
+    //createNewPiece(0, 1, 8);
+    //createNewPiece(3, 1, 2);
+    //createNewPiece(3, 2, 2);
+    //createNewPiece(1, 3, 2);
+    //createNewPiece(2, 3, 4);
+    //createNewPiece(3, 3, 8);
+   
 }
 
 /*
@@ -450,8 +457,6 @@ function calculateMove(x1, y1, x2, y2)
     piece.SetX(x2);
     piece.SetY(y2);
 
-    console.log("going to: " + x2 + " " + y2); 
-
     piece.tmpLeft += (x2 - x1) * minDistance;
     piece.tmpTop += (y2 - y1) * minDistance;
     
@@ -469,16 +474,23 @@ function applyMove()
 {
     for(var i = 0; i < pieces.length; i++)
     {
-        pieces[i].GetDiv().style.left = pieces[i].tmpLeft.toString() + 'px';
-        pieces[i].GetDiv().style.top = pieces[i].tmpTop.toString() + 'px';
+        if(pieces[i].tmpLeft != 0 || pieces[i].tmpTop != 0)
+        {
+            pieces[i].GetDiv().style.transform = 'translate(' + pieces[i].tmpLeft + 'px,'  + pieces[i].tmpTop + 'px)';
+        }
     }
     if(isAutoplay && !hasMovedOrMerged)
         autoplay();
 }
 
-function finishMove(e)
+function finishMove(event)
 {
-    piece = getPieceByDiv(e.target);
+    piece = getPieceByDiv(event.target);
+    
+    if(piece == undefined)
+    {
+        console.log("Piece undefined " + event);
+    }
     
     piece.SetMoving(false);
     if( $('#chkBoxShowMoving').prop('checked') )
@@ -489,16 +501,13 @@ function finishMove(e)
     prevX = piece.GetX() - (piece.tmpLeft / minDistance);
     prevY = piece.GetY() - (piece.tmpTop / minDistance);
     
-    console.log("done moving, origin was: " + prevX + " " + prevY);
-    
     piece.tmpLeft = 0;
     piece.tmpTop = 0;
     
-    piece.GetDiv().style.left = '0px';
-    piece.GetDiv().style.top = '0px';
-    
     slots[prevX][prevY].removeChild(piece.GetDiv());
     slots[piece.GetX()][piece.GetY()].appendChild(piece.GetDiv());
+    
+    piece.GetDiv().style.transform = 'translate( 0px )';
     
     checkMerge(piece);
 }
@@ -507,7 +516,6 @@ function finishMove(e)
 function checkMerge(piece) 
 {
     console.log("checkMerge");
-    
     for(var i = 0; i < pieces.length; i++)
     {
         if(pieces[i].GetX() === piece.GetX() && pieces[i].GetY() === piece.GetY() &&
@@ -517,8 +525,7 @@ function checkMerge(piece)
                 break;
             }
     }
-    console.log(piece.GetX() + " " + piece.GetY() + " arrived -> check others moving");
-   
+    
     for(var i = 0; i < pieces.length; i++)
     {
         if(pieces[i].IsMoving())
@@ -527,15 +534,14 @@ function checkMerge(piece)
             return;
         }
     }
-    console.log("none moving");
+    
     allPiecesDoneMoving();
 }
 
 //last call for current turn
 function allPiecesDoneMoving()
 {
-    moving = false;
-    
+    console.log("allPiecesDoneMoving");
     if (hasMovedOrMerged && pieces.length < 16 && $('#chkBoxAddRandom').prop('checked'))
         addRandomPiece();
     
@@ -558,7 +564,7 @@ function allPiecesDoneMoving()
 function mergePieces(x1, y1, x2, y2)
 {
     console.log("MERGE");
-    recalculateMoveByCoords(x1, y1);
+    removePieceByCoords(x1, y1);
     
     try{
         getPieceByCoords(x2, y2).DoubleValue();
@@ -586,7 +592,7 @@ function mergePieces(x1, y1, x2, y2)
     hasMovedOrMerged = true;
 }
 
-function recalculateMoveByCoords(x, y)
+function removePieceByCoords(x, y)
 {
     for (var i = 0; i < pieces.length; i++) 
     {
@@ -596,7 +602,7 @@ function recalculateMoveByCoords(x, y)
             
             slots[x][y].removeChild(pieces[i].GetDiv());
             
-            pieces[i].GetDiv().removeEventListener("transitionend", checkMerge);
+            pieces[i].GetDiv().removeEventListener("transitionend", finishMove);
             pieces.splice(i, 1);
             return;
         }
@@ -787,7 +793,7 @@ function reset()
     {
         for(var y = 0; y < 4; y++)
         {
-            recalculateMoveByCoords(x,y);
+            removePieceByCoords(x,y);
         }
     }
     
@@ -822,7 +828,7 @@ function undoLastTurnDebug()
     {
         for(var y = 0; y < 4; y++)
         {
-            recalculateMoveByCoords(x,y);
+            removePieceByCoords(x,y);
         }
     }
     
@@ -840,7 +846,8 @@ function undoLastTurnDebug()
 }
 
 function finishAnimation(e)
-{
+{   
+    moving = false;
     e.target.classList.remove('newPieceAnim');
     e.target.classList.remove('animMerge');
     
