@@ -22,6 +22,7 @@ body {
 
     --animDurationGameOver: 3s;
     --animDurationNewPiece: 0.5s;
+    overflow-x: hidden;
 }
 
 * {
@@ -72,7 +73,8 @@ header{
 }
 
 #tableContainer{
-    margin: 40px auto 40px auto;*/
+    margin: 40px auto 40px auto;
+    perspective: 200px;
 }
 
 table{

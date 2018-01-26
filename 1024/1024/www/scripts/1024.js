@@ -112,13 +112,14 @@ window.onload = function ()
 
     minDistance = $(slots[0]).outerHeight();
     
-    let newTable = $('table').clone(false);
+    var newTable = $('table').clone(false);
     $(newTable).css('display', 'block');
     $(newTable).css('height', '0px');
-    $(newTable).css('left', document.documentElement.clientWidth/2 - $(newTable).outerWidth/2);
+    $(newTable).css('left', document.documentElement.clientWidth/2 - $('table').outerWidth()/2);
+    $(newTable).css('transform', 'translateZ(-20px)')
+   // $(newTable).css('top', -$('table').outerHeight());
     
-    
-    $('#tableContainer').append( newTable );
+    $('table').before( newTable );
     
     $('#btnUndo').click(btnUndoLastTurnClicked);
     $('#btnNewGame').one("click", reset);
