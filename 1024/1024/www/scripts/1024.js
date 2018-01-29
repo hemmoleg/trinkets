@@ -13,6 +13,7 @@ var animDurationGameOverOut = '1s';
 var animDelayGameOver;
 var firstGame = false;
 var isAutoplay = false;
+var clicks = 0;
 
 Direction = {UP:0, DOWN:1, LEFT:2, RIGHT:3}
 
@@ -56,7 +57,7 @@ function Piece(x, y, initVal)
 
         //way too complex formula for calculating color
         var mainValue = (360/(2*Math.PI)) * (((2*Math.PI)/360)*colorStart - (i * 0.3));
-        var color = "hsla("+mainValue+", 100%, 60%, .6)";
+        var color = "hsla("+mainValue+", 100%, 60%, .8)";
         Div.style.backgroundColor = color;
         color = hslToRgba(mainValue, 100, 30, 1);
         Div.style.borderColor = color;
@@ -112,14 +113,53 @@ window.onload = function ()
 
     minDistance = $(slots[0]).outerHeight();
     
-    var newTable = $('table').clone(false);
-    $(newTable).css('display', 'block');
-    $(newTable).css('height', '0px');
-    $(newTable).css('left', document.documentElement.clientWidth/2 - $('table').outerWidth()/2);
-    $(newTable).css('transform', 'translateZ(-20px)')
-   // $(newTable).css('top', -$('table').outerHeight());
+    for(var i = 1; i < 10; i++)
+    {
+        let newTable = $('#master').clone(false);
+        newTable.attr('id', '');
+        newTable.css('display', 'block');
+        newTable.css('height', '0px');
+        newTable.css('left', document.documentElement.clientWidth/2 - $('#master').outerWidth()/2);
+        newTable.css('transform', 'translateZ(-' + i * 35 + 'px)')
+
+        $('#master').before( newTable );
+    }
     
-    $('table').before( newTable );
+    $('#master').click(function(){
+        var p = $('#tableContainer').css('perspective-origin');
+        var regex = /[0-9]\d*(\.?[0-9]\d*)?/g;
+        let currentPerspectiveLeft = regex.exec(p)[0];
+        let currentPerspectiveTop = regex.exec(p)[0];
+       
+        console.log(clicks%4);
+        if(clicks % 4 == 0)
+        {
+            //left
+            let left = $('#master').offset().left;
+            $('#tableContainer').css('perspective-origin', left +'px '+ currentPerspectiveTop +'px');
+        }
+        if(clicks % 4 == 1)
+        {
+            //top
+            let top = $('#master').offset().top;
+            $('#tableContainer').css('perspective-origin', currentPerspectiveLeft +'px 0px');
+        }
+        if(clicks % 4 == 2)
+        {
+            //right
+            let left = $('#master').offset().left + $('#master').outerWidth();
+            $('#tableContainer').css('perspective-origin', left +'px '+ currentPerspectiveTop +'px');
+        }
+        if(clicks % 4 == 3)
+        {
+            //bottom
+            let top = $('#master').outerHeight();
+            let left = $('#master').offset().left + $('#master').outerWidth();
+            $('#tableContainer').css('perspective-origin', left +'px '+ top +'px');
+        }
+        clicks++;
+        
+    })
     
     $('#btnUndo').click(btnUndoLastTurnClicked);
     $('#btnNewGame').one("click", reset);
@@ -142,15 +182,14 @@ window.onload = function ()
     
     $('#tutorial').css('top', $('.scaleDiv').height()/2 - $('#tutorial').height()/2);
     
-    ////////////////////////////
-    //properly position new tables
     /////////////////////////////
-    //test several tables behind each other (increase transparency, paralaxe)
     //displayed on new game started, one after another
     /////////////////////////////
     //remove frame on button click
     /////////////////////////////
     //reload page on client resize
+    /////////////////////////////
+    //previous state on other tables(every state -> new table)
     
     //keys input
     document.body.addEventListener("keydown", onKeyDown);

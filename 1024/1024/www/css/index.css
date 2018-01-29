@@ -75,6 +75,7 @@ header{
 #tableContainer{
     margin: 40px auto 40px auto;
     perspective: 200px;
+    transition: perspective-origin 2s;
 }
 
 table{
