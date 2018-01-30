@@ -23,6 +23,9 @@ body {
     --animDurationGameOver: 3s;
     --animDurationNewPiece: 0.5s;
     overflow-x: hidden;
+    
+    perspective: 200px;
+    transition: perspective-origin ease-in-out 1s;
 }
 
 * {
@@ -33,7 +36,9 @@ body {
 header{
     font-size: 4vmin;
     color: aqua;
-    background-color: #FF874C;
+    background-color: hsla(20, 100%, 65%, 1);
+    box-shadow: inset 0 0 10px #000;
+    transform: translateZ(1px);
 }
 
 #top{
@@ -73,9 +78,9 @@ header{
 }
 
 #tableContainer{
-    margin: 40px auto 40px auto;
-    perspective: 200px;
-    transition: perspective-origin 2s;
+    /*margin: 40px auto 40px auto;*/
+    /*perspective: 200px;
+    transition: perspective-origin ease-in-out 1s;*/
 }
 
 table{
@@ -90,7 +95,7 @@ table{
 
 .slot {
     /*border: .3vmin solid #666666;*/
-    background-color: hsla(20, 100%, 65%, 0.5);
+    background-color: hsla(20, 100%, 65%, 0.2);
     
     border-radius: 2vmin;
     box-shadow: inset 0 0 10px #000;
