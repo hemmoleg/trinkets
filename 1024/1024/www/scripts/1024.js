@@ -73,40 +73,39 @@ class TablePerspective
     
     ChangePerspective(direction)
     {
-        var p = $('body').css('perspective-origin');
+        var p = $('#tableContainer').css('perspective-origin');
         var regex = /-?[0-9]\d*(\.?[0-9]\d*)?/g;
         let currentPerspectiveLeft = regex.exec(p)[0];
         let currentPerspectiveTop = regex.exec(p)[0];
         
-        let distance = 380;
+        let distance = 30;
         
         console.log($('#tableContainer').css('perspective-origin'));
         if(direction === Direction.LEFT)
         {
             //left
             let left = parseInt(currentPerspectiveLeft) - parseInt(distance); //$('#master').offset().left - 50;
-            $('body').css('perspective-origin', left +'px '+ currentPerspectiveTop +'px');
+            $('#tableContainer').css('perspective-origin', left +'px '+ currentPerspectiveTop +'px');
         }
         else if(direction === Direction.UP)
         {
             //top
             let top = parseInt(currentPerspectiveTop) - parseInt(distance);// -50;
-            $('body').css('perspective-origin', currentPerspectiveLeft +'px '+ top +'px');
+            $('#tableContainer').css('perspective-origin', currentPerspectiveLeft +'px '+ top +'px');
         }
         else if(direction === Direction.RIGHT)
         {
             //right
             let left = parseInt(currentPerspectiveLeft) + parseInt(distance); //$('#master').offset().left + $('#master').outerWidth() + 50;
-            $('body').css('perspective-origin', left +'px '+ currentPerspectiveTop +'px');
+            $('#tableContainer').css('perspective-origin', left +'px '+ currentPerspectiveTop +'px');
         }
         else if(direction === Direction.DOWN)
         {
             //bottom
             let top = parseInt(currentPerspectiveTop) + parseInt(distance); //$('#master').outerHeight() + 50;
             let left = currentPerspectiveLeft //$('#master').offset().left + $('#master').outerWidth();
-            $('body').css('perspective-origin', left +'px '+ top +'px');
+            $('#tableContainer').css('perspective-origin', left +'px '+ top +'px');
         }
-        this.Clicks++;
     }
 }
 
@@ -126,25 +125,9 @@ window.onload = function ()
 
     minDistance = $(slots[0]).outerHeight();
     
-    //setup tables
-    for(var i = 1; i < 6; i++)
-    {
-        let newTable = $('#master').clone(false);
-        newTable.attr('id', '');
-        newTable.css('display', 'block');
-        newTable.css('height', '0px');
-        newTable.css('left', document.documentElement.clientWidth/2 - $('#master').outerWidth()/2);
-        newTable.css('opacity', '0');
-        newTable.css('transform', 'translateZ(-' + i * 35 + 'px) translateY(-300px)')
-
-        $('table:first-child').before( newTable );
-        //$('#master').before( newTable );
-    }
+    //setupTables();
     
     window.TP = new TablePerspective();
-    /*$('#master').click(function(){
-        window.TP.ChangePerspective();
-    });*/
     
     $('#btnUndo').click(btnUndoLastTurnClicked);
     $('#btnNewGame').one("click", reset);
@@ -159,31 +142,18 @@ window.onload = function ()
     $('.scaleDiv').height($('.scaleDiv').height() * 1.8);
     
     //.overlay layout stuff
-    $( window ).resize(resizeWithoutMargin);
-    resizeWithoutMargin();
+    $( window ).resize(onResize);
+    onResize();
     
     animDurationGameOverIn = parseFloat(getComputedStyle($('#gameOver')[0])['transitionDuration']) + 's';
     animDelayGameOver = parseFloat(getComputedStyle($('#gameOver')[0])['transitionDelay']) + 's';
     
     $('#tutorial').css('top', $('.scaleDiv').height()/2 - $('#tutorial').height()/2);
     
-    /////////////////////////////
-    //displayed on new game started, one after another
-    /////////////////////////////
-    //remove frame on button click
-    /////////////////////////////
-    //reload page on client resize
-    /////////////////////////////
-    //previous state on other tables(every state -> new table)
-    
     //keys input
     document.body.addEventListener("keydown", onKeyDown);
 
     //touch input
-    //var hammertime = new Hammer(document.getElementsByTagName("table")[0]);
-    //var hammertime = new Hammer($('table')[0]);
-    // great on desktop, unusable on phone
-    //var hammertime = new Hammer(document);
     var hammertime = new Hammer(document.getElementsByTagName("body")[0]);
     
     hammertime.get("swipe").set({ direction: Hammer.DIRECTION_ALL });
@@ -235,13 +205,46 @@ window.onload = function ()
     updateScore();
 }
 
-function resizeWithoutMargin()
-{   
-    $('#gameOver').css('top', $('table').offset().top + $('table').height()/2 -                                     $('#gameOver').height()/2);
-    $('#gameOver').css('left', parseFloat( $('table').css('margin-left')) + $('table').width()/2 -                 $('#gameOver').width() / 2)
+function setupTables()
+{
+    //setup tables
+    //set opacity 0 in css for table to make this work properly
+    for(var i = 1; i < 6; i++)
+    {
+        let newTable = $('#master').clone(false);
+        newTable.attr('id', '');
+        newTable.css('display', 'block');
+        newTable.css('height', '0px');
+        newTable.css('left', document.documentElement.clientWidth/2 - $('#master').outerWidth()/2);
+        newTable.css('opacity', '0');
+        newTable.css('transform', 'translateZ(-' + i * 35 + 'px)')
+
+        //$('table:first-child').before( newTable );
+        $('#master').before( newTable );
+    }
     
-    $('.scaleDiv').css('top', $('table').offset().top + $('table').height()/2 -                                     $('.scaleDiv').height()/2);
-    $('.scaleDiv').css('left', parseFloat( $('table').css('margin-left')) + $('table').width()/2 -                 $('.scaleDiv').width() / 2)
+    setTimeout(fadeInTable.bind(null, $('table').length-2), 1);
+}
+
+function fadeInTable(i)
+{
+    $($('table')[i]).css('opacity', '1');
+    
+    if(i == $('table').length - 1) return;
+    
+    if(i > 0)
+        setTimeout(fadeInTable.bind(null, i-1), 1000);
+    else
+        setTimeout(fadeInTable.bind(null, $('table').length-1), 1000);
+}
+
+function onResize()
+{   
+    $('#gameOver').css('top', $('#master').offset().top + $('#master').height()/2 -                                     $('#gameOver').height()/2);
+    $('#gameOver').css('left', parseFloat( $('#master').css('margin-left')) + $('#master').width()/2 - $('#gameOver').width() / 2)
+    
+    $('.scaleDiv').css('top', $('#master').offset().top + $('#master').height()/2 -                                     $('.scaleDiv').height()/2);
+    $('.scaleDiv').css('left', parseFloat( $('#master').css('margin-left')) + $('table').width()/2 - $('.scaleDiv').width() / 2)
 }
 
 function setupFirstGame()
@@ -323,25 +326,21 @@ function onKeyDown(e)
     if(e.keyCode === 39 || e.keyCode === 68)
     {
         moveAndMerge(Direction.RIGHT)
-        window.TP.ChangePerspective(Direction.RIGHT);
     }
     
     if(e.keyCode === 37 || e.keyCode === 65)
     {
         moveAndMerge(Direction.LEFT)
-        window.TP.ChangePerspective(Direction.LEFT);
     }
     
     if(e.keyCode === 38 || e.keyCode === 87)
     {
         moveAndMerge(Direction.UP)
-        window.TP.ChangePerspective(Direction.UP);
     }
     
     if(e.keyCode === 40 || e.keyCode === 83)
     {
         moveAndMerge(Direction.DOWN)
-        window.TP.ChangePerspective(Direction.DOWN);
     }
 }
 
@@ -357,6 +356,7 @@ function moveAndMerge(direction)
     //set by calculateMove and mergePieces
     hasMovedOrMerged = false;
 
+    window.TP.ChangePerspective(direction);
     calculateMoves(direction);
 }
 
@@ -796,7 +796,7 @@ function gameOver()
     
     $('#scoreGameOver').text($('#score').text());
     
-    if($('#score').text() >= window.localStorage.getItem('hiscore'))
+    if(parseInt($('#score').text()) >= window.localStorage.getItem('hiscore'))
     {
         $('#hiscore').text($('#score').text());
         window.localStorage.setItem('hiscore', $('#score').text() );
@@ -852,9 +852,10 @@ function btnUndoLastTurnClicked()
     $('table').css('transition-duration',animDurationGameOverOut);
     $('table').toggleClass('blurred');
     
-    $('.overlay').css('transition-delay', '0s');
-    $('.overlay').css('transition-duration',animDurationGameOverOut);
-    $('.overlay').toggleClass('animGameOver');
+    $('#gameOver').css('transition-duration',animDurationGameOverOut);
+    $('#gameOver').css('transition-delay','0s');
+    $('#gameOver').addClass('big');
+    $('#gameOver').removeClass('visible');
     
     undoLastTurnDebug();
 }
