@@ -17,37 +17,36 @@
 
 <body>
     <header>
-    <ul class="nav">
-      <li>Score :</li>
-      <li id="score"></li>
-      <li>High score :</li>
-      <li id="hiscore"></li>
-      <li id="btnReset">Reset</li>
-    </ul>
-    <!--<div>
-        <div>Score: <span id="score">0</span></div>
-        <div>HiScore: <span id="hiscore">0</span></div>
-        <button type="button" id="btnReset">Reset</button>
-    </div>-->
+   
+        <button type="button" id="btnNewGame">New Game</button>
+        <button type="button" id="btnUndoDebug">Undo</button>
+        <span id="first">
+            <p>Score</p>
+            <p id="score">234234</p>
+        </span>
+        <span>
+            <p>Best</p>
+            <p id="hiscore">234234</p>
+        </span>
+    
     </header>
-    <table>
-        <tr><td><div class="slot"></div></td><td><div class="slot"></div></td><td>
-        <div class="slot"></div></td><td><div class="slot"></div></td></tr>
-        <tr><td><div class="slot"></div></td><td><div class="slot"></div></td><td>
-        <div class="slot"></div></td><td><div class="slot"></div></td></tr>
-        <tr><td><div class="slot"></div></td><td><div class="slot"></div></td><td>
-        <div class="slot"></div></td><td><div class="slot"></div></td></tr>
-        <tr><td><div class="slot"></div></td><td><div class="slot"></div></td><td>
-        <div class="slot"></div></td><td><div class="slot"></div></td></tr>   
-    </table>
+    
+    <div id="tableContainer">
+        <table id="master">
+            <tr><td></td><td></td><td></td><td></td></tr>
+            <tr><td></td><td></td><td></td><td></td></tr>
+            <tr><td></td><td></td><td></td><td></td></tr>
+            <tr><td></td><td></td><td></td><td></td></tr>
+        </table>
+    </div>
         
     <div class="scaleDiv"> 
     <div class="overlay" id="tutorial">
-        Start playing by pressing arrow keys, WSAD or swiping. 
+        Start playing by pressing arrow keys or swiping. 
     </div>    
     </div>
     
-    <div class="overlay" id="gameOver">
+    <div class="overlay big" id="gameOver">
         Game Over<br>
         Score: 
         <span id="scoreGameOver"></span><br>
@@ -77,7 +76,6 @@
             </label> 
             <span>Show moving</span>
             <br>
-            <button type="button" id="btnUndoDebug">Undo</button>
             <button type="button" id="btnGameOver">Game Over</button>
         </div>
         <div class="switchDiv">

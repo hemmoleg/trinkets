@@ -6,7 +6,7 @@ var dragSrcElement = null;
 var hasMovedOrMerged = false;
 var hiscore = 0;
 var moving = false;
-var minDistance = 20.3;
+var minDistance = 19.3;
 var colorStart = 120;
 var animDurationGameOverIn;
 var animDurationGameOverOut = '1s';
@@ -16,36 +16,32 @@ var isAutoplay = false;
 
 Direction = {UP:0, DOWN:1, LEFT:2, RIGHT:3}
 
-function Piece(x, y, initVal)
+class Piece
 {
-    var Div = "";
-    var x;
-    var y;
-    var value = initVal;
-    var canMerge = true;
-    var moving;
-    var tmpLeft;
-    var tmpTop;
-    
-    Div = document.createElement('div');
-    Div.innerHTML = "<b>" + initVal + "</b>";
-    Div.classList.add('piece');
-    Div.classList.add('newPieceAnim');
-    Div.addEventListener("transitionend", finishMove);
-    Div.addEventListener("animationend", finishAnimation);
-    
-    /*Div.onclick = function(e)
+    constructor(x, y, initVal)
     {
-        var html = window.getComputedStyle(e.target, null).getPropertyValue("background-color");
-        var hex = retardHtmlToHex(html)
-        var hsl = hexToHSL(hex)
-        //console.log("hex: " + hex );
-        console.log("hsl: " + hsl );
-        //console.log("hex: " + hslToHex(hsl[0], hsl[1], hsl[2]) )
-        e.target.style.backgroundColor = hslToHex(hsl[0] - 10, hsl[1], hsl[2]);
-    }*/
+        this.Div = "";
+        this.X = x;
+        this.Y = y;
+        this.Value = initVal;
+        this.CanMerge = true;
+        this.Moving;
+        this.TmpLeft = 0;
+        this.TmpTop = 0;    
+        
+        
+        this.Div = document.createElement('div');
+        this.Div.innerHTML = "<b>" + initVal + "</b>";
+        this.Div.classList.add('piece');
+        this.Div.classList.add('newPieceAnim');
+        this.Div.addEventListener("transitionend", finishMove);
+        this.Div.addEventListener("animationend", finishAnimation);
+        
+        //initialy set color
+        this.SetColor(initVal);
+    }
 
-    this.SetColor = function(val)
+    SetColor(val)
     {
         var i = 0;
         while(val != 2)
@@ -56,50 +52,67 @@ function Piece(x, y, initVal)
 
         //way too complex formula for calculating color
         var mainValue = (360/(2*Math.PI)) * (((2*Math.PI)/360)*colorStart - (i * 0.3));
-        var color = "hsla("+mainValue+", 100%, 60%, .6)";
-        Div.style.backgroundColor = color;
+        var color = "hsla("+mainValue+", 100%, 60%, .8)";
+        this.Div.style.backgroundColor = color;
         color = hslToRgba(mainValue, 100, 30, 1);
-        Div.style.borderColor = color;
-        Div.style.boxShadow = " 0px 0px 15px " + color;
+        this.Div.style.borderColor = color;
+        this.Div.style.boxShadow = " 0px 0px 15px " + color;
     }
     
-    this.x = x;
-    this.y = y;
     
-    this.tmpLeft = 0;
-    this.tmpTop = 0;
-    
-    this.GetX = function () { return x; }
-    this.SetX = function (val) { x = val; }
-
-    this.GetY = function () { return y; }
-    this.SetY = function (val) { y = val; }
-    
-    this.GetDiv = function () { return Div; }
-
-    this.GetCanMerge = function () { return canMerge; }
-    this.SetCanMerge = function (val) { canMerge = val; }
-    
-    this.IsMoving = function () { return moving; }
-    this.SetMoving = function (val) { moving = val; }
-    
-    this.GetValue = function () { return value; }
-    this.SetValue = function (val) { value = val; }
-    this.DoubleValue = function ()
+    DoubleValue()
     {
-        value = parseInt(value) + parseInt(value);
-        Div.innerHTML = "<b>" + value + "</b>";
-        this.SetColor(value);
+        this.Value = parseInt(this.Value) + parseInt(this.Value);
+        this.Div.innerHTML = "<b>" + this.Value + "</b>";
+        this.SetColor(this.Value);
     }
+}
 
-    //initialy set color
-    this.SetColor(initVal);
+class TablePerspective
+{
+    
+    ChangePerspective(direction)
+    {
+        var p = $('#tableContainer').css('perspective-origin');
+        var regex = /-?[0-9]\d*(\.?[0-9]\d*)?/g;
+        let currentPerspectiveLeft = regex.exec(p)[0];
+        let currentPerspectiveTop = regex.exec(p)[0];
+        
+        let distance = 30;
+        
+        console.log($('#tableContainer').css('perspective-origin'));
+        if(direction === Direction.LEFT)
+        {
+            //left
+            let left = parseInt(currentPerspectiveLeft) - parseInt(distance); //$('#master').offset().left - 50;
+            $('#tableContainer').css('perspective-origin', left +'px '+ currentPerspectiveTop +'px');
+        }
+        else if(direction === Direction.UP)
+        {
+            //top
+            let top = parseInt(currentPerspectiveTop) - parseInt(distance);// -50;
+            $('#tableContainer').css('perspective-origin', currentPerspectiveLeft +'px '+ top +'px');
+        }
+        else if(direction === Direction.RIGHT)
+        {
+            //right
+            let left = parseInt(currentPerspectiveLeft) + parseInt(distance); //$('#master').offset().left + $('#master').outerWidth() + 50;
+            $('#tableContainer').css('perspective-origin', left +'px '+ currentPerspectiveTop +'px');
+        }
+        else if(direction === Direction.DOWN)
+        {
+            //bottom
+            let top = parseInt(currentPerspectiveTop) + parseInt(distance); //$('#master').outerHeight() + 50;
+            let left = currentPerspectiveLeft //$('#master').offset().left + $('#master').outerWidth();
+            $('#tableContainer').css('perspective-origin', left +'px '+ top +'px');
+        }
+    }
 }
 
 window.onload = function ()
 {
-    slotsUnordered = $('table tr div');
-
+    slotsUnordered = $('table tr td');
+    
     var col0 = []; 
     var col1 = [];
     var col2 = [];
@@ -110,10 +123,15 @@ window.onload = function ()
         slots[i % 4][slots[i%4].length] = slotsUnordered[i];
     }
 
-    $('#btnReset').click(reset);
-    $('#btnPlayAgain').click(btnPlayAgainClicked);
+    minDistance = $(slots[0]).outerHeight();
+    
+    //setupTables();
+    
+    window.TP = new TablePerspective();
+    
     $('#btnUndo').click(btnUndoLastTurnClicked);
-
+    $('#btnNewGame').one("click", reset);
+    
     hiscore = parseInt(window.localStorage.getItem('hiscore'));
     if(!isNaN(hiscore))
         document.getElementById("hiscore").innerHTML = window.localStorage.getItem('hiscore');
@@ -124,27 +142,18 @@ window.onload = function ()
     $('.scaleDiv').height($('.scaleDiv').height() * 1.8);
     
     //.overlay layout stuff
-    $( window ).resize(resizeWithoutMargin);
-    resizeWithoutMargin();
+    $( window ).resize(onResize);
+    onResize();
     
     animDurationGameOverIn = parseFloat(getComputedStyle($('#gameOver')[0])['transitionDuration']) + 's';
     animDelayGameOver = parseFloat(getComputedStyle($('#gameOver')[0])['transitionDelay']) + 's';
     
     $('#tutorial').css('top', $('.scaleDiv').height()/2 - $('#tutorial').height()/2);
     
-    /////////////////////////////
-    //remove numbers on autoplay
-    /////////////////////////////
-    //btnClearLocalStorage
-    
     //keys input
     document.body.addEventListener("keydown", onKeyDown);
 
     //touch input
-    //var hammertime = new Hammer(document.getElementsByTagName("table")[0]);
-    //var hammertime = new Hammer($('table')[0]);
-    // great on desktop, unusable on phone
-    //var hammertime = new Hammer(document);
     var hammertime = new Hammer(document.getElementsByTagName("body")[0]);
     
     hammertime.get("swipe").set({ direction: Hammer.DIRECTION_ALL });
@@ -196,20 +205,46 @@ window.onload = function ()
     updateScore();
 }
 
-//currently not used
-function resizeWithMargin()
-{   
-    $('#gameOver').css('top', $('table').offset().top + parseFloat( $('table').css('margin-top')) +                 $('table').height()/2 - $('#gameOver').height()/2);
-    $('#gameOver').css('left', parseFloat( $('table').css('margin-left')) + $('table').width()/2 -                 $('#gameOver').width() / 2)
+function setupTables()
+{
+    //setup tables
+    //set opacity 0 in css for table to make this work properly
+    for(var i = 1; i < 6; i++)
+    {
+        let newTable = $('#master').clone(false);
+        newTable.attr('id', '');
+        newTable.css('display', 'block');
+        newTable.css('height', '0px');
+        newTable.css('left', document.documentElement.clientWidth/2 - $('#master').outerWidth()/2);
+        newTable.css('opacity', '0');
+        newTable.css('transform', 'translateZ(-' + i * 35 + 'px)')
+
+        //$('table:first-child').before( newTable );
+        $('#master').before( newTable );
+    }
+    
+    setTimeout(fadeInTable.bind(null, $('table').length-2), 1);
 }
 
-function resizeWithoutMargin()
-{   
-    $('#gameOver').css('top', $('table').offset().top + $('table').height()/2 -                                     $('#gameOver').height()/2);
-    $('#gameOver').css('left', parseFloat( $('table').css('margin-left')) + $('table').width()/2 -                 $('#gameOver').width() / 2)
+function fadeInTable(i)
+{
+    $($('table')[i]).css('opacity', '1');
     
-    $('.scaleDiv').css('top', $('table').offset().top + $('table').height()/2 -                                     $('.scaleDiv').height()/2);
-    $('.scaleDiv').css('left', parseFloat( $('table').css('margin-left')) + $('table').width()/2 -                 $('.scaleDiv').width() / 2)
+    if(i == $('table').length - 1) return;
+    
+    if(i > 0)
+        setTimeout(fadeInTable.bind(null, i-1), 1000);
+    else
+        setTimeout(fadeInTable.bind(null, $('table').length-1), 1000);
+}
+
+function onResize()
+{   
+    $('#gameOver').css('top', $('#master').offset().top + $('#master').height()/2 -                                     $('#gameOver').height()/2);
+    $('#gameOver').css('left', parseFloat( $('#master').css('margin-left')) + $('#master').width()/2 - $('#gameOver').width() / 2)
+    
+    $('.scaleDiv').css('top', $('#master').offset().top + $('#master').height()/2 -                                     $('.scaleDiv').height()/2);
+    $('.scaleDiv').css('left', parseFloat( $('#master').css('margin-left')) + $('table').width()/2 - $('.scaleDiv').width() / 2)
 }
 
 function setupFirstGame()
@@ -258,21 +293,14 @@ function initDefaultSetup()
 function initDebugingSetup()
 {
     createNewPiece(0, 0, 2);
-    createNewPiece(1, 0, 4);
-    createNewPiece(2, 0, 8);
-    createNewPiece(3, 0, 2);
-    createNewPiece(0, 1, 2);
-    createNewPiece(1, 1, 8);
-    createNewPiece(2, 1, 16);
-    createNewPiece(3, 1, 4);
-    createNewPiece(0, 2, 8);
-    createNewPiece(1, 2, 16);
-    createNewPiece(2, 2, 64);
-    createNewPiece(3, 2, 16);
-    createNewPiece(0, 3, 512);
-    createNewPiece(1, 3, 1024);
-    createNewPiece(2, 3, 128);
-    createNewPiece(3, 3, 256);
+    createNewPiece(2, 0, 4);
+    //createNewPiece(0, 1, 8);
+    //createNewPiece(3, 1, 2);
+    //createNewPiece(3, 2, 2);
+    //createNewPiece(1, 3, 2);
+    //createNewPiece(2, 3, 4);
+    //createNewPiece(3, 3, 8);
+   
 }
 
 /*
@@ -284,29 +312,41 @@ function initDebugingSetup()
 
 function onKeyDown(e)
 {
+    // space and arrow keys
+    if([32, 37, 38, 39, 40].indexOf(e.keyCode) > -1) 
+        e.preventDefault();
+    
     console.log(String.fromCharCode(e.keyCode) + " --> " + e.keyCode);
 
-    if (e.keyCode !== 37 && e.keyCode !== 38 && e.keyCode !== 39 &&
+    if(e.keyCode !== 37 && e.keyCode !== 38 && e.keyCode !== 39 &&
         e.keyCode !== 40 && e.keyCode !== 68 && e.keyCode !== 65 &&
         e.keyCode !== 87 && e.keyCode !== 83)
         return;
 
-    if (e.keyCode === 39  || e.keyCode === 68)
+    if(e.keyCode === 39 || e.keyCode === 68)
+    {
         moveAndMerge(Direction.RIGHT)
+    }
     
-    if (e.keyCode === 37  || e.keyCode === 65)
+    if(e.keyCode === 37 || e.keyCode === 65)
+    {
         moveAndMerge(Direction.LEFT)
+    }
     
-    if (e.keyCode === 38 || e.keyCode === 87)
+    if(e.keyCode === 38 || e.keyCode === 87)
+    {
         moveAndMerge(Direction.UP)
+    }
     
-    if (e.keyCode === 40   || e.keyCode === 83)
+    if(e.keyCode === 40 || e.keyCode === 83)
+    {
         moveAndMerge(Direction.DOWN)
+    }
 }
 
 function moveAndMerge(direction)
 {
-    if (firstGame)
+    if(firstGame)
     {
         startFirstGame();
         return;
@@ -316,6 +356,7 @@ function moveAndMerge(direction)
     //set by calculateMove and mergePieces
     hasMovedOrMerged = false;
 
+    window.TP.ChangePerspective(direction);
     calculateMoves(direction);
 }
 
@@ -324,7 +365,7 @@ function calculateMoves(direction)
     save(true);
     /*for (var i = 0; i < pieces.length; i++)
     {
-        console.log("Piece: " + i + " x: " + pieces[i].GetX() + " y: " + pieces[i].GetY());
+        console.log("Piece: " + i + " x: " + pieces[i].X + " y: " + pieces[i].Y);
     }*/
 
     var pieceMoved = true;
@@ -345,9 +386,9 @@ function calculateMoves(direction)
                     
                     tempPiece = getPieceByCoords(x, y+1);
                     if(tempPiece === null ||
-                       (piece.GetValue() === tempPiece.GetValue() && !slots[x][y+1].markedForMerge))
+                       (piece.Value === tempPiece.Value && !slots[x][y+1].markedForMerge))
                     {
-                        calculateMove(piece.GetX(), piece.GetY(), piece.GetX(), piece.GetY() + 1);
+                        calculateMove(piece.X, piece.Y, piece.X, piece.Y + 1);
                         pieceMoved = true;
                         break;
                     }
@@ -371,9 +412,9 @@ function calculateMoves(direction)
                     
                     tempPiece = getPieceByCoords(x, y-1);
                     if(tempPiece === null ||
-                       (piece.GetValue() === tempPiece.GetValue() && !slots[x][y-1].markedForMerge))
+                       (piece.Value === tempPiece.Value && !slots[x][y-1].markedForMerge))
                     {
-                        calculateMove(piece.GetX(), piece.GetY(), piece.GetX(), piece.GetY() - 1);
+                        calculateMove(piece.X, piece.Y, piece.X, piece.Y - 1);
                         pieceMoved = true;
                         break;
                     }
@@ -397,9 +438,9 @@ function calculateMoves(direction)
                     
                     tempPiece = getPieceByCoords(x-1, y);
                     if(tempPiece === null ||
-                       (piece.GetValue() === tempPiece.GetValue()  && !slots[x-1][y].markedForMerge))
+                       (piece.Value === tempPiece.Value  && !slots[x-1][y].markedForMerge))
                     {
-                        calculateMove(piece.GetX(), piece.GetY(), piece.GetX() - 1, piece.GetY());
+                        calculateMove(piece.X, piece.Y, piece.X - 1, piece.Y);
                         pieceMoved = true;
                     }
                 }
@@ -422,9 +463,9 @@ function calculateMoves(direction)
                     
                     tempPiece = getPieceByCoords(x+1, y);
                     if(tempPiece === null ||
-                       (piece.GetValue() === tempPiece.GetValue() && !slots[x+1][y].markedForMerge))
+                       (piece.Value === tempPiece.Value && !slots[x+1][y].markedForMerge))
                     {
-                        calculateMove(piece.GetX(), piece.GetY(), piece.GetX() + 1, piece.GetY());
+                        calculateMove(piece.X, piece.Y, piece.X + 1, piece.Y);
                         pieceMoved = true;
                     }
                 }
@@ -447,21 +488,19 @@ function calculateMove(x1, y1, x2, y2)
     }
     
     //useful for debuging
-    //slots[x2][y2].innerHTML = piece.GetValue();
+    //slots[x2][y2].innerHTML = piece.Value;
     //slots[x1][y1].innerHTML = 0;
 
-    piece.SetX(x2);
-    piece.SetY(y2);
+    piece.X = x2;
+    piece.Y = y2;
 
-    console.log("going to: " + x2 + " " + y2); 
-
-    piece.tmpLeft += (x2 - x1) * minDistance;
-    piece.tmpTop += (y2 - y1) * minDistance;
+    piece.TmpLeft += (x2 - x1) * minDistance;
+    piece.TmpTop += (y2 - y1) * minDistance;
     
-    piece.SetMoving(true);
+    piece.Moving = true;
     if( document.getElementById("chkBoxShowMoving").checked )
     {
-        piece.GetDiv().classList.add("moving");
+        piece.Div.classList.add("moving");
     }
     moving = true;
     hasMovedOrMerged = true;
@@ -472,36 +511,40 @@ function applyMove()
 {
     for(var i = 0; i < pieces.length; i++)
     {
-        pieces[i].GetDiv().style.left = pieces[i].tmpLeft.toString() + 'vmin';
-        pieces[i].GetDiv().style.top = pieces[i].tmpTop.toString() + 'vmin';
+        if(pieces[i].TmpLeft != 0 || pieces[i].TmpTop != 0)
+        {
+            pieces[i].Div.style.transform = 'translate(' + pieces[i].TmpLeft + 'px,'  + pieces[i].TmpTop + 'px)';
+        }
     }
     if(isAutoplay && !hasMovedOrMerged)
         autoplay();
 }
 
-function finishMove(e)
+function finishMove(event)
 {
-    piece = getPieceByDiv(e.target);
+    piece = getPieceByDiv(event.target);
     
-    piece.SetMoving(false);
-    if( $('#chkBoxShowMoving').prop('checked') )
+    if(piece == undefined)
     {
-        piece.GetDiv().classList.remove("moving");
+        console.log("Piece undefined " + event);
     }
     
-    prevX = piece.GetX() - (piece.tmpLeft / minDistance);
-    prevY = piece.GetY() - (piece.tmpTop / minDistance);
+    piece.Moving = false;
+    if( $('#chkBoxShowMoving').prop('checked') )
+    {
+        piece.Div.classList.remove("moving");
+    }
     
-    console.log("done moving, origin was: " + prevX + " " + prevY);
+    prevX = piece.X - (piece.TmpLeft / minDistance);
+    prevY = piece.Y - (piece.TmpTop / minDistance);
     
-    piece.tmpLeft = 0;
-    piece.tmpTop = 0;
+    piece.TmpLeft = 0;
+    piece.TmpTop = 0;
     
-    piece.GetDiv().style.left = '0px';
-    piece.GetDiv().style.top = '0px';
+    slots[prevX][prevY].removeChild(piece.Div);
+    slots[piece.X][piece.Y].appendChild(piece.Div);
     
-    slots[prevX][prevY].removeChild(piece.GetDiv());
-    slots[piece.GetX()][piece.GetY()].appendChild(piece.GetDiv());
+    piece.Div.style.transform = 'translate( 0px )';
     
     checkMerge(piece);
 }
@@ -510,35 +553,32 @@ function finishMove(e)
 function checkMerge(piece) 
 {
     console.log("checkMerge");
-    
     for(var i = 0; i < pieces.length; i++)
     {
-        if(pieces[i].GetX() === piece.GetX() && pieces[i].GetY() === piece.GetY() &&
-           pieces[i] !== piece && !piece.IsMoving() && !pieces[i].IsMoving())
+        if(pieces[i].X === piece.X && pieces[i].Y === piece.Y &&
+           pieces[i] !== piece && !piece.Moving && !pieces[i].Moving)
             {
-                mergePieces(piece.GetX(), piece.GetY(), piece.GetX(), piece.GetY());
+                mergePieces(piece.X, piece.Y, piece.X, piece.Y);
                 break;
             }
     }
-    console.log(piece.GetX() + " " + piece.GetY() + " arrived -> check others moving");
-   
+    
     for(var i = 0; i < pieces.length; i++)
     {
-        if(pieces[i].IsMoving())
+        if(pieces[i].Moving)
         {
-            //console.log(pieces[i].GetX() + " " + pieces[i].GetY() + " " + pieces[i].GetValue() + " still moving");
+            //console.log(pieces[i].X + " " + pieces[i].Y + " " + pieces[i].Value + " still moving");
             return;
         }
     }
-    console.log("none moving");
+    
     allPiecesDoneMoving();
 }
 
 //last call for current turn
 function allPiecesDoneMoving()
 {
-    moving = false;
-    
+    console.log("allPiecesDoneMoving");
     if (hasMovedOrMerged && pieces.length < 16 && $('#chkBoxAddRandom').prop('checked'))
         addRandomPiece();
     
@@ -561,12 +601,12 @@ function allPiecesDoneMoving()
 function mergePieces(x1, y1, x2, y2)
 {
     console.log("MERGE");
-    recalculateMoveByCoords(x1, y1);
+    removePieceByCoords(x1, y1);
     
     try{
         getPieceByCoords(x2, y2).DoubleValue();
         slots[x2][y2].markedForMerge = false;
-        var div = getPieceByCoords(x2, y2).GetDiv(); 
+        var div = getPieceByCoords(x2, y2).Div; 
         div.classList.remove('newPieceAnim');
         div.classList.remove('animMerge');
         div.offsetWidth; // Holy Shit!
@@ -580,7 +620,7 @@ function mergePieces(x1, y1, x2, y2)
         console.log("Pieces are:");
         for(var i = 0; i < pieces.length; i++)
         {
-            console.log("Piece: " + i + " x: " + pieces[i].GetX() + " y: " + pieces[i].GetY());
+            console.log("Piece: " + i + " x: " + pieces[i].X + " y: " + pieces[i].Y);
         }
         console.log(err);
         return;
@@ -589,17 +629,17 @@ function mergePieces(x1, y1, x2, y2)
     hasMovedOrMerged = true;
 }
 
-function recalculateMoveByCoords(x, y)
+function removePieceByCoords(x, y)
 {
     for (var i = 0; i < pieces.length; i++) 
     {
-        if (pieces[i].GetX() === x && pieces[i].GetY() === y) 
+        if (pieces[i].X === x && pieces[i].Y === y) 
         {
-            //document.getElementById('pieceContainer').removeChild(pieces[i].GetDiv());
+            //document.getElementById('pieceContainer').removeChild(pieces[i].Div);
             
-            slots[x][y].removeChild(pieces[i].GetDiv());
+            slots[x][y].removeChild(pieces[i].Div);
             
-            pieces[i].GetDiv().removeEventListener("transitionend", checkMerge);
+            pieces[i].Div.removeEventListener("transitionend", finishMove);
             pieces.splice(i, 1);
             return;
         }
@@ -609,7 +649,7 @@ function recalculateMoveByCoords(x, y)
 function getPieceByCoords(x, y)
 {
     for (var i = 0; i < pieces.length; i++) {
-        if (pieces[i].GetX() === x && pieces[i].GetY() === y) {
+        if (pieces[i].X === x && pieces[i].Y === y) {
             return pieces[i];
         }
     }
@@ -621,7 +661,7 @@ function getPieceByDiv(div)
 {
     for (var i = 0; i < pieces.length; i++)
     {
-        if(pieces[i].GetDiv() === div)
+        if(pieces[i].Div === div)
             return pieces[i];
     }
 }
@@ -631,7 +671,7 @@ function updateScore()
     var score = 0;
     for(var i = 0; i < pieces.length; i++)
     {
-        score += pieces[i].GetValue();
+        score += pieces[i].Value;
     }
     $('#score').text(score);
 }
@@ -657,22 +697,22 @@ function isGameOver()
     {
         for(var y = 0; y < 4; y++)
         {
-            value = getPieceByCoords(x,y).GetValue();
+            value = getPieceByCoords(x,y).Value;
             
             //check left
-            if(x > 0 && value == getPieceByCoords(x-1,y).GetValue())
+            if(x > 0 && value == getPieceByCoords(x-1,y).Value)
                 return false;
         
             //check right
-            if(x < 3 && value == getPieceByCoords(x+1,y).GetValue())
+            if(x < 3 && value == getPieceByCoords(x+1,y).Value)
                 return false;
             
             //check up
-            if(y > 0 && value == getPieceByCoords(x,y-1).GetValue())
+            if(y > 0 && value == getPieceByCoords(x,y-1).Value)
                 return false;
             
             //check down
-            if(y < 3 && value == getPieceByCoords(x,y+1).GetValue())
+            if(y < 3 && value == getPieceByCoords(x,y+1).Value)
                 return false;
         }
     }
@@ -715,25 +755,22 @@ function load(loadPreviousState)
 function getValueByCoords(x,y)
 {
     var piece = getPieceByCoords(x,y);
-    return piece != null ? piece.GetValue() : 0;
+    return piece != null ? piece.Value : 0;
 }
 
 function createNewPiece(x,y,val)
 {
     var newPiece = new Piece(x, y, val);
     pieces[pieces.length] = newPiece;
-    slots[x][y].appendChild(newPiece.GetDiv());
-    
-    //$(pieces[pieces.length-1])[0].GetDiv().children[0].offsetWidth
+    slots[x][y].appendChild(newPiece.Div);
 
-    var divWidth = $(pieces[pieces.length-1])[0].GetDiv().offsetWidth;
-    var text = $(pieces[pieces.length-1])[0].GetDiv().children[0];
+    var divWidth = $(pieces[pieces.length-1])[0].Div.offsetWidth;
+    var text = $(pieces[pieces.length-1])[0].Div.children[0];
     var fontSize = 8;
 
     while (text.offsetWidth + 6 > divWidth)
     {
         $(text).css("font-size", [(fontSize -= 0.5) + "vmin"])
-        //console.log(text.offsetWidth, divWidth);
     }
 }
 
@@ -741,41 +778,46 @@ function gameOver()
 {
     console.log('gameOver');
     
+    $('#btnPlayAgain').one("click", btnPlayAgainClicked);
+    $('#btnNewGame').one("click", btnPlayAgainClicked);
+    
     $('table').css('transition-duration',animDurationGameOverIn);
     $('table').css('transition-delay',animDelayGameOver);
-    $('table').toggleClass('blurred');
+    $('table').addClass('blurred');
     
-    //scale #gameOver instantly
-    $('#gameOver').css('transition-duration','0s');
-    $('#gameOver').css('transition-delay','0s');
-    $('#gameOver').toggleClass('big');
+    $('#gameOver').css('display','block');
     
     setTimeout( function(){
         $('#gameOver').css('transition-duration',animDurationGameOverIn);
         $('#gameOver').css('transition-delay',animDelayGameOver);
-        $('#gameOver').toggleClass('big');
-        $('#gameOver').toggleClass('visible');
+        $('#gameOver').removeClass('big');
+        $('#gameOver').addClass('visible');
        },100);
     
     $('#scoreGameOver').text($('#score').text());
     
-    if($('#score').text() >= window.localStorage.getItem('hiscore'))
+    if(parseInt($('#score').text()) >= window.localStorage.getItem('hiscore'))
     {
         $('#hiscore').text($('#score').text());
         window.localStorage.setItem('hiscore', $('#score').text() );
     }
+    $('#btnUndoDebug').prop('disabled', true);
 }
 
 function btnPlayAgainClicked()
-{
+{ 
     $('table').css('transition-delay', '0s');
     $('table').css('transition-duration',animDurationGameOverOut);
-    $('table').toggleClass('blurred');
+    $('table').removeClass('blurred');
     
     $('#gameOver').css('transition-duration',animDurationGameOverOut);
     $('#gameOver').css('transition-delay','0s');
-    $('#gameOver').toggleClass('big');
-    $('#gameOver').toggleClass('visible');
+    $('#gameOver').addClass('big');
+    $('#gameOver').removeClass('visible');
+    
+    setTimeout(function(){
+        $('#gameOver').css('display','none');
+    }, 1000);
     
     reset();
 }
@@ -788,7 +830,7 @@ function reset()
     {
         for(var y = 0; y < 4; y++)
         {
-            recalculateMoveByCoords(x,y);
+            removePieceByCoords(x,y);
         }
     }
     
@@ -799,6 +841,9 @@ function reset()
         initDebugingSetup();
     else
         initDefaultSetup();
+    
+    $('#btnUndoDebug').prop('disabled', true);
+    $('#btnNewGame').one("click", reset);
 }
 
 function btnUndoLastTurnClicked()
@@ -807,9 +852,10 @@ function btnUndoLastTurnClicked()
     $('table').css('transition-duration',animDurationGameOverOut);
     $('table').toggleClass('blurred');
     
-    $('.overlay').css('transition-delay', '0s');
-    $('.overlay').css('transition-duration',animDurationGameOverOut);
-    $('.overlay').toggleClass('animGameOver');
+    $('#gameOver').css('transition-duration',animDurationGameOverOut);
+    $('#gameOver').css('transition-delay','0s');
+    $('#gameOver').addClass('big');
+    $('#gameOver').removeClass('visible');
     
     undoLastTurnDebug();
 }
@@ -820,7 +866,7 @@ function undoLastTurnDebug()
     {
         for(var y = 0; y < 4; y++)
         {
-            recalculateMoveByCoords(x,y);
+            removePieceByCoords(x,y);
         }
     }
     
@@ -838,9 +884,16 @@ function undoLastTurnDebug()
 }
 
 function finishAnimation(e)
-{
+{   
+    moving = false;
     e.target.classList.remove('newPieceAnim');
     e.target.classList.remove('animMerge');
+    
+    if(pieces.length > 2)
+    {
+        $('#btnUndoDebug').prop('disabled', false);
+        $('#btnNewGame').prop('disabled', false);
+    }
 }
 
 function setAutoplay(value)
@@ -869,6 +922,9 @@ function debugElements()
     });
     $('#chkBoxShowMerge').prop('checked', window.localStorage.getItem('showMerge') == "true");
     
+    if(window.localStorage.getItem('addRandom') == null)
+        window.localStorage.setItem('addRandom', 'true');
+        
     $('#chkBoxAddRandom').change(function()
     {
         window.localStorage.setItem('addRandom', $('#chkBoxAddRandom').is(':checked'));
@@ -886,6 +942,20 @@ function debugElements()
         setAutoplay($('#chkBoxAutoplay').is(':checked'))
     });
     
+    
+    
     $('#btnUndoDebug').click(undoLastTurnDebug);
+    
+    if(pieces.length < 3)
+    {
+        $('#btnUndoDebug').prop('disabled', true);
+        $('#btnNewGame').prop('disabled', true);
+    }
     $('#btnGameOver').click(gameOver);
+    
+    if(window.localStorage.getItem('hiscore') == null)
+    {
+        window.localStorage.setItem('hiscore', '0');
+        $('#hiscore').text("0");
+    }
 }

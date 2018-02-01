@@ -22,6 +22,9 @@ body {
 
     --animDurationGameOver: 3s;
     --animDurationNewPiece: 0.5s;
+    overflow-x: hidden;
+    
+    transition: perspective-origin ease-in-out 1s;
 }
 
 * {
@@ -30,138 +33,77 @@ body {
 }
 
 header{
-    font-size: 4vmin;
-    color: aqua;
-    background-color: #FF874C;
+    display: flex;
+    align-items: center;
+    padding: 0 5%;
+    font-size: 3.5vmin;
+    color: black;
+    background-color: hsla(20, 100%, 65%, 0.8);
+    box-shadow: inset 0 0 10px #000;
 }
 
-.nav{
-    list-style:none;
-    margin:0;
-    padding:0;
-    text-align:center;
-}
-.nav li{
-    display:inline;
+header button:first-child{
+    margin-right: 1%;
 }
 
-.nav li:nth-child(2n+3){
-    padding-left:10px;
+header button{
+    white-space: nowrap;
+    height: fit-content;
+    padding: 1vh;
 }
 
-.nav li:last-child:hover{
-    text-decoration: underline;
+#first{
+    margin-left: 40%;
+    margin-right: 20px;
 }
 
-#btnReset{
-    cursor: pointer;
+header span{
+    width: 300px;
+    text-align: center;
+}
+
+
+#tableContainer{
+    padding-top: 7vh;
+    padding-bottom: 1vh;
+    perspective: 200px;
+    transition: perspective-origin ease-in-out 1s;
+    overflow: hidden;
 }
 
 table{
-    margin: 40px auto auto;
+    margin: auto;
+    position: relative;
 	border-collapse: collapse;
     transition: all var(--animDurationGameOver);
     transition-delay: calc( var(--animDurationNewPiece)  + .5s);
 }
 
-.blurred{
-    filter:blur(5px);
-}
-
-.scaleDiv{
-    position: absolute;
-    overflow: hidden;
-}
-
-.overlay{
-    text-align: center;
-    font-size: 6vmin;
-    font-weight: 700;
-    width: 50%;
-    margin: auto;
-
-    /*transform: scale(1.8);*/
-    opacity: 0;
-    transition: transform, opacity;
-    transition-duration: var(--animDurationGameOver); 
-    transition-delay: calc( var(--animDurationNewPiece)  + .5s);
-}
-
-.transitionTimes{
+td {
+    /*border: .3vmin solid #666666;*/
+    background-color: hsla(20, 100%, 65%, 1);
     
-}
-
-#gameOver{
-    position: absolute;
-}
-
-#tutorial{
-    position: relative;
-    width: 60%;
-    transition-delay: 0s;
-}
-
-.big{
-    transform: scale(1.8)
-}
-
-.visible{
-    opacity: 1;
-    /*visibility: visible;*/
-}
-
-button {
-    background-color: rgba(255,135,76, .4);
-    border: none;
-    padding: 2vmin 3vmin;
-    text-align: center;
-    font-size: 3vmin;
-    cursor: pointer;
-    border-radius:10px;
-    outline: none;
-    transition: all 0.2s;
-    box-shadow: 0px 0px 10px rgba(0, 0, 0, 0.6); 
-              
- }
-
-button:hover{
-    background-color: rgba(232, 68, 42, .6);
-}
-
-button:active
-{
-    background-color: rgba(107, 32, 19, .6);
-}
-
-.slot {
-    border: .3vmin solid #666666;
-    background-color: #FF874C;
     border-radius: 2vmin;
     box-shadow: inset 0 0 10px #000;
-    width: 20vmin; 
-    height: 20vmin;
+    width: 19vmin; 
+    height: 19vmin;
     margin-right: -2px;
     margin-bottom: -2px;
 }
 
 .piece {
-    /*display: block;*/
     position: relative;
     left: 0vmin;
     top:0vmin;
     margin: 10%;
-    text-align: center;
-    background-color: #00ff00;
-    /*border: .3vmin solid #666666;*/
-    box-shadow: 0px 0px 15px rgba(0, 0, 0, 0.6); 
-    width: 80% /*calc(80% - 0.6vmin)*/;
-    height: 80% /*calc(80% - 0.6vmin)*/;
+    width: 80%;
+    height: 80%;
     border-radius: 10%;
     font-size: 8vmin;
     line-height: 12vmin;
     text-align: center;
     
-    transition: left ease-in-out, top ease-in-out;
+    transition: transform ease-in-out;
 
     transition-duration: 1s;
 }
@@ -195,20 +137,97 @@ button:active
 @keyframes grow {
     0% {
         transform: scale(0);
+        opacity: 0;
     }
 
     100% {
         transform: scale(1);
+        opacity: 1;
     }
+}
+
+
+#btnReset{
+    cursor: pointer;
+}
+
+.blurred{
+    filter:blur(5px);
+}
+
+.scaleDiv{
+    position: absolute;
+    overflow: hidden;
+}
+
+.overlay{
+    text-align: center;
+    font-size: 6vmin;
+    font-weight: 700;
+    width: 50%;
+    margin: auto;
+
+    opacity: 0;
+    transition: transform, opacity;
+    transition-duration: var(--animDurationGameOver); 
+    transition-delay: calc( var(--animDurationNewPiece)  + .5s);
+}
+
+#gameOver{
+    display: none;
+    position: absolute;
+}
+
+#tutorial{
+    position: relative;
+    width: 60%;
+    transition-delay: 0s;
+}
+
+.big{
+    transform: scale(1.8)
+}
+
+.visible{
+    opacity: 1;
+}
+
+button {
+    background-color: hsla(20, 100%, 65%, .3);
+    border: none;
+    outline: none;
+    padding: 3%;
+    text-align: center;
+    font-size: 3vmin;
+    cursor: pointer;
+    border-radius:10px;
+    transition: all 0.2s;
+    box-shadow: 0px 0px 10px rgba(0, 0, 0, 0.6); 
+              
+ }
+
+button:hover{
+    background-color: rgba(232, 68, 42, .6);
+}
+
+button:active
+{
+    background-color: rgba(107, 32, 19, .6);
+}
+
+button:disabled
+{
+    background-color: rgba(107, 32, 19, .6);
 }
 
 .markedForMerge {background-color: aqua;}
 
 #infoAndDebug{
-    display: flex;
+    display: none;
+    /*display: flex;*/
     justify-content: space-between;
     width: 80vmin;
-    margin: 2em auto 0 auto;
+    margin: 7vh auto 0 auto;
 }
 
 .switchDiv{
