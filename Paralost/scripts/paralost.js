@@ -5,7 +5,8 @@ var meteorHeight;
 var keepAddingMeteors = true;
 
 window.onload = function() {
-    meteorMaster = $('.meteor').clone(false);   
+    
+    meteorMaster = $('.meteor').first().clone(false);   
     docHeight = document.documentElement.clientHeight;
     docWidth = document.documentElement.clientWidth;
 
@@ -32,15 +33,34 @@ function placeMeteor()
     let xPos = Math.floor(Math.random() * (docWidth - 0) + 0);
     let yPos = - meteorHeight;
 
-    newMeteor.css('transform', 'skewX(10deg) ' + 'translate3d('+xPos+'px,'+yPos+'px, -100px)');
+    newMeteor.css('transform', 'rotate(-10deg) ' + 'translate3d('+xPos+'px,'+yPos+'px, -100px)');
     $('body').append(newMeteor);
 
     console.log('new meteor ' + xPos + ' ' + yPos);
 
-    let targetX = xPos + docHeight * Math.tan(10 * Math.PI/180);
-    TweenMax.to(newMeteor, 5, { x: targetX, y: docHeight, ease: Power1.easeInOut, onComplete: removeMeteor, onCompleteParams:[newMeteor]});
+    let targetX = xPos + docHeight * Math.tan(12 * Math.PI/180);
+    TweenMax.to(newMeteor, 2, { x: targetX, y: docHeight, ease: Power0.easeNone, onComplete: removeMeteor, onCompleteParams:[newMeteor]});
     
-    setTimeout(function(){placeMeteor();}, 5000);
+    particles(newMeteor);
+    
+    setTimeout(function(){placeMeteor();}, 1000);
+}
+
+function particles(meteor)
+{
+    if($(meteor).parent().length == 0)
+        return;
+    
+    let particle = $(meteor).clone();
+    particle.addClass('particle');
+    $('body').append(particle);
+    
+    let targetY = $(meteor).position().top + 100;
+    let targetX = $(meteor).position().left + 100 * Math.tan(12 * Math.PI/180);
+    
+    TweenMax.to(particle, 2, { x: targetX, y: targetY, ease: Power0.easeNone, onComplete: removeMeteor, onCompleteParams:[particle]});
+    
+    setTimeout(function(){particles(meteor);}, 100);
 }
 
 function startStopAddingMeteors()

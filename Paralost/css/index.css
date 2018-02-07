@@ -21,17 +21,42 @@ body {
     padding: 0;
 }
 
+.normal{
+    height: 5vh;
+    width: 1vw;
+}
+
+.particle{
+    height: 2vh;
+    width: 0.5vw;
+}
+
 .meteor{
     /* Permalink - use to edit and share this gradient: http://colorzilla.com/gradient-editor/#000000+0,f7970a+88,f4f4f4+91,f7970a+95&0+0,1+90,0.8+100 */
-background: -moz-linear-gradient(top, rgba(0,0,0,0) 0%, rgba(247,151,10,0.98) 88%, rgba(245,213,166,1) 90%, rgba(244,244,244,0.98) 91%, rgba(247,151,10,0.9) 95%, rgba(247,151,10,0.8) 100%); /* FF3.6-15 */
-background: -webkit-linear-gradient(top, rgba(0,0,0,0) 0%,rgba(247,151,10,0.98) 88%,rgba(245,213,166,1) 90%,rgba(244,244,244,0.98) 91%,rgba(247,151,10,0.9) 95%,rgba(247,151,10,0.8) 100%); /* Chrome10-25,Safari5.1-6 */
-background: linear-gradient(to bottom, rgba(0,0,0,0) 0%,rgba(247,151,10,0.98) 88%,rgba(245,213,166,1) 90%,rgba(244,244,244,0.98) 91%,rgba(247,151,10,0.9) 95%,rgba(247,151,10,0.8) 100%); /* W3C, IE10+, FF16+, Chrome26+, Opera12+, Safari7+ */
-filter: progid:DXImageTransform.Microsoft.gradient( startColorstr='#00000000', endColorstr='#ccf7970a',GradientType=0 ); /* IE6-9 */
+/*background: -moz-linear-gradient(top, rgba(0,0,0,0) 0%, rgba(247,151,10,0.98) 88%, rgba(245,213,166,1) 90%, rgba(244,244,244,0.98) 91%, rgba(247,151,10,0.9) 95%, rgba(247,151,10,0.8) 100%); /* FF3.6-15 */
+/*background: -webkit-linear-gradient(top, rgba(0,0,0,0) 0%,rgba(247,151,10,0.98) 88%,rgba(245,213,166,1) 90%,rgba(244,244,244,0.98) 91%,rgba(247,151,10,0.9) 95%,rgba(247,151,10,0.8) 100%); /* Chrome10-25,Safari5.1-6 */
+/*background: linear-gradient(to bottom, rgba(0,0,0,0) 0%,rgba(247,151,10,0.98) 88%,rgba(245,213,166,1) 90%,rgba(244,244,244,0.98) 91%,rgba(247,151,10,0.9) 95%,rgba(247,151,10,0.8) 100%); /* W3C, IE10+, FF16+, Chrome26+, Opera12+, Safari7+ */
+/*filter: progid:DXImageTransform.Microsoft.gradient( startColorstr='#00000000', endColorstr='#ccf7970a',GradientType=0 ); /* IE6-9 */
+  
+    background: white;
     
-    transform: translateZ(-1000px);
+    transform: translateZ(-100px);
     position: absolute;
-    height: 200px;
-    width: 50px;
+    
+    box-shadow: 0 0 5px #fff, 0 0 10px #fff, 0 0 15px #fff, 0 0 20px #FF9900, 0 0 35px #FF9900, 0 0 40px #FF9900, 0 0 50px #FF9900, 0 0 75px #FF9900;
+}
+
+div:nth-child(1){
+    top:0px;
+    left:30px;
+}
+div:nth-child(2){
+    top:200px;
+    left:50px;
+}
+div:nth-child(3){
+    top:300px;
+    left:150px;
 }
 
 #skyline1{
