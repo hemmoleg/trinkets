@@ -119,3 +119,17 @@ nav li {
 .cherry label{ background: #b1001d; }
 .strawberry label{ background: #ec0404; }
 .raspberry label{ background: #ef6982; }
+
+
+/*/////////////////////////////////////*/
+
+
+#holder 
+{
+    height: 600px;
+    width: 600px;
+}
+#time {
+    text-align: center;
+    font: 100 3em "Helvetica Neue", Helvetica, Arial, sans-serif;
+}
