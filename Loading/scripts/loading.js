@@ -1,12 +1,15 @@
-﻿window.onload = function () {
+﻿var centerXY;
+
+window.onload = function () {
     /*createCircle2(3,50,50,94);
 
     testCircle3(3,0,0,194);*/
-    var r = Raphael("holder", 600, 600);
+    var r = Raphael("holder", 800, 800);
+    centerXY = 400;
     var R = 120;
     var init = true;
     var param = {
-            stroke: "#fff"
+            stroke: "#F36B00"
             , "stroke-width": 30
         };
     var hash = document.location.hash;
@@ -14,66 +17,57 @@
             fill: hash || "#444"
             , stroke: "none"
         };
-    var html = [
-                    document.getElementById("h")
-                    , document.getElementById("m")
-                    , document.getElementById("s")
-                    , document.getElementById("d")
-                    , document.getElementById("mnth")
-                    , document.getElementById("ampm")
-                ];
     
-    //set custom start date/time
-    //with hundred3 OR centerXY at 200 the hands freak out
-    
-    var centerXY = 200;
+    //figure thirds out
     
     // Custom Attribute
-    r.customAttributes.arc = function (value, total, R, centerXY)
+    r.customAttributes.arc = function (value, R, width)
     {
-        var hundred3 = 300;
+        //var centerXY = 400;
         
-        var alpha = 360 / total * value
+        var alpha = 360 / 360 * value
         var a = (90 - alpha) * Math.PI / 180
-        var x = hundred3 + R * Math.cos(a)
-        var y = hundred3 - R * Math.sin(a)
-        var color = "hsb(".concat(Math.round(R) / 200, ",", value / total, ", .75)")
-        var path;
+        var x = centerXY + R * Math.cos(a)
+        var y = centerXY - R * Math.sin(a)
+        var path = [["M", centerXY, centerXY - R], ["A", R, R, 0, +(alpha > 180), 1, x, y]];
         
-        if (total == value) 
-        {
-            path = [["M", hundred3, hundred3 - R], ["A", R, R, 0, 1, 1, 299.99, 300 - R]];
-        }
-        else 
-        {
-            path = [["M", hundred3, hundred3 - R], ["A", R, R, 0, +(alpha > 180), 1, x, y]];
-        }
-        return {path: path, stroke: color};
+        path = [["M", centerXY, centerXY - R], ["A", R, R, 0, +(alpha > 180), 1, x, y]];
+        
+        return {path: path, "stroke-width": width};
     };
     
+    /////////////draw stuff
+    // https://steamuserimages-a.akamaihd.net/ugc/80342118768853730/E698567DFD278F74F96C12336E641041964E5C9F/?interpolation=lanczos-none&output-format=jpeg&output-quality=95&fit=inside%7C637%3A358&composite-to=*,*%7C637%3A358&background-color=black
+    
+    //helpers
+    r.rect(centerXY , 0, 1, 800).attr({'fill': '#ffffff', stroke: 0});
+    
+    //outline
+    r.circle(400, 400, 350).attr({stroke: "#F36B00", "stroke-width": 4, opacity: 0.3});
+    
+    //rects
+    var posY = 85;
+    var radius = 315;
+    for (var i = 0; i < 360; i = i + 2) 
+    {
+        var currentRect = r.rect(centerXY , posY, 2, 10);
+        currentRect.attr({'fill': '#ffffff', stroke: 0});
+        currentRect.rotate(i, centerXY, posY + radius);
+    }
+    
+    
+    //lineRectsBig
+    var lineRectsBig = r.path().attr(param).attr({arc: [180, 300, 4]}).attr({opacity: 0.6});
+    lineRectsBig.rotate(180, centerXY, centerXY);
+    
+    //lineRectsThin
+    var lineRectsThin = r.path().attr(param).attr({arc: [180, 300, 2]}).attr({opacity: 0.4});
+    
+    
     drawMarks(R, 60); //draw seconds marks
-    var sec = r.path().attr(param).attr({
-        arc: [0, 60, R]
-    });
     
-    R -= 40; //lower radius
-    drawMarks(R, 60); //draw minute marks
-    var min = r.path().attr(param).attr({
-        arc: [0, 60, R]
-    });
+    animWidth(r, param);
     
-    R -= 40; //lower radius
-    drawMarks(R, 12); //draw hour marks
-    var hor = r.path().attr(param).attr({
-        arc: [0, 12, R]
-    });
-    
-    var pm = r.circle(300, 300, 16).attr({
-        stroke: "none", fill: Raphael.hsb2rgb(15 / 200, 1, .75).hex
-    });
-    
-    html[5].style.color = Raphael.hsb2rgb(15 / 200, 1, .75).hex;
-
     function drawMarks(R, total) 
     {
         if (total == 31) { // month
@@ -88,75 +82,46 @@
         for (var value = 0; value < total; value++) {
             var alpha = 360 / total * value
                 , a = (90 - alpha) * Math.PI / 180
-                , x = 300 + R * Math.cos(a)
-                , y = 300 - R * Math.sin(a);
+                , x = centerXY + R * Math.cos(a)
+                , y = centerXY - R * Math.sin(a);
             out.push(r.circle(x, y, 2).attr(marksAttr));
         }
         return out;
     }
     
+    //outerThird1
+    var alpha = 115;
+    var gap = (360 - 3*alpha)/3;
+    var offset = +0;
+    var outerThird1 = r.path().attr(param).attr({arc: [alpha, 250, 30]}).attr({opacity: 0.3});
+    outerThird1.rotate(-alpha/2 + offset , centerXY, centerXY);
     
-    updateClock(sec, min, hor, html, init, pm);
+    //outerThird1
+    var outerThird2 = r.path().attr(param).attr({arc: [alpha, 250, 30]}).attr({opacity: 0.3});
+    outerThird2.rotate( (alpha/2) + gap + offset, centerXY, centerXY);
+    
+    //outerThird1
+    var outerThird3 = r.path().attr(param).attr({arc: [alpha, 250, 30]}).attr({opacity: 0.3});
+    outerThird3.rotate( 1.5*alpha + 2*gap + offset , centerXY, centerXY);
+    
+    //updateClock(sec, min, hor, init, 58);
 }
 
-function updateClock(sec, min, hor, html, init, pm)
+function animWidth(r, param)
 {
-    var d = new Date; 
-    var am = (d.getHours() < 12); 
-    var h = d.getHours() % 12 || 12;
-
-    //update seconds
-    updateVal(d.getSeconds(), 60, 120, sec, 2, init, html);
-
-    //update minutes
-    updateVal(d.getMinutes(), 60, 80, min, 1, init, html);
-
-    //update hours
-    updateVal(h             , 12, 40, hor, 0, init, html);
-
-    //update days
-    //updateVal(d.getDate(), 31, 80, day, 3, init, html);
-
-    //update month
-    //updateVal(d.getMonth() + 1, 12, 40, mon, 4, init, html);
-
-    init = false;
-    pm[(am ? "hide" : "show")]();
-    html[5].innerHTML = am ? "AM" : "PM";
-    setTimeout(updateClock.bind(null, sec, min, hor, html, init, pm), 1000);
-}
-
-function updateVal(value, total, R, hand, id, init, html) 
-{
-    var color = "hsb(".concat(Math.round(R) / 200, ",", value / total, ", .75)");
-    if (init) 
-    {
-        hand.animate({
-            arc: [value, total, R]
-        }, 900, ">");
-    }
-    else
-    {
-        if (!value || value == total) 
-        {
-            value = total;
-            hand.animate({
-                arc: [value, total, R]
-            }, 750, "bounce", function () {
-                hand.attr({
-                    arc: [0, total, R]
-                });
-            });
-        }
-        else 
-        {
-            hand.animate({
-                arc: [value, total, R]
-            }, 750, "elastic");
-        }
-    }
-    html[id].innerHTML = (value < 10 ? "0" : "") + value;
-    html[id].style.color = Raphael.getRGB(color).hex;
+    var startR = 90;
+    var maxWidth = 40;
+    
+    //value, R, width
+    var hand = r.path().attr(param).attr({
+        arc: [180, startR, 0]
+    });
+    
+    //value, R, stroke-width
+    hand.animate({arc: [180, startR + maxWidth/2, maxWidth]}, 1000, "easeInOut", 
+        function(){hand.animate({arc: [180, startR + maxWidth, 0]}, 1000, "easeInOut")});
+    
+    setTimeout(animWidth.bind(null, r, param), 2100);
 }
 
 
