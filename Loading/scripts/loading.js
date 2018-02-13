@@ -12,13 +12,6 @@ window.onload = function () {
             stroke: "#F36B00"
             , "stroke-width": 30
         };
-    var hash = document.location.hash;
-    var marksAttr = {
-            fill: hash || "#444"
-            , stroke: "none"
-        };
-    
-    //figure thirds out
     
     // Custom Attribute
     r.customAttributes.arc = function (value, R, width)
@@ -46,11 +39,11 @@ window.onload = function () {
     r.circle(400, 400, 350).attr({stroke: "#F36B00", "stroke-width": 4, opacity: 0.3});
     
     //rects
-    var posY = 85;
-    var radius = 315;
+    var posY = 87;
+    var radius = 314;
     for (var i = 0; i < 360; i = i + 2) 
     {
-        var currentRect = r.rect(centerXY , posY, 2, 10);
+        var currentRect = r.rect(centerXY , posY, 2, 9);
         currentRect.attr({'fill': '#ffffff', stroke: 0});
         currentRect.rotate(i, centerXY, posY + radius);
     }
@@ -64,53 +57,46 @@ window.onload = function () {
     var lineRectsThin = r.path().attr(param).attr({arc: [180, 300, 2]}).attr({opacity: 0.4});
     
     
-    drawMarks(R, 60); //draw seconds marks
+    drawMarks(R, 60, r); //draw seconds marks
     
     animWidth(r, param);
     
-    function drawMarks(R, total) 
-    {
-        if (total == 31) { // month
-            var d = new Date;
-            d.setDate(1);
-            d.setMonth(d.getMonth() + 1);
-            d.setDate(-1);
-            total = d.getDate();
-        }
-        var color = "hsb(".concat(Math.round(R) / 200, ", 1, .75)")
-            , out = r.set();
-        for (var value = 0; value < total; value++) {
-            var alpha = 360 / total * value
-                , a = (90 - alpha) * Math.PI / 180
-                , x = centerXY + R * Math.cos(a)
-                , y = centerXY - R * Math.sin(a);
-            out.push(r.circle(x, y, 2).attr(marksAttr));
-        }
-        return out;
-    }
-    
     //outerThird1
-    var alpha = 115;
+    var alpha = 113;
     var gap = (360 - 3*alpha)/3;
+    var radius = 250;
     var offset = +0;
-    var outerThird1 = r.path().attr(param).attr({arc: [alpha, 250, 30]}).attr({opacity: 0.3});
+    var outerThird1 = r.path().attr(param).attr({arc: [alpha, radius, 33]}).attr({opacity: 0.3});
     outerThird1.rotate(-alpha/2 + offset , centerXY, centerXY);
     
-    //outerThird1
-    var outerThird2 = r.path().attr(param).attr({arc: [alpha, 250, 30]}).attr({opacity: 0.3});
+    //outerThird2
+    var outerThird2 = r.path().attr(param).attr({arc: [alpha, radius, 33]}).attr({opacity: 0.3});
     outerThird2.rotate( (alpha/2) + gap + offset, centerXY, centerXY);
     
-    //outerThird1
-    var outerThird3 = r.path().attr(param).attr({arc: [alpha, 250, 30]}).attr({opacity: 0.3});
+    //outerThird3
+    var outerThird3 = r.path().attr(param).attr({arc: [alpha, radius, 33]}).attr({opacity: 0.3});
     outerThird3.rotate( 1.5*alpha + 2*gap + offset , centerXY, centerXY);
+    
+    //innerThird1
+    radius = 180;
+    var innerThird1 = r.path().attr(param).attr({arc: [alpha, radius, 30]}).attr({opacity: 0.3});
+    innerThird1.rotate(-alpha/2 + offset , centerXY, centerXY);
+    
+    //innerThird2
+    var innerThird2 = r.path().attr(param).attr({arc: [alpha, radius, 30]}).attr({opacity: 0.3});
+    innerThird2.rotate( (alpha/2) + gap + offset, centerXY, centerXY);
+    
+    //innerThird3
+    var innerThird3 = r.path().attr(param).attr({arc: [alpha, radius, 30]}).attr({opacity: 0.3});
+    innerThird3.rotate( 1.5*alpha + 2*gap + offset , centerXY, centerXY);
     
     //updateClock(sec, min, hor, init, 58);
 }
 
 function animWidth(r, param)
 {
-    var startR = 90;
-    var maxWidth = 40;
+    var startR = 60;
+    var maxWidth = 30;
     
     //value, R, width
     var hand = r.path().attr(param).attr({
@@ -124,7 +110,31 @@ function animWidth(r, param)
     setTimeout(animWidth.bind(null, r, param), 2100);
 }
 
-
+function drawMarks(R, total, r) 
+{
+    var marksAttr = {
+            fill: "#444"
+            , stroke: "none"
+        };
+    
+    if (total == 31) { // month
+        var d = new Date;
+        d.setDate(1);
+        d.setMonth(d.getMonth() + 1);
+        d.setDate(-1);
+        total = d.getDate();
+    }
+    var color = "hsb(".concat(Math.round(R) / 200, ", 1, .75)")
+        , out = r.set();
+    for (var value = 0; value < total; value++) {
+        var alpha = 360 / total * value
+            , a = (90 - alpha) * Math.PI / 180
+            , x = centerXY + R * Math.cos(a)
+            , y = centerXY - R * Math.sin(a);
+        out.push(r.circle(x, y, 2).attr(marksAttr));
+    }
+    return out;
+}
 
 function createCircle2(step, posX, posY, radius) {
     var paper = Raphael("circle2", 500, 300);
