@@ -1,5 +1,30 @@
 ﻿var centerXY;
 
+function createCirlce(r, radius, sliceCount, alpha , params, rotated)
+{
+    if(sliceCount == 1)
+    {
+        return r.circle(centerXY, centerXY, radius).attr(params);
+    }
+    else
+    {
+        let slices = [];
+        let gap = (360 - sliceCount*alpha)/sliceCount;
+        let angle;
+        for(let i=0; i < sliceCount; i++)
+        {
+            slices.push( r.path().attr({arc: [alpha, radius, 30]}).attr(params) );
+            if(rotated)
+                angle = -alpha/2 + i*(alpha+gap);
+            else    
+                angle = i*(alpha+gap);
+            
+            slices[slices.length-1].rotate(angle, centerXY, centerXY);
+        }
+        return slices;
+    }
+}
+
 window.onload = function () {
     /*createCircle2(3,50,50,94);
 
@@ -26,9 +51,6 @@ window.onload = function () {
         return {path: path, "stroke-width": width};
     };
     
-    ///////////////////////
-    //animate quarters
-    
     /////////////draw stuff
     // https://steamuserimages-a.akamaihd.net/ugc/80342118768853730/E698567DFD278F74F96C12336E641041964E5C9F/?interpolation=lanczos-none&output-format=jpeg&output-quality=95&fit=inside%7C637%3A358&composite-to=*,*%7C637%3A358&background-color=black
     
@@ -36,7 +58,8 @@ window.onload = function () {
     r.rect(centerXY , 0, 1, 800).attr({'fill': '#ffffff', stroke: 0});
     
     //outline
-    r.circle(centerXY, centerXY, 350).attr({stroke: "#F36B00", "stroke-width": 4, opacity: 0.3});
+    param = {stroke: "#F36B00", "stroke-width": 4, opacity: 0.3};
+    createCirlce(r, 350, 1, 0, param, false);
     
     //rects
     var posY = 87;
@@ -48,91 +71,79 @@ window.onload = function () {
         currentRect.rotate(i, centerXY, posY + radius);
     }
     
+    //lineRectsThin
+    var lineRectsThin = r.path().attr(param).attr({arc: [180, 300, 2]});//.attr({opacity: 0.4});
     
     //lineRectsBig
+    param = {stroke: "#F36B00", "stroke-width": 4, opacity: 0.6};
     var lineRectsBig = r.path().attr(param).attr({arc: [180, 300, 4]});
     lineRectsBig.rotate(180, centerXY, centerXY);
     
-    //lineRectsThin
-    var lineRectsThin = r.path().attr(param).attr({arc: [180, 300, 2]}).attr({opacity: 0.4});
-    
-    //outerThird1
-    var alpha = 113;
-    var gap = (360 - 3*alpha)/3;
-    var radius = 250;
-    var offset = +0;
+    //outerThirds
+    //createCirlce(r, radius, slices, alpha , params, rotated)
     param = {stroke: "#F36B00", "stroke-width": 30, opacity: 0.3};
-    var outerThird1 = r.path().attr(param).attr({arc: [alpha, radius, 30]});
-    outerThird1.rotate(-alpha/2 + offset , centerXY, centerXY);
+    let outerThirds = createCirlce(r, 250, 3, 113, param, true);
     
-    //outerThird2
-    var outerThird2 = r.path().attr(param).attr({arc: [alpha, radius, 30]});
-    outerThird2.rotate( (alpha/2) + gap + offset, centerXY, centerXY);
-    
-    //outerThird3
-    var outerThird3 = r.path().attr(param).attr({arc: [alpha, radius, 30]});
-    outerThird3.rotate( 1.5*alpha + 2*gap + offset , centerXY, centerXY);
-    
-    
-    //innerThird1
+    //innerThirds
     radius = 180;
-    param = {stroke: "#F36B00", "stroke-width": 30, opacity: 0.4};
-    var innerThird1 = r.path().attr(param).attr({arc: [alpha, radius, 30]});
-    innerThird1.rotate(-alpha/2 + offset , centerXY, centerXY);
-    
-    //innerThird2
-    var innerThird2 = r.path().attr(param).attr({arc: [alpha, radius, 30]});
-    innerThird2.rotate( (alpha/2) + gap + offset, centerXY, centerXY);
-    
-    //innerThird3
-    var innerThird3 = r.path().attr(param).attr({arc: [alpha, radius, 30]});
-    innerThird3.rotate( 1.5*alpha + 2*gap + offset , centerXY, centerXY);
-    
-    
-    
-    //innerThirdLine
-    radius = 199;
+    param = {stroke: "#F36B00", "stroke-width": 30, opacity: 0.3};
+    let innerThirds = createCirlce(r, 180, 3, 113, param, true);
+
+    //innerThirdsLine1
     param = {stroke: "#F36B00", "stroke-width": 3, opacity: 0.6};
-    var innerThirdLine1 = r.path().attr({arc: [alpha, radius, 30]}).attr(param);
-    innerThirdLine1.rotate(-alpha/2 , centerXY, centerXY);
-    
-    //innerThird2
-    var innerThirdLine2 = r.path().attr({arc: [alpha, radius, 30]}).attr(param);
-    innerThirdLine2.rotate( (alpha/2) + gap + offset, centerXY, centerXY);
-    
-    //innerThird3
-    var innerThirdLine3 = r.path().attr({arc: [alpha, radius, 30]}).attr(param);
-    innerThirdLine3.rotate( 1.5*alpha + 2*gap + offset , centerXY, centerXY);
-    
-    //inner innerThirds
-    radius = 161;
-    var innerThirdLine4 = r.path().attr({arc: [alpha, radius, 30]}).attr(param);
-    innerThirdLine4.rotate(-alpha/2 , centerXY, centerXY);
-    
-    //innerThird2
-    var innerThirdLine5 = r.path().attr({arc: [alpha, radius, 30]}).attr(param);
-    innerThirdLine5.rotate( (alpha/2) + gap + offset, centerXY, centerXY);
-    
-    //innerThird3
-    let innerThirdLine6 = r.path().attr({arc: [alpha, radius, 30]}).attr(param);
-    innerThirdLine6.rotate( 1.5*alpha + 2*gap + offset , centerXY, centerXY);
- 
+    let innerThirdsLine1 = createCirlce(r, 199, 3, 113, param, true);
+    let innerThirdsLine2 = createCirlce(r, 161, 3, 113, param, true);
     
     //ring
     r.circle(centerXY, centerXY, 130).attr({stroke: "#F36B00", "stroke-width": 3, opacity: 0.3});
     
     
     animRunner(r, null);
-    animQuarters(r, null, false);
+    animQuarters(r, null);
     animWidth(r, param, null);
+    animBigSixs(r, null, 0);
 }
 
-function animQuarters(r, quartersBefore, playSecondPart)
+function animBigSixs(r, bigSixths, i)
 {
-    let alpha = 50;
-    let gap = (360 - 4*alpha)/4;
+    var alpha = 59;
+    var gap = (360 - 6*alpha)/6;
+    var radius = 180;
+    var timePerSixt = 300;
+    param = {stroke: "#F36B00", "stroke-width": 27, opacity: 0.4};
+    if(bigSixths == null) bigSixths = [];
+    if(i == 6)
+    {
+        //FULL cycle finished -> reset
+        for(let j = bigSixths.length-1; j >= 0; j--)
+            bigSixths[j].remove();
+        
+        bigSixths = [];
+        i = 0;
+    }
     
-    if(quartersBefore != null && !playSecondPart)
+    if(bigSixths.length < 6)
+    {
+        newSixth = r.path().attr(param).attr({arc: [0, radius, 27]});
+        newSixth.rotate( bigSixths.length * (alpha + gap), centerXY, centerXY);
+        newSixth.animate({arc: [alpha, radius, 27]}, timePerSixt, "linear");
+        bigSixths.push(newSixth);
+    }
+    else
+    {
+        let angle = (i+1) * alpha + i * gap;
+        bigSixths[i].animate({arc: [0, radius, 27]}, timePerSixt, "linear");
+        bigSixths[i].animate({transform: "r" +angle + "," + centerXY + "," + centerXY}, timePerSixt, "linear");
+        i++;
+    }
+    setTimeout(animBigSixs.bind(null, r, bigSixths, i), timePerSixt);
+    
+    
+}
+
+function animQuarters(r, quartersBefore)
+{
+    if(quartersBefore != null)
     {
         //reset
         for(let i = quartersBefore.length-1; i >= 0; i--)
@@ -143,37 +154,18 @@ function animQuarters(r, quartersBefore, playSecondPart)
     
     if(quartersBefore == null)
     {
-        //outerThird1
-        let radius = 133;
-        let quarters = [];
-        param = {stroke: "#F36B00", "stroke-width": 8, opacity: 0.5};
-
-        quarters.push( r.path().attr({arc: [alpha, radius, 30]}).attr(param) );
-        quarters[0].rotate(0, centerXY, centerXY);
-
-        quarters.push( r.path().attr({arc: [alpha, radius, 30]}).attr(param) );
-        quarters[1].rotate( alpha + gap, centerXY, centerXY);
-
-        quarters.push( r.path().attr({arc: [alpha, radius, 30]}).attr(param) );
-        quarters[2].rotate( (alpha + gap)*2, centerXY, centerXY);
-
-        quarters.push( r.path().attr({arc: [alpha, radius, 30]}).attr(param) );
-        quarters[3].rotate( (alpha + gap)*3, centerXY, centerXY);
-
-        for(let quarter of quarters)
-            quarter.animate({transform: "r360" + "," + centerXY + "," + centerXY}, 2000);
-    
-        setTimeout(animQuarters.bind(null, r, quarters, true), 2000, "easeInOut");
-    }
-    else
-    {
         let finalAngle;
-        for(let i = 0; i < quartersBefore.length; i++)
+        let alpha = 50;
+        let gap = (360 - 4*alpha)/4;
+        let param = {stroke: "#F36B00", "stroke-width": 8, opacity: 0.5};
+        let quarters = createCirlce(r, 133, 4, 50, param, false);
+        
+        for(let i = 0; i < quarters.length; i++)
         {
-            finalAngle = 360 +(alpha + gap)*i;
-            quartersBefore[i].animate({transform: "r" +finalAngle + "," + centerXY + "," + centerXY}, 2000, "easeInOut");
+            finalAngle = -(360 -(alpha + gap)*i);
+            quarters[i].animate({transform: "r" +finalAngle + "," + centerXY + "," + centerXY}, 6000, "linear");
         }
-        //setTimeout(animQuarters.bind(null, r, quartersBefore, false), 2000);
+        setTimeout(animQuarters.bind(null, r, quarters), 6000);
     }
 }
 
