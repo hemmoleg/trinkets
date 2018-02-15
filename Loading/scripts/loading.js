@@ -1,4 +1,7 @@
 ﻿var centerXY;
+var bigSixths;
+var smallSixths;
+var timePerSixth;
 
 function createCirlce(r, radius, sliceCount, alpha , params, rotated)
 {
@@ -13,7 +16,7 @@ function createCirlce(r, radius, sliceCount, alpha , params, rotated)
         let angle;
         for(let i=0; i < sliceCount; i++)
         {
-            slices.push( r.path().attr({arc: [alpha, radius, 30]}).attr(params) );
+            slices.push( r.path().attr({arc: [alpha, radius]}).attr(params) );
             if(rotated)
                 angle = -alpha/2 + i*(alpha+gap);
             else    
@@ -32,11 +35,10 @@ window.onload = function () {
     var r = Raphael("holder", 800, 800);
     centerXY = 400;
     var R = 120;
-    var init = true;
     var param = {stroke: "#F36B00", "stroke-width": 30, opacity: 0.6};
     
     // Custom Attribute
-    r.customAttributes.arc = function (value, R, width)
+    r.customAttributes.arc = function (value, R)
     {
         //var centerXY = 400;
         
@@ -48,7 +50,7 @@ window.onload = function () {
         
         path = [["M", centerXY, centerXY - R], ["A", R, R, 0, +(alpha > 180), 1, x, y]];
         
-        return {path: path, "stroke-width": width};
+        return {path: path};
     };
     
     /////////////draw stuff
@@ -71,6 +73,11 @@ window.onload = function () {
         currentRect.rotate(i, centerXY, posY + radius);
     }
     
+    let param2 = {stroke:"#fff", "stroke-width":3};
+    let yOrigin = centerXY - 280;
+    let deco = r.path("M" + centerXY + " " + yOrigin + " l 0 8 l 15 0").attr(param2);
+    deco.rotate(-56, centerXY, centerXY);
+    
     //lineRectsThin
     var lineRectsThin = r.path().attr(param).attr({arc: [180, 300, 2]});//.attr({opacity: 0.4});
     
@@ -80,13 +87,12 @@ window.onload = function () {
     lineRectsBig.rotate(180, centerXY, centerXY);
     
     //outerThirds
-    //createCirlce(r, radius, slices, alpha , params, rotated)
     param = {stroke: "#F36B00", "stroke-width": 30, opacity: 0.3};
     let outerThirds = createCirlce(r, 250, 3, 113, param, true);
     
     //innerThirds
     radius = 180;
-    param = {stroke: "#F36B00", "stroke-width": 30, opacity: 0.3};
+    param = {stroke: "#F36B00", "stroke-width": 30, opacity: 0.2};
     let innerThirds = createCirlce(r, 180, 3, 113, param, true);
 
     //innerThirdsLine1
@@ -97,48 +103,95 @@ window.onload = function () {
     //ring
     r.circle(centerXY, centerXY, 130).attr({stroke: "#F36B00", "stroke-width": 3, opacity: 0.3});
     
+    var runner = r.rect(centerXY -12, 173, 25, 3).attr({'fill': '#ffffff', stroke: 0});
+    animRunner(r, runner);
     
-    animRunner(r, null);
     animQuarters(r, null);
     animWidth(r, param, null);
-    animBigSixs(r, null, 0);
-}
-
-function animBigSixs(r, bigSixths, i)
-{
+    //animBigSixs(r, null, 0);
+    
+    timePerSixth = 250;
     var alpha = 59;
     var gap = (360 - 6*alpha)/6;
     var radius = 180;
-    var timePerSixt = 300;
-    param = {stroke: "#F36B00", "stroke-width": 27, opacity: 0.4};
-    if(bigSixths == null) bigSixths = [];
-    if(i == 6)
+    
+    bigSixths = [];
+    params = {stroke: "#F36B00", "stroke-width": 27, opacity: 0.2};
+    for(let i = 0; i < 6; i++)
     {
-        //FULL cycle finished -> reset
-        for(let j = bigSixths.length-1; j >= 0; j--)
-            bigSixths[j].remove();
-        
-        bigSixths = [];
-        i = 0;
+        let newSixth = r.path().attr({arc: [0, radius]}).attr(params);
+        newSixth.rotate( bigSixths.length * (alpha + gap), centerXY, centerXY);
+        bigSixths.push(newSixth);
     }
     
-    if(bigSixths.length < 6)
+    
+    smallSixths = [];
+    params = {stroke: "#F36B00", "stroke-width": 5, opacity: 0.4};
+    for(let i = 0; i < 6; i++)
     {
-        newSixth = r.path().attr(param).attr({arc: [0, radius, 27]});
-        newSixth.rotate( bigSixths.length * (alpha + gap), centerXY, centerXY);
-        newSixth.animate({arc: [alpha, radius, 27]}, timePerSixt, "linear");
-        bigSixths.push(newSixth);
+        let newSixth = r.path().attr({arc: [0, radius]}).attr(params);
+        newSixth.rotate( smallSixths.length * (alpha + gap), centerXY, centerXY);
+        smallSixths.push(newSixth);
+    }
+    
+    animSixths(alpha, radius, gap)
+}
+
+function animSixths(alpha, radius, gap)
+{
+    let angle;
+    for(let i=0; i<bigSixths.length; i++)
+    {
+        angle = i * (alpha + gap);
+        bigSixths[i].attr({transform: "r" + angle + "," + centerXY + "," + centerXY});
+        smallSixths[i].attr({transform: "r" + angle + "," + centerXY + "," + centerXY});
+    }
+    
+    animSixthUp(bigSixths, alpha, gap, radius, 0);
+   
+}
+
+function animSixthUp(sixths, alpha, gap, radius, i)
+{
+    if(i == sixths.length) return;
+    
+    if(i < sixths.length-1)
+    {
+        sixths[i].animate({arc: [alpha, radius]}, timePerSixth, "linear", function(){animSixthUp( sixths, alpha, gap, radius, i+1)});
+    }
+    else if(sixths == smallSixths)
+    {
+        sixths[i].animate({arc: [alpha, radius]}, timePerSixth, "linear", function(){ animSixthDown(sixths, alpha, gap, radius, 0)});
+        return;
     }
     else
     {
-        let angle = (i+1) * alpha + i * gap;
-        bigSixths[i].animate({arc: [0, radius, 27]}, timePerSixt, "linear");
-        bigSixths[i].animate({transform: "r" +angle + "," + centerXY + "," + centerXY}, timePerSixt, "linear");
-        i++;
+        sixths[i].animate({arc: [alpha, radius]}, timePerSixth, "linear", function(){ animSixthUp(smallSixths, alpha, gap, radius, 0)});
+        return;
     }
-    setTimeout(animBigSixs.bind(null, r, bigSixths, i), timePerSixt);
+}
+
+function animSixthDown(sixths, alpha, gap, radius, i)
+{
+    if(i == sixths.length) return;
     
+    let angle = (i+1) * alpha + i * gap;
+    sixths[i].animate({arc: [0, radius]}, timePerSixth, "linear");
     
+    if(i < sixths.length - 1)
+    {
+        sixths[i].animate({transform: "r" +angle + "," + centerXY + "," + centerXY}, timePerSixth, "linear", function(){animSixthDown(sixths, alpha, gap, radius, i+1)});
+    }
+    else if(sixths == bigSixths)
+    {
+        sixths[i].animate({transform: "r" +angle + "," + centerXY + "," + centerXY}, timePerSixth, "linear", function(){ animSixths(alpha, radius, gap)});
+        return;
+    }
+    else
+    {
+        sixths[i].animate({transform: "r" +angle + "," + centerXY + "," + centerXY}, timePerSixth, "linear", function(){ animSixthDown(bigSixths, alpha, gap, radius, 0)});
+        return;
+    } 
 }
 
 function animQuarters(r, quartersBefore)
@@ -175,48 +228,18 @@ function animWidth(r, param, handBefore)
     
     var startR = 60;
     var maxWidth = 30;
-    var hand = r.path().attr(param).attr({arc: [180, startR, 0]});
+    var hand = r.path().attr(param).attr({arc: [180, startR], "stroke-width": 0});
     
     //value, R, stroke-width
-    hand.animate({arc: [180, startR + maxWidth/2, maxWidth]}, 1000, "easeInOut", 
-        function(){hand.animate({arc: [180, startR + maxWidth, 0]}, 1000, "easeInOut")});
+    hand.animate({arc: [180, startR + maxWidth/2], "stroke-width": maxWidth}, 1000, "easeInOut", 
+        function(){hand.animate({arc: [180, startR + maxWidth], "stroke-width":0}, 1000, "easeInOut")});
     
     setTimeout(animWidth.bind(null, r, param, hand), 2100);
 }
 
-function animRunner(r, runnerBefore)
+function animRunner(r, runner)
 {
-    if(runnerBefore != null) runnerBefore.remove();
-    
-    var runner = r.rect(centerXY -12, 173, 25, 3);
-    runner.attr({'fill': '#ffffff', stroke: 0});
-    
+    runner.attr({transform: "r0" + "," + centerXY + "," + centerXY});
     runner.animate({transform: "r360" + "," + centerXY + "," + centerXY}, 2000);
     setTimeout(animRunner.bind(null, r, runner), 2000);
-}
-
-function createCircle2(step, posX, posY, radius) {
-    var paper = Raphael("circle2", 500, 300);
-    for (var i = 0; i < 360; i = i + step) {
-        //var transformString = 'r'+i.toString + ' 100,100';
-        var currentRect = paper.rect(posX + radius, posY, 2, 20);
-        currentRect.attr({
-            'fill': '#ffffff'
-            , stroke: 0
-        });
-        currentRect.rotate(i, posX + radius, posY + radius);
-    }
-}
-
-function testCircle3(step, posX, posY, radius) {
-    var paper = Raphael("circle3", 500, 400);
-    for (var i = 0; i < 90; i = i + step) {
-        //var transformString = 'r'+i.toString + ' 100,100';
-        var currentRect = paper.rect(posX + radius, posY, 11, 20);
-        currentRect.attr({
-            'fill': '#ffffff'
-            , stroke: 0
-        });
-        currentRect.rotate(i, posX + radius, posY + radius);
-    }
 }
