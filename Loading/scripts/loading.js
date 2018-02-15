@@ -2,6 +2,7 @@
 var bigSixths;
 var smallSixths;
 var timePerSixth;
+var DecoShape = {"SquareAngelL":1, "SquareAngelR":2, "Bar":3, "Triangle":4}
 
 function createCirlce(r, radius, sliceCount, alpha , params, rotated)
 {
@@ -73,10 +74,10 @@ window.onload = function () {
         currentRect.rotate(i, centerXY, posY + radius);
     }
     
-    let param2 = {stroke:"#fff", "stroke-width":3};
-    let yOrigin = centerXY - 280;
-    let deco = r.path("M" + centerXY + " " + yOrigin + " l 0 8 l 15 0").attr(param2);
-    deco.rotate(-56, centerXY, centerXY);
+    drawDeco(r, 280, 3, 128, DecoShape.SquareAngelL, 0, true);
+    drawDeco(r, 280, 3, 128, DecoShape.SquareAngelR, 8, true);
+    drawDeco(r, 272, 3, 128, DecoShape.Bar, 0, false);
+    drawDeco(r, 370, 4, 128, DecoShape.Triangle, 0, false);
     
     //lineRectsThin
     var lineRectsThin = r.path().attr(param).attr({arc: [180, 300, 2]});//.attr({opacity: 0.4});
@@ -110,7 +111,7 @@ window.onload = function () {
     animWidth(r, param, null);
     //animBigSixs(r, null, 0);
     
-    timePerSixth = 250;
+    timePerSixth = 220;
     var alpha = 59;
     var gap = (360 - 6*alpha)/6;
     var radius = 180;
@@ -135,6 +136,52 @@ window.onload = function () {
     }
     
     animSixths(alpha, radius, gap)
+    highlightSmallSixth(0);
+}
+
+function highlightSmallSixth(i)
+{
+    if(i == smallSixths.length)
+        i = 0;
+    if(i == 0)
+        smallSixths[smallSixths.length-1].attr({opacity:0.4});
+    else
+        smallSixths[i-1].attr({opacity:0.4});
+    
+    smallSixths[i].attr({opacity:1});
+    //console.log(i);
+    i++;
+    
+    setTimeout(highlightSmallSixth.bind(null, i), 800);
+}
+
+function drawDeco(r, radius, decoCount, alpha, shape, angleOffset, rotated)
+{
+    let param = {stroke:"#fff", "stroke-width":3};
+    let yOrigin = centerXY - radius;
+    let gap = (360 - decoCount*alpha)/decoCount;
+    let angle;
+    for(let i=0; i < decoCount; i++)
+    {
+        switch(shape)
+        {
+            case 1: deco = r.path("M" + centerXY + " " + yOrigin + " l 0 8 l -14 0").attr(param);
+                    break;
+            case 2: deco = r.path("M" + centerXY + " " + yOrigin + " l 0 8 l 14 0").attr(param);
+                    break;
+            case 3: deco = r.path("M" + centerXY + " " + yOrigin + " l -10 0 l 20 0").attr(param);
+                    break;
+            case 4: deco = r.path("M" + centerXY + " " + yOrigin + " l 5 5 l -10 0 z").attr(param);
+                    deco.attr({fill: "white"});
+                    break;
+        }
+        if(rotated)
+            angle = -alpha/2 + i*(alpha+gap) + angleOffset;
+        else    
+            angle = i*(alpha+gap);
+
+       deco.rotate(angle, centerXY, centerXY);
+    }
 }
 
 function animSixths(alpha, radius, gap)
@@ -147,7 +194,7 @@ function animSixths(alpha, radius, gap)
         smallSixths[i].attr({transform: "r" + angle + "," + centerXY + "," + centerXY});
     }
     
-    animSixthUp(bigSixths, alpha, gap, radius, 0);
+    animSixthUp(smallSixths, alpha, gap, radius, 0);
    
 }
 
@@ -159,14 +206,14 @@ function animSixthUp(sixths, alpha, gap, radius, i)
     {
         sixths[i].animate({arc: [alpha, radius]}, timePerSixth, "linear", function(){animSixthUp( sixths, alpha, gap, radius, i+1)});
     }
-    else if(sixths == smallSixths)
+    else if(sixths == bigSixths)
     {
         sixths[i].animate({arc: [alpha, radius]}, timePerSixth, "linear", function(){ animSixthDown(sixths, alpha, gap, radius, 0)});
         return;
     }
     else
     {
-        sixths[i].animate({arc: [alpha, radius]}, timePerSixth, "linear", function(){ animSixthUp(smallSixths, alpha, gap, radius, 0)});
+        sixths[i].animate({arc: [alpha, radius]}, timePerSixth, "linear", function(){ animSixthUp(bigSixths, alpha, gap, radius, 0)});
         return;
     }
 }
@@ -182,14 +229,14 @@ function animSixthDown(sixths, alpha, gap, radius, i)
     {
         sixths[i].animate({transform: "r" +angle + "," + centerXY + "," + centerXY}, timePerSixth, "linear", function(){animSixthDown(sixths, alpha, gap, radius, i+1)});
     }
-    else if(sixths == bigSixths)
+    else if(sixths == smallSixths)
     {
         sixths[i].animate({transform: "r" +angle + "," + centerXY + "," + centerXY}, timePerSixth, "linear", function(){ animSixths(alpha, radius, gap)});
         return;
     }
     else
     {
-        sixths[i].animate({transform: "r" +angle + "," + centerXY + "," + centerXY}, timePerSixth, "linear", function(){ animSixthDown(bigSixths, alpha, gap, radius, 0)});
+        sixths[i].animate({transform: "r" +angle + "," + centerXY + "," + centerXY}, timePerSixth, "linear", function(){ animSixthDown(smallSixths, alpha, gap, radius, 0)});
         return;
     } 
 }
