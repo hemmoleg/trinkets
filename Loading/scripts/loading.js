@@ -107,10 +107,6 @@ window.onload = function () {
     var runner = r.rect(centerXY -12, 173, 25, 3).attr({'fill': '#ffffff', stroke: 0});
     animRunner(r, runner);
     
-    animQuarters(r, null);
-    animWidth(r, param, null);
-    //animBigSixs(r, null, 0);
-    
     timePerSixth = 220;
     var alpha = 59;
     var gap = (360 - 6*alpha)/6;
@@ -134,9 +130,116 @@ window.onload = function () {
         newSixth.rotate( smallSixths.length * (alpha + gap), centerXY, centerXY);
         smallSixths.push(newSixth);
     }
+
+    let coreSixths = new CoreSixth(r);
+    coreSixths.Anim1(58);
     
-    animSixths(alpha, radius, gap)
-    highlightSmallSixth(0);
+    //animSixths(alpha, radius, gap)
+    //highlightSmallSixth(0);
+    //animQuarters(r, null);
+    //animWidth( 58);
+
+
+}
+
+class CoreSixth
+{
+    constructor(r)
+    {
+        this.angle = 58;
+        this.startR = 20;
+        this.maxWidth = 32;
+        this.params = {stroke: "#F36B00", "stroke-width": 0, opacity: 0};
+        this.coreSixths = createCirlce(r, this.startR, 6, this.angle, this.params, true);
+        this.params = {stroke: "#F36B00", "stroke-width": 5, opacity: 0};
+        this.coreSixths2 = createCirlce(r, this.startR-8, 6, this.angle, this.params, true);
+    }
+
+    Anim1()
+    {   
+        for(let sixth of this.coreSixths)
+        {
+            //this.startR + this.maxWidth/2 +20
+            if(this.coreSixths.indexOf(sixth) == this.coreSixths.length-1)
+            {
+                sixth.animate({arc: [this.angle, this.startR + this.maxWidth +30]}, 1100, "linear"); 
+                sixth.animate({"stroke-width": this.maxWidth}, 600, "linear", this.Anim2.bind(this)); 
+            }
+            else
+            {
+                sixth.animate({arc: [this.angle, this.startR + this.maxWidth +30]}, 1100, "linear"); 
+                sixth.animate({"stroke-width": this.maxWidth}, 600, "linear"); 
+            }
+            sixth.animate({opacity: 0.4}, 200, "linear"); 
+        }
+        
+        for(let sixth of this.coreSixths2)
+        {
+            /*if(this.coreSixths2.indexOf(sixth) == this.coreSixths.length-1)
+                sixth.animate({arc: [this.angle, this.startR + this.maxWidth/4 + 25]}, 600, "linear", this.Anim2.bind(this));
+            else
+                sixth.animate({arc: [this.angle, this.startR + this.maxWidth/4 + 25]}, 600, "linear");*/ 
+        
+            sixth.animate({opacity: 0.4}, 200, "linear"); 
+        }
+        
+        for(let sixth of this.coreSixths2)
+        {
+            if(this.coreSixths2.indexOf(sixth) == this.coreSixths.length-1)
+                sixth.animate({arc: [this.angle, this.startR + this.maxWidth +  10]}, 1100, "easeOut", this.Anim3.bind(this));
+            else
+                sixth.animate({arc: [this.angle, this.startR + this.maxWidth +  10]}, 1100, "easeOut"); 
+        }
+    }
+    
+    Anim2()
+    {
+        for(let sixth of this.coreSixths)
+        {
+            /*if(this.coreSixths.indexOf(sixth) == this.coreSixths.length-1)
+                sixth.animate({arc: [this.angle, this.startR + this.maxWidth +30], "stroke-width":0}, 500, "linear", this.Reset.bind(this));
+            else*/
+                sixth.animate({"stroke-width":0}, 500, "linear");
+        }
+        
+        /*for(let sixth of this.coreSixths2)
+        {
+            if(this.coreSixths2.indexOf(sixth) == this.coreSixths.length-1)
+                sixth.animate({arc: [this.angle, this.startR + this.maxWidth * 1.1 +  30]}, 500, "easeOut", this.Anim3.bind(this));
+            else
+                sixth.animate({arc: [this.angle, this.startR + this.maxWidth * 1.1 +  30]}, 500, "easeOut"); 
+        }*/
+    }
+    
+    Anim3()
+    {
+        for(let sixth of this.coreSixths2)
+        {
+            if(this.coreSixths2.indexOf(sixth) == this.coreSixths.length-1)
+                sixth.animate({opacity: 0}, 300, "linear", this.Reset.bind(this));
+            else
+                sixth.animate({opacity: 0}, 300, "linear"); 
+        }
+    }
+    
+    Reset()
+    {
+        for(let sixth of this.coreSixths)
+        {
+            /*if(this.coreSixths.indexOf(sixth) == this.coreSixths.length-1)
+                sixth.animate({arc: [this.angle, this.startR], opacity: 0}, 10, "linear", this.AnimStart.bind(this));
+            else*/
+                sixth.animate({arc: [this.angle, this.startR], opacity: 0}, 10, "linear");
+        }
+        
+        for(let sixth of this.coreSixths2)
+        {
+            if(this.coreSixths2.indexOf(sixth) == this.coreSixths.length-1)
+                sixth.animate({arc: [this.angle, this.startR-8], opacity: 0}, 10, "linear", this.Anim1.bind(this));
+            else
+                sixth.animate({arc: [this.angle, this.startR-8], opacity: 0}, 10, "linear"); 
+        }
+    }
 }
 
 function highlightSmallSixth(i)
@@ -165,11 +268,11 @@ function drawDeco(r, radius, decoCount, alpha, shape, angleOffset, rotated)
     {
         switch(shape)
         {
-            case 1: deco = r.path("M" + centerXY + " " + yOrigin + " l 0 8 l -14 0").attr(param);
+            case 1: deco = r.path("M" + centerXY + " " + yOrigin + " l 0 8 l -12 0").attr(param);
                     break;
-            case 2: deco = r.path("M" + centerXY + " " + yOrigin + " l 0 8 l 14 0").attr(param);
+            case 2: deco = r.path("M" + centerXY + " " + yOrigin + " l 0 8 l 12 0").attr(param);
                     break;
-            case 3: deco = r.path("M" + centerXY + " " + yOrigin + " l -10 0 l 20 0").attr(param);
+            case 3: deco = r.path("M" + centerXY + " " + yOrigin + " l -13 0 l 26 0").attr(param);
                     break;
             case 4: deco = r.path("M" + centerXY + " " + yOrigin + " l 5 5 l -10 0 z").attr(param);
                     deco.attr({fill: "white"});
@@ -267,21 +370,6 @@ function animQuarters(r, quartersBefore)
         }
         setTimeout(animQuarters.bind(null, r, quarters), 6000);
     }
-}
-
-function animWidth(r, param, handBefore)
-{   
-    if(handBefore != null) handBefore.remove();
-    
-    var startR = 60;
-    var maxWidth = 30;
-    var hand = r.path().attr(param).attr({arc: [180, startR], "stroke-width": 0});
-    
-    //value, R, stroke-width
-    hand.animate({arc: [180, startR + maxWidth/2], "stroke-width": maxWidth}, 1000, "easeInOut", 
-        function(){hand.animate({arc: [180, startR + maxWidth], "stroke-width":0}, 1000, "easeInOut")});
-    
-    setTimeout(animWidth.bind(null, r, param, hand), 2100);
 }
 
 function animRunner(r, runner)
