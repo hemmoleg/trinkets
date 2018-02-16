@@ -1,7 +1,6 @@
 ﻿var centerXY;
 var bigSixths;
 var smallSixths;
-var timePerSixth;
 var DecoShape = {"SquareAngelL":1, "SquareAngelR":2, "Bar":3, "Triangle":4}
 
 function createCirlce(r, radius, sliceCount, alpha , params, rotated)
@@ -107,7 +106,7 @@ window.onload = function () {
     var runner = r.rect(centerXY -12, 173, 25, 3).attr({'fill': '#ffffff', stroke: 0});
     animRunner(r, runner);
     
-    timePerSixth = 220;
+    /*timePerSixth = 220;
     var alpha = 59;
     var gap = (360 - 6*alpha)/6;
     var radius = 180;
@@ -129,15 +128,17 @@ window.onload = function () {
         let newSixth = r.path().attr({arc: [0, radius]}).attr(params);
         newSixth.rotate( smallSixths.length * (alpha + gap), centerXY, centerXY);
         smallSixths.push(newSixth);
-    }
+    }*/
 
+    let sixths = new Sixths(r);
+    sixths.AnimSixths();
+    sixths.HighlightSmallSixth(0);
+    
     let coreSixths = new CoreSixth(r);
     coreSixths.Anim1(58);
     
     //animSixths(alpha, radius, gap)
-    //highlightSmallSixth(0);
-    //animQuarters(r, null);
-    //animWidth( 58);
+    animQuarters(r, null);
 
 
 }
@@ -146,116 +147,190 @@ class CoreSixth
 {
     constructor(r)
     {
-        this.angle = 58;
-        this.startR = 20;
+        this.Angle = 58;
+        this.StartR = 20;
         this.maxWidth = 32;
-        this.params = {stroke: "#F36B00", "stroke-width": 0, opacity: 0};
-        this.coreSixths = createCirlce(r, this.startR, 6, this.angle, this.params, true);
-        this.params = {stroke: "#F36B00", "stroke-width": 5, opacity: 0};
-        this.coreSixths2 = createCirlce(r, this.startR-8, 6, this.angle, this.params, true);
+        this.Params = {stroke: "#F36B00", "stroke-width": 0, opacity: 0};
+        this.CoreSitxths = createCirlce(r, this.StartR, 6, this.Angle, this.Params, true);
+        this.Params = {stroke: "#F36B00", "stroke-width": 5, opacity: 0};
+        this.CoreSitxths2 = createCirlce(r, this.StartR-8, 6, this.Angle, this.Params, true);
     }
 
     Anim1()
     {   
-        for(let sixth of this.coreSixths)
+        for(let sixth of this.CoreSitxths)
         {
-            //this.startR + this.maxWidth/2 +20
-            if(this.coreSixths.indexOf(sixth) == this.coreSixths.length-1)
+            //this.StartR + this.maxWidth/2 +20
+            if(this.CoreSitxths.indexOf(sixth) == this.CoreSitxths.length-1)
             {
-                sixth.animate({arc: [this.angle, this.startR + this.maxWidth +30]}, 1100, "linear"); 
-                sixth.animate({"stroke-width": this.maxWidth}, 600, "linear", this.Anim2.bind(this)); 
+                sixth.animate({arc: [this.Angle, this.StartR + this.maxWidth +25]}, 770, "easeInOut"); 
+                sixth.animate({"stroke-width": this.maxWidth}, 400, "linear", this.Six1StrokeTo0.bind(this)); 
             }
             else
             {
-                sixth.animate({arc: [this.angle, this.startR + this.maxWidth +30]}, 1100, "linear"); 
-                sixth.animate({"stroke-width": this.maxWidth}, 600, "linear"); 
+                sixth.animate({arc: [this.Angle, this.StartR + this.maxWidth +25]}, 770, "easeInOut"); 
+                sixth.animate({"stroke-width": this.maxWidth}, 400, "linear"); 
             }
-            sixth.animate({opacity: 0.4}, 200, "linear"); 
+            sixth.animate({opacity: 0.3}, 200, "linear"); 
         }
         
-        for(let sixth of this.coreSixths2)
+        for(let sixth of this.CoreSitxths2)
         {
-            /*if(this.coreSixths2.indexOf(sixth) == this.coreSixths.length-1)
-                sixth.animate({arc: [this.angle, this.startR + this.maxWidth/4 + 25]}, 600, "linear", this.Anim2.bind(this));
+            //radius and fade in for Six2
+            if(this.CoreSitxths2.indexOf(sixth) == this.CoreSitxths.length-1)
+                sixth.animate({arc: [this.Angle, this.StartR + this.maxWidth +  25]}, 770, "easeInOut", this.Six2FadeOut.bind(this));
             else
-                sixth.animate({arc: [this.angle, this.startR + this.maxWidth/4 + 25]}, 600, "linear");*/ 
-        
-            sixth.animate({opacity: 0.4}, 200, "linear"); 
-        }
-        
-        for(let sixth of this.coreSixths2)
-        {
-            if(this.coreSixths2.indexOf(sixth) == this.coreSixths.length-1)
-                sixth.animate({arc: [this.angle, this.startR + this.maxWidth +  10]}, 1100, "easeOut", this.Anim3.bind(this));
-            else
-                sixth.animate({arc: [this.angle, this.startR + this.maxWidth +  10]}, 1100, "easeOut"); 
+                sixth.animate({arc: [this.Angle, this.StartR + this.maxWidth +  25]}, 770, "easeInOut");
+            sixth.animate({opacity: 0.4}, 100, "linear"); 
         }
     }
     
-    Anim2()
+    Six1StrokeTo0()
     {
-        for(let sixth of this.coreSixths)
+        //stroke hide for Six1
+        for(let sixth of this.CoreSitxths)
         {
-            /*if(this.coreSixths.indexOf(sixth) == this.coreSixths.length-1)
-                sixth.animate({arc: [this.angle, this.startR + this.maxWidth +30], "stroke-width":0}, 500, "linear", this.Reset.bind(this));
-            else*/
-                sixth.animate({"stroke-width":0}, 500, "linear");
-        }
-        
-        /*for(let sixth of this.coreSixths2)
-        {
-            if(this.coreSixths2.indexOf(sixth) == this.coreSixths.length-1)
-                sixth.animate({arc: [this.angle, this.startR + this.maxWidth * 1.1 +  30]}, 500, "easeOut", this.Anim3.bind(this));
+            if(this.CoreSitxths.indexOf(sixth) == this.CoreSitxths.length-1)
+                sixth.animate({"stroke-width":0}, 300, "linear", this.Six2StrokeTo0.bind(this));
             else
-                sixth.animate({arc: [this.angle, this.startR + this.maxWidth * 1.1 +  30]}, 500, "easeOut"); 
-        }*/
+                sixth.animate({"stroke-width":0}, 300, "linear");
+        }
     }
     
-    Anim3()
+    Six2StrokeTo0()
     {
-        for(let sixth of this.coreSixths2)
+        //stroke hide for Six1
+        for(let sixth of this.CoreSitxths2)
         {
-            if(this.coreSixths2.indexOf(sixth) == this.coreSixths.length-1)
-                sixth.animate({opacity: 0}, 300, "linear", this.Reset.bind(this));
+            sixth.animate({"stroke-width":0}, 150, "linear");
+        }
+    }
+    
+    Six2FadeOut()
+    {
+        for(let sixth of this.CoreSitxths2)
+        {
+            if(this.CoreSitxths2.indexOf(sixth) == this.CoreSitxths.length-1)
+                sixth.animate({opacity: 0}, 150, "linear", this.Reset.bind(this));
             else
-                sixth.animate({opacity: 0}, 300, "linear"); 
+                sixth.animate({opacity: 0}, 150, "linear"); 
         }
     }
     
     Reset()
     {
-        for(let sixth of this.coreSixths)
+        for(let sixth of this.CoreSitxths)
         {
-            /*if(this.coreSixths.indexOf(sixth) == this.coreSixths.length-1)
-                sixth.animate({arc: [this.angle, this.startR], opacity: 0}, 10, "linear", this.AnimStart.bind(this));
-            else*/
-                sixth.animate({arc: [this.angle, this.startR], opacity: 0}, 10, "linear");
+            sixth.animate({arc: [this.Angle, this.StartR], opacity: 0}, 10, "linear");
         }
         
-        for(let sixth of this.coreSixths2)
+        for(let sixth of this.CoreSitxths2)
         {
-            if(this.coreSixths2.indexOf(sixth) == this.coreSixths.length-1)
-                sixth.animate({arc: [this.angle, this.startR-8], opacity: 0}, 10, "linear", this.Anim1.bind(this));
+            if(this.CoreSitxths2.indexOf(sixth) == this.CoreSitxths.length-1)
+                sixth.animate({arc: [this.Angle, this.StartR-8], opacity: 0, "stroke-width":5}, 10, "linear", this.Anim1.bind(this));
             else
-                sixth.animate({arc: [this.angle, this.startR-8], opacity: 0}, 10, "linear"); 
+                sixth.animate({arc: [this.Angle, this.StartR-8], opacity: 0, "stroke-width":5 }, 10, "linear"); 
         }
     }
 }
 
-function highlightSmallSixth(i)
+class Sixths
 {
-    if(i == smallSixths.length)
-        i = 0;
-    if(i == 0)
-        smallSixths[smallSixths.length-1].attr({opacity:0.4});
-    else
-        smallSixths[i-1].attr({opacity:0.4});
+    constructor(r)
+    {
+        this.TimePerSixth = 200;
+        this.Alpha = 59;
+        this.Gap = (360 - 6*this.Alpha)/6;
+        this.Radius = 180;
+        this.Params = {stroke: "#F36B00", "stroke-width": 27, opacity: 0.2};
+        this.BigSixths = [];
+        for(let i = 0; i < 6; i++)
+        {
+            let newSixth = r.path().attr({arc: [0, this.Radius]}).attr(this.Params);
+            this.BigSixths.push(newSixth);
+        }
+        
+        this.SmallSixths = [];
+        this.Params = {stroke: "#F36B00", "stroke-width": 5, opacity: 0.4};
+        for(let i = 0; i < 6; i++)
+        {
+            let newSixth = r.path().attr({arc: [0, this.Radius]}).attr(this.Params);
+            this.SmallSixths.push(newSixth);
+        }
+    }
     
-    smallSixths[i].attr({opacity:1});
-    //console.log(i);
-    i++;
+    AnimSixths()
+    {
+        let angle;
+        for(let i=0; i<this.BigSixths.length; i++)
+        {
+            angle = i * (this.Alpha + this.Gap);
+            this.BigSixths[i].attr({transform: "r" + angle + "," + centerXY + "," + centerXY});
+            this.SmallSixths[i].attr({transform: "r" + angle + "," + centerXY + "," + centerXY});
+        }
+
+        this.AnimSixthUp(this.SmallSixths, 0);
+
+    }
+
+    AnimSixthUp(sixths, i)
+    {
+        if(i == sixths.length) return;
+        
+        if(i < sixths.length-1)
+        {
+            sixths[i].animate({arc: [this.Alpha, this.Radius]}, this.TimePerSixth, "linear", this.AnimSixthUp.bind(this, sixths, i+1));
+        }
+        else if(sixths == this.BigSixths)
+        {
+            sixths[i].animate({arc: [this.Alpha, this.Radius]}, this.TimePerSixth, "linear", this.AnimSixthDown.bind(this, sixths, 0));
+            return;
+        }
+        else
+        {
+            sixths[i].animate({arc: [this.Alpha, this.Radius]}, this.TimePerSixth, "linear", this.AnimSixthUp.bind(this, this.BigSixths, 0));
+            return;
+        }
+    }
+
+    AnimSixthDown(sixths, i)
+    {
+        if(i == sixths.length) return;
+
+        let angle = (i+1) * this.Alpha + i * this.Gap;
+        sixths[i].animate({arc: [0, this.Radius]}, this.TimePerSixth, "linear");
+
+        if(i < sixths.length - 1)
+        {
+            sixths[i].animate({transform: "r" +angle + "," + centerXY + "," + centerXY}, this.TimePerSixth, "linear", this.AnimSixthDown.bind(this, sixths, i+1));
+        }
+        else if(sixths == this.SmallSixths)
+        {
+            sixths[i].animate({transform: "r" +angle + "," + centerXY + "," + centerXY}, this.TimePerSixth, "linear", this.AnimSixths.bind(this));
+            return;
+        }
+        else
+        {
+            sixths[i].animate({transform: "r" +angle + "," + centerXY + "," + centerXY}, this.TimePerSixth, "linear", this.AnimSixthDown.bind(this, this.SmallSixths, 0));
+            return;
+        } 
+    }
     
-    setTimeout(highlightSmallSixth.bind(null, i), 800);
+    HighlightSmallSixth(i)
+    {
+        if(i == this.SmallSixths.length)
+            i = 0;
+        if(i == 0)
+            this.SmallSixths[this.SmallSixths.length-1].attr({opacity:0.4});
+        else
+            this.SmallSixths[i-1].attr({opacity:0.4});
+
+        this.SmallSixths[i].attr({opacity:1});
+        //console.log(i);
+        i++;
+
+        setTimeout(this.HighlightSmallSixth.bind(this, i), 800);
+    }
 }
 
 function drawDeco(r, radius, decoCount, alpha, shape, angleOffset, rotated)
@@ -287,62 +362,7 @@ function drawDeco(r, radius, decoCount, alpha, shape, angleOffset, rotated)
     }
 }
 
-function animSixths(alpha, radius, gap)
-{
-    let angle;
-    for(let i=0; i<bigSixths.length; i++)
-    {
-        angle = i * (alpha + gap);
-        bigSixths[i].attr({transform: "r" + angle + "," + centerXY + "," + centerXY});
-        smallSixths[i].attr({transform: "r" + angle + "," + centerXY + "," + centerXY});
-    }
-    
-    animSixthUp(smallSixths, alpha, gap, radius, 0);
-   
-}
 
-function animSixthUp(sixths, alpha, gap, radius, i)
-{
-    if(i == sixths.length) return;
-    
-    if(i < sixths.length-1)
-    {
-        sixths[i].animate({arc: [alpha, radius]}, timePerSixth, "linear", function(){animSixthUp( sixths, alpha, gap, radius, i+1)});
-    }
-    else if(sixths == bigSixths)
-    {
-        sixths[i].animate({arc: [alpha, radius]}, timePerSixth, "linear", function(){ animSixthDown(sixths, alpha, gap, radius, 0)});
-        return;
-    }
-    else
-    {
-        sixths[i].animate({arc: [alpha, radius]}, timePerSixth, "linear", function(){ animSixthUp(bigSixths, alpha, gap, radius, 0)});
-        return;
-    }
-}
-
-function animSixthDown(sixths, alpha, gap, radius, i)
-{
-    if(i == sixths.length) return;
-    
-    let angle = (i+1) * alpha + i * gap;
-    sixths[i].animate({arc: [0, radius]}, timePerSixth, "linear");
-    
-    if(i < sixths.length - 1)
-    {
-        sixths[i].animate({transform: "r" +angle + "," + centerXY + "," + centerXY}, timePerSixth, "linear", function(){animSixthDown(sixths, alpha, gap, radius, i+1)});
-    }
-    else if(sixths == smallSixths)
-    {
-        sixths[i].animate({transform: "r" +angle + "," + centerXY + "," + centerXY}, timePerSixth, "linear", function(){ animSixths(alpha, radius, gap)});
-        return;
-    }
-    else
-    {
-        sixths[i].animate({transform: "r" +angle + "," + centerXY + "," + centerXY}, timePerSixth, "linear", function(){ animSixthDown(smallSixths, alpha, gap, radius, 0)});
-        return;
-    } 
-}
 
 function animQuarters(r, quartersBefore)
 {
@@ -375,6 +395,6 @@ function animQuarters(r, quartersBefore)
 function animRunner(r, runner)
 {
     runner.attr({transform: "r0" + "," + centerXY + "," + centerXY});
-    runner.animate({transform: "r360" + "," + centerXY + "," + centerXY}, 2000);
+    runner.animate({transform: "r-360" + "," + centerXY + "," + centerXY}, 2000);
     setTimeout(animRunner.bind(null, r, runner), 2000);
 }
