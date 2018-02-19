@@ -2,6 +2,7 @@
 var bigSixths;
 var smallSixths;
 var DecoShape = {"SquareAngelL":1, "SquareAngelR":2, "Bar":3, "Triangle":4}
+var holderOriginalTransform = "";
 
 function createCirlce(r, radius, sliceCount, alpha , params, rotated)
 {
@@ -28,12 +29,48 @@ function createCirlce(r, radius, sliceCount, alpha , params, rotated)
     }
 }
 
-window.onload = function () {
-    /*createCircle2(3,50,50,94);
+function resize()
+{
+    var clientHeight = $(window).height();
+    var clientWidht = $(window).width();
 
-    testCircle3(3,0,0,194);*/
-    var r = Raphael("holder", 800, 800);
-    centerXY = 400;
+    var svgDimesion = $('svg').height();
+    
+    if(holderOriginalTransform == "")
+    {
+        holderOriginalTransform = $('#holder').css('transform');
+    }
+    
+    if(clientHeight/svgDimesion < clientWidht/svgDimesion)
+    {
+        $('#holder').css('transform', holderOriginalTransform + 'scale(' + parseFloat(clientHeight/svgDimesion) + ')');
+    }
+    else
+    {
+        $('#holder').css('transform', holderOriginalTransform + 'scale(' + parseFloat(clientWidht/svgDimesion) + ')');
+    }
+    
+    console.log($('#holder').width() + " " + $('#holder').height());
+    
+    /*if(clientHeight/svgDimesion < clientWidht/svgDimesion)
+    {
+        $('svg').css('transform', 'scale(' + parseFloat(clientHeight/svgDimesion) + ')');
+    }
+    else
+    {
+        $('svg').css('transform', 'scale(' + parseFloat(clientWidht/svgDimesion) + ')');
+    }*/
+}
+
+window.onload = function () {
+
+    $( window ).resize(resize);
+    
+    //resize -> set transform scale
+    
+    var r = Raphael("holder", 700, 700);
+    resize();
+    centerXY = 350;
     var R = 120;
     var param = {stroke: "#F36B00", "stroke-width": 30, opacity: 0.6};
     
@@ -61,86 +98,76 @@ window.onload = function () {
     
     //outline
     param = {stroke: "#F36B00", "stroke-width": 4, opacity: 0.3};
-    createCirlce(r, 350, 1, 0, param, false);
-    
+    createCirlce(r, 310, 1, 0, param, false);
+    return;
     //rects
-    var posY = 87;
-    var radius = 314;
-    for (var i = 0; i < 360; i = i + 2) 
+    let radius = 285;
+    let posY = centerXY - radius;
+    let rects = [];
+    for (let i = 0; i < 360; i = i + 2) 
     {
-        var currentRect = r.rect(centerXY , posY, 2, 9);
-        currentRect.attr({'fill': '#ffffff', stroke: 0});
+        let currentRect = r.rect(centerXY , posY, 4, 10);
+        currentRect.attr({'fill': '#F36B00', stroke: 0, opacity: 0.35});
         currentRect.rotate(i, centerXY, posY + radius);
+        rects.push(currentRect);
     }
     
-    drawDeco(r, 280, 3, 128, DecoShape.SquareAngelL, 0, true);
-    drawDeco(r, 280, 3, 128, DecoShape.SquareAngelR, 8, true);
-    drawDeco(r, 272, 3, 128, DecoShape.Bar, 0, false);
-    drawDeco(r, 370, 4, 128, DecoShape.Triangle, 0, false);
+    drawDeco(r, 240, 3, 128, DecoShape.SquareAngelL, 0, true);
+    drawDeco(r, 240, 3, 128, DecoShape.SquareAngelR, 8, true);
+    drawDeco(r, 232, 3, 128, DecoShape.Bar, 0, false);
+    drawDeco(r, 330, 4, 128, DecoShape.Triangle, 0, false);
     
     //lineRectsThin
-    var lineRectsThin = r.path().attr(param).attr({arc: [180, 300, 2]});//.attr({opacity: 0.4});
+    var lineRectsThin = r.path().attr(param).attr({arc: [180, 270, 2]});//.attr({opacity: 0.4});
     
     //lineRectsBig
     param = {stroke: "#F36B00", "stroke-width": 4, opacity: 0.6};
-    var lineRectsBig = r.path().attr(param).attr({arc: [180, 300, 4]});
+    var lineRectsBig = r.path().attr(param).attr({arc: [180, 270, 4]});
     lineRectsBig.rotate(180, centerXY, centerXY);
     
     //outerThirds
     param = {stroke: "#F36B00", "stroke-width": 30, opacity: 0.3};
-    let outerThirds = createCirlce(r, 250, 3, 113, param, true);
+    let outerThirds = createCirlce(r, 210, 3, 113, param, true);
     
     //innerThirds
-    radius = 180;
+    let innerThirdsRadius = 140;
     param = {stroke: "#F36B00", "stroke-width": 30, opacity: 0.2};
-    let innerThirds = createCirlce(r, 180, 3, 113, param, true);
+    let innerThirds = createCirlce(r, innerThirdsRadius, 3, 113, param, true);
 
-    //innerThirdsLine1
+    //innerThirdsLines
     param = {stroke: "#F36B00", "stroke-width": 3, opacity: 0.6};
-    let innerThirdsLine1 = createCirlce(r, 199, 3, 113, param, true);
-    let innerThirdsLine2 = createCirlce(r, 161, 3, 113, param, true);
+    let innerThirdsLine1 = createCirlce(r, 159, 3, 113, param, true);
+    let innerThirdsLine2 = createCirlce(r, 121, 3, 113, param, true);
     
     //ring
-    r.circle(centerXY, centerXY, 130).attr({stroke: "#F36B00", "stroke-width": 3, opacity: 0.3});
+    r.circle(centerXY, centerXY, 90).attr({stroke: "#F36B00", "stroke-width": 3, opacity: 0.3});
     
-    var runner = r.rect(centerXY -12, 173, 25, 3).attr({'fill': '#ffffff', stroke: 0});
+    var runner = r.rect(centerXY -12, 213, 25, 3).attr({'fill': '#ffffff', stroke: 0});
     animRunner(r, runner);
     
-    /*timePerSixth = 220;
-    var alpha = 59;
-    var gap = (360 - 6*alpha)/6;
-    var radius = 180;
     
-    bigSixths = [];
-    params = {stroke: "#F36B00", "stroke-width": 27, opacity: 0.2};
-    for(let i = 0; i < 6; i++)
-    {
-        let newSixth = r.path().attr({arc: [0, radius]}).attr(params);
-        newSixth.rotate( bigSixths.length * (alpha + gap), centerXY, centerXY);
-        bigSixths.push(newSixth);
-    }
-    
-    
-    smallSixths = [];
-    params = {stroke: "#F36B00", "stroke-width": 5, opacity: 0.4};
-    for(let i = 0; i < 6; i++)
-    {
-        let newSixth = r.path().attr({arc: [0, radius]}).attr(params);
-        newSixth.rotate( smallSixths.length * (alpha + gap), centerXY, centerXY);
-        smallSixths.push(newSixth);
-    }*/
 
-    let sixths = new Sixths(r);
+    let sixths = new Sixths(r, innerThirdsRadius);
     sixths.AnimSixths();
     sixths.HighlightSmallSixth(0);
     
     let coreSixths = new CoreSixth(r);
     coreSixths.Anim1(58);
     
-    //animSixths(alpha, radius, gap)
     animQuarters(r, null);
+    animRects(rects, 0);
+}
 
-
+function animRects(rects, i)
+{
+    if(i-1 >= 0)
+        rects[i-1].attr({opacity: 0.35});
+    else
+        rects[rects.length-1].attr({opacity: 0.35});
+    
+    rects[i].attr({opacity: 0.9});
+    if(i+1 == rects.length) i = -1;
+    setTimeout(this.animRects.bind(null, rects, i+1), 1000);
 }
 
 class CoreSixth
@@ -236,12 +263,12 @@ class CoreSixth
 
 class Sixths
 {
-    constructor(r)
+    constructor(r, innerThirdsRadius)
     {
-        this.TimePerSixth = 200;
+        this.TimePerSixth = 250;
         this.Alpha = 59;
         this.Gap = (360 - 6*this.Alpha)/6;
-        this.Radius = 180;
+        this.Radius = innerThirdsRadius;
         this.Params = {stroke: "#F36B00", "stroke-width": 27, opacity: 0.2};
         this.BigSixths = [];
         for(let i = 0; i < 6; i++)
@@ -363,33 +390,35 @@ function drawDeco(r, radius, decoCount, alpha, shape, angleOffset, rotated)
 }
 
 
-
-function animQuarters(r, quartersBefore)
+function animQuarters(r, quarters)
 {
-    if(quartersBefore != null)
-    {
-        //reset
-        for(let i = quartersBefore.length-1; i >= 0; i--)
-            quartersBefore[i].remove();
-        
-        quartersBefore = null;
-    }
+    let alpha = 50;
+    let gap = (360 - 4*alpha)/4;
     
-    if(quartersBefore == null)
+    if(quarters == null)
     {
+        //initially create quarters
         let finalAngle;
-        let alpha = 50;
-        let gap = (360 - 4*alpha)/4;
         let param = {stroke: "#F36B00", "stroke-width": 8, opacity: 0.5};
-        let quarters = createCirlce(r, 133, 4, 50, param, false);
-        
+        quarters = createCirlce(r, 93, 4, alpha, param, false);
+    }
+    else
+    {
+        //reset quarter angle
         for(let i = 0; i < quarters.length; i++)
         {
-            finalAngle = -(360 -(alpha + gap)*i);
-            quarters[i].animate({transform: "r" +finalAngle + "," + centerXY + "," + centerXY}, 6000, "linear");
+            let angle = (alpha + gap)*i;
+            quarters[i].attr({transform: "r" + angle + "," + centerXY + "," + centerXY});
         }
-        setTimeout(animQuarters.bind(null, r, quarters), 6000);
     }
+    
+    for(let i = 0; i < quarters.length; i++)
+    {
+        finalAngle = -(360 -(alpha + gap)*i);
+        quarters[i].animate({transform: "r" +finalAngle + "," + centerXY + "," + centerXY}, 6000, "linear");
+    }
+     
+    setTimeout(animQuarters.bind(null, r, quarters), 6000);
 }
 
 function animRunner(r, runner)
