@@ -12,8 +12,9 @@ body {
     font-family: 'RobotoRegular', 'Droid Sans', 'Segoe UI', Segoe, 'San Francisco', 'Helvetica Neue', Helvetica, Arial, Geneva, sans-serif;
     font-size:12px;
 
-    overflow-x: hidden;
     perspective: 800px;
+    overflow: hidden;
+
     
 }
 
@@ -22,24 +23,10 @@ body {
     padding: 0;
 }
 
-section {
-  display: block;
-  margin: 0 auto;
-  height: 100vh;
-
-    /*width: 800px;*/
-
-}
-
-#holder 
-{
-    position: relative;
-    top: 50%;
-    transform: translateY(-50%);
+#outer{
+    perspective: 800px;
 }
 
 svg{
-    display: block;
-    margin-left: auto;
-    margin-right: auto;
+    position: absolute;
 }

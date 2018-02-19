@@ -4,6 +4,8 @@ var smallSixths;
 var DecoShape = {"SquareAngelL":1, "SquareAngelR":2, "Bar":3, "Triangle":4}
 var holderOriginalTransform = "";
 
+var r2;
+
 function createCirlce(r, radius, sliceCount, alpha , params, rotated)
 {
     if(sliceCount == 1)
@@ -32,47 +34,69 @@ function createCirlce(r, radius, sliceCount, alpha , params, rotated)
 function resize()
 {
     var clientHeight = $(window).height();
-    var clientWidht = $(window).width();
-
+    var clientWidth = $(window).width();
+    var newScale;
+    
+    let rotate = "rotateX(15deg)";
+    let translateZ = "translateZ(80px)";
+    
     var svgDimesion = $('svg').height();
     
-    if(holderOriginalTransform == "")
+    if(clientHeight/svgDimesion < clientWidth/svgDimesion)
     {
-        holderOriginalTransform = $('#holder').css('transform');
-    }
-    
-    if(clientHeight/svgDimesion < clientWidht/svgDimesion)
-    {
-        $('#holder').css('transform', holderOriginalTransform + 'scale(' + parseFloat(clientHeight/svgDimesion) + ')');
+        newScale = clientHeight/svgDimesion;
     }
     else
     {
-        $('#holder').css('transform', holderOriginalTransform + 'scale(' + parseFloat(clientWidht/svgDimesion) + ')');
+        newScale = clientWidth/svgDimesion;
     }
+    newScale = newScale-0.1;
+    $('svg').css('transform',  'scale(' + newScale + ')');
+    //$('svg:nth-child(1)').css('transform',  translateZ + 'scale(' + newScale + ')');
     
-    console.log($('#holder').width() + " " + $('#holder').height());
+    console.log($('#holder').width() + " " + $('#holder').height() + " " + newScale);
     
-    /*if(clientHeight/svgDimesion < clientWidht/svgDimesion)
-    {
-        $('svg').css('transform', 'scale(' + parseFloat(clientHeight/svgDimesion) + ')');
-    }
-    else
-    {
-        $('svg').css('transform', 'scale(' + parseFloat(clientWidht/svgDimesion) + ')');
-    }*/
+    let left;
+    let top;
+    
+    left = ($(window).width() - $('svg')[0].getBoundingClientRect().width )/2;
+    top = ($(window).height() - $('svg')[0].getBoundingClientRect().height )/2
+    
+    $( 'svg' ).offset({ top: top, left: left });
+    console.log(top + " " + left);
+    
+    $('svg:nth-child(1)').css('transform',  translateZ + 'scale(' + newScale + ')');
+
+    //$('#outer').css('transform', 'rotateX(30deg)');
+    
+    left = ($(window).width() - $('div')[0].getBoundingClientRect().width )/2;
+    top = ($(window).height() - 670)/2;// $('div')[0].getBoundingClientRect().height )/2
+    $( 'div' ).offset({ top: top, left: left });
+}
+
+function testScale(x)
+{
+    $('#holder').css('transform', holderOriginalTransform + 'scale(' + x + ')');
 }
 
 window.onload = function () {
 
-    $( window ).resize(resize);
+    /////////////////////////////
+    //position r2 properly
+    /////////////////////////////
+    //enable #outer rotateX again and center porperly
+    /////////////////////////////
+    //on with the 3d research
     
-    //resize -> set transform scale
+    var r = Raphael("outer", 670, 670);
+    r2 = Raphael("outer", 670, 670);
     
-    var r = Raphael("holder", 700, 700);
-    resize();
-    centerXY = 350;
+    centerXY = 335;
     var R = 120;
     var param = {stroke: "#F36B00", "stroke-width": 30, opacity: 0.6};
+
+    $( window ).resize(resize);
+    resize();
     
     // Custom Attribute
     r.customAttributes.arc = function (value, R)
@@ -89,6 +113,7 @@ window.onload = function () {
         
         return {path: path};
     };
+    r2.customAttributes.arc = r.customAttributes.arc;
     
     /////////////draw stuff
     // https://steamuserimages-a.akamaihd.net/ugc/80342118768853730/E698567DFD278F74F96C12336E641041964E5C9F/?interpolation=lanczos-none&output-format=jpeg&output-quality=95&fit=inside%7C637%3A358&composite-to=*,*%7C637%3A358&background-color=black
@@ -99,7 +124,7 @@ window.onload = function () {
     //outline
     param = {stroke: "#F36B00", "stroke-width": 4, opacity: 0.3};
     createCirlce(r, 310, 1, 0, param, false);
-    return;
+    
     //rects
     let radius = 285;
     let posY = centerXY - radius;
@@ -118,6 +143,7 @@ window.onload = function () {
     drawDeco(r, 330, 4, 128, DecoShape.Triangle, 0, false);
     
     //lineRectsThin
+    param = {stroke: "#F36B00", "stroke-width": 2, opacity: 0.6};
     var lineRectsThin = r.path().attr(param).attr({arc: [180, 270, 2]});//.attr({opacity: 0.4});
     
     //lineRectsBig
@@ -140,9 +166,9 @@ window.onload = function () {
     let innerThirdsLine2 = createCirlce(r, 121, 3, 113, param, true);
     
     //ring
-    r.circle(centerXY, centerXY, 90).attr({stroke: "#F36B00", "stroke-width": 3, opacity: 0.3});
+    r2.circle(centerXY, centerXY, 90).attr({stroke: "#F36B00", "stroke-width": 3, opacity: 0.3});
     
-    var runner = r.rect(centerXY -12, 213, 25, 3).attr({'fill': '#ffffff', stroke: 0});
+    var runner = r.rect(centerXY -12, centerXY - 188, 25, 3).attr({'fill': '#ffffff', stroke: 0});
     animRunner(r, runner);
     
     
@@ -154,7 +180,7 @@ window.onload = function () {
     let coreSixths = new CoreSixth(r);
     coreSixths.Anim1(58);
     
-    animQuarters(r, null);
+    animQuarters(r2, null);
     animRects(rects, 0);
 }
 
