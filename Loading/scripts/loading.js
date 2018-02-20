@@ -4,7 +4,8 @@ var smallSixths;
 var DecoShape = {"SquareAngelL":1, "SquareAngelR":2, "Bar":3, "Triangle":4}
 var holderOriginalTransform = "";
 
-var r2;
+var papers = [];
+var jqPapers;
 
 function createCirlce(r, radius, sliceCount, alpha , params, rotated)
 {
@@ -37,7 +38,7 @@ function resize()
     var clientWidth = $(window).width();
     var newScale;
     
-    let rotate = "rotateX(15deg)";
+    let rotate = "rotateX(10deg)";
     let translateZ = "translateZ(80px)";
     
     var svgDimesion = $('svg').height();
@@ -51,74 +52,38 @@ function resize()
         newScale = clientWidth/svgDimesion;
     }
     newScale = newScale-0.1;
-    $('svg').css('transform',  'scale(' + newScale + ')' + rotate);
-    //$('svg:nth-child(1)').css('transform',  translateZ + 'scale(' + newScale + ')');
     
-    //console.log($('#holder').width() + " " + $('#holder').height() + " " + newScale);
+    jqPapers.each(function(i, paper){
+        paper.style.transform = paper.style.transform.replace(/scale\(.+?\)/, 'scale(' + newScale + ')');
+    });
+    
     
     let left;
     let top;
     
+    //position div
     left = ($(window).width() - $('div')[0].getBoundingClientRect().width )/2;
     top = ($(window).height() - 670)/2;// $('div')[0].getBoundingClientRect().height )/2
     $('div').offset({ top: top, left: left });
     
-    left = ($(window).width() - $('svg')[1].getBoundingClientRect().width )/2;
-    top = ($(window).height() - $('svg')[1].getBoundingClientRect().height )/2
     
-    $( 'svg:nth-child(2)' ).offset({ top: top, left: left });
-    //console.log(top + " " + left);
+    for(let i = 0; i < jqPapers.length; i++)
+    {
+        left = ($(window).width() - jqPapers[i].getBoundingClientRect().width )/2;
+        top = ($(window).height() - jqPapers[i].getBoundingClientRect().height )/2
+        $(jqPapers[i]).offset({ top: top, left: left });
+    }
     
-    //$('svg:nth-child(1)').css('transform',  translateZ);
-    
-    //$('svg:nth-child(1)').css('transform',  translateZ);// + 'scale(' + newScale + ')');
-    
-    left = ($(window).width() - $('svg')[0].getBoundingClientRect().width )/2;
-    top = ($(window).height() - $('svg')[0].getBoundingClientRect().height )/2
-    
-    $('svg:nth-child(1)').offset({ top: top, left: left });
-    console.log(top + " " + left);
-    
-    $('svg:nth-child(1)').css('transform', 'scale(' + newScale + ')' + translateZ + rotate);
-    
-    /*$('svg:nth-child(1)').css('transform',  translateZ + 'scale(' + newScale + ')');
-    
-    left = ($(window).width() - $('svg')[0].getBoundingClientRect().width )/2;
-    top = ($(window).height() - $('svg')[0].getBoundingClientRect().height )/2
-    
-    $('svg:nth-child(1)').offset({ top: top, left: left });
-    console.log(top + " " + left);*/
-    
-    //$('#outer').css('transform', 'rotateX(30deg)');
-    
-    
-}
-
-function testScale(x)
-{
     
 }
 
 window.onload = function () {
 
     /////////////////////////////
-    //on with the 3d research
+    //on with the 3d conversion
 
-    
-    var r = Raphael("outer", 670, 670);
-    r2 = Raphael("outer", 670, 670);
-    
-    centerXY = 335;
-    var R = 120;
-    var param = {stroke: "#F36B00", "stroke-width": 30, opacity: 0.6};
-
-    $( window ).resize(resize);
-    
-    // Custom Attribute
-    r.customAttributes.arc = function (value, R)
+    let customAttributes = function (value, R)
     {
-        //var centerXY = 400;
-        
         var alpha = 360 / 360 * value
         var a = (90 - alpha) * Math.PI / 180
         var x = centerXY + R * Math.cos(a)
@@ -129,17 +94,40 @@ window.onload = function () {
         
         return {path: path};
     };
-    r2.customAttributes.arc = r.customAttributes.arc;
-
+    
+    for(let i = 1; i <= 3; i++)
+    {
+        papers.push( Raphael("outer", 670, 670) );
+        papers[papers.length-1].customAttributes.arc = customAttributes;
+    }
+    //proper paper order in html
+    $('#outer').children().each(function(i,svg){$('#outer').prepend(svg)})
+    
+    jqPapers = $('#outer svg');
+    
+    //set default style for all papers
+    jqPapers.each(function(i, paper){
+        paper.style.transform = "scale(1) rotateX(10deg) translateZ(0px)";
+    });
+    
+    //z-Coordinates
+    jqPapers[1].style.transform = jqPapers[1].style.transform.replace(/translateZ\(.+?\)/, 'translateZ(40px)');
+    
+    $( window ).resize(resize);
+    
     /////////////draw stuff
     // https://steamuserimages-a.akamaihd.net/ugc/80342118768853730/E698567DFD278F74F96C12336E641041964E5C9F/?interpolation=lanczos-none&output-format=jpeg&output-quality=95&fit=inside%7C637%3A358&composite-to=*,*%7C637%3A358&background-color=black
     
+    centerXY = 335;
+    var R = 120;
+    var param = {stroke: "#F36B00", "stroke-width": 30, opacity: 0.6};
+    
     //helpers
-    r.rect(centerXY , 0, 1, 800).attr({'fill': '#ffffff', stroke: 0});
+    papers[0].rect(centerXY , 0, 1, 800).attr({'fill': '#ffffff', stroke: 0});
     
     //outline
     param = {stroke: "#F36B00", "stroke-width": 4, opacity: 0.3};
-    createCirlce(r, 310, 1, 0, param, false);
+    createCirlce(papers[0], 310, 1, 0, param, false);
     
     //rects
     let radius = 285;
@@ -147,56 +135,56 @@ window.onload = function () {
     let rects = [];
     for (let i = 0; i < 360; i = i + 2) 
     {
-        let currentRect = r.rect(centerXY , posY, 4, 10);
+        let currentRect = papers[0].rect(centerXY , posY, 4, 10);
         currentRect.attr({'fill': '#F36B00', stroke: 0, opacity: 0.35});
         currentRect.rotate(i, centerXY, posY + radius);
         rects.push(currentRect);
     }
     
-    drawDeco(r, 240, 3, 128, DecoShape.SquareAngelL, 0, true);
-    drawDeco(r, 240, 3, 128, DecoShape.SquareAngelR, 8, true);
-    drawDeco(r, 232, 3, 128, DecoShape.Bar, 0, false);
-    drawDeco(r, 330, 4, 128, DecoShape.Triangle, 0, false);
+    drawDeco(papers[0], 240, 3, 128, DecoShape.SquareAngelL, 0, true);
+    drawDeco(papers[0], 240, 3, 128, DecoShape.SquareAngelR, 8, true);
+    drawDeco(papers[0], 232, 3, 128, DecoShape.Bar, 0, false);
+    drawDeco(papers[0], 330, 4, 128, DecoShape.Triangle, 0, false);
     
     //lineRectsThin
     param = {stroke: "#F36B00", "stroke-width": 2, opacity: 0.6};
-    var lineRectsThin = r.path().attr(param).attr({arc: [180, 270, 2]});//.attr({opacity: 0.4});
+    var lineRectsThin = papers[0].path().attr(param).attr({arc: [180, 270, 2]});//.attr({opacity: 0.4});
     
     //lineRectsBig
     param = {stroke: "#F36B00", "stroke-width": 4, opacity: 0.6};
-    var lineRectsBig = r.path().attr(param).attr({arc: [180, 270, 4]});
+    var lineRectsBig = papers[0].path().attr(param).attr({arc: [180, 270, 4]});
     lineRectsBig.rotate(180, centerXY, centerXY);
     
     //outerThirds
     param = {stroke: "#F36B00", "stroke-width": 30, opacity: 0.3};
-    let outerThirds = createCirlce(r, 210, 3, 113, param, true);
+    let outerThirds = createCirlce(papers[0], 210, 3, 113, param, true);
     
     //innerThirds
     let innerThirdsRadius = 140;
     param = {stroke: "#F36B00", "stroke-width": 30, opacity: 0.2};
-    let innerThirds = createCirlce(r, innerThirdsRadius, 3, 113, param, true);
+    let innerThirds = createCirlce(papers[0], innerThirdsRadius, 3, 113, param, true);
 
     //innerThirdsLines
     param = {stroke: "#F36B00", "stroke-width": 3, opacity: 0.6};
-    let innerThirdsLine1 = createCirlce(r, 159, 3, 113, param, true);
-    let innerThirdsLine2 = createCirlce(r, 121, 3, 113, param, true);
+    let innerThirdsLine1 = createCirlce(papers[0], 159, 3, 113, param, true);
+    let innerThirdsLine2 = createCirlce(papers[0], 121, 3, 113, param, true);
     
     //ring
-    r2.circle(centerXY, centerXY, 90).attr({stroke: "#F36B00", "stroke-width": 3, opacity: 0.3});
+    papers[1].circle(centerXY, centerXY, 90).attr({stroke: "#F36B00", "stroke-width": 3, opacity: 0.3});
     
-    var runner = r.rect(centerXY -12, centerXY - 188, 25, 3).attr({'fill': '#ffffff', stroke: 0});
-    animRunner(r, runner);
+    var runner = papers[0].rect(centerXY -12, centerXY - 188, 25, 3).attr({'fill': '#ffffff', stroke: 0});
+    animRunner(papers[0], runner);
     
     
 
-    let sixths = new Sixths(r, innerThirdsRadius);
+    let sixths = new Sixths(papers[0], innerThirdsRadius);
     sixths.AnimSixths();
     sixths.HighlightSmallSixth(0);
     
-    let coreSixths = new CoreSixth(r);
+    let coreSixths = new CoreSixth(papers[0]);
     coreSixths.Anim1(58);
     
-    animQuarters(r2, null);
+    animQuarters(papers[1], null);
     animRects(rects, 0);
 
     resize();
