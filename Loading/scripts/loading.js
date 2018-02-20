@@ -51,42 +51,59 @@ function resize()
         newScale = clientWidth/svgDimesion;
     }
     newScale = newScale-0.1;
-    $('svg').css('transform',  'scale(' + newScale + ')');
+    $('svg').css('transform',  'scale(' + newScale + ')' + rotate);
     //$('svg:nth-child(1)').css('transform',  translateZ + 'scale(' + newScale + ')');
     
-    console.log($('#holder').width() + " " + $('#holder').height() + " " + newScale);
+    //console.log($('#holder').width() + " " + $('#holder').height() + " " + newScale);
     
     let left;
     let top;
     
+    left = ($(window).width() - $('div')[0].getBoundingClientRect().width )/2;
+    top = ($(window).height() - 670)/2;// $('div')[0].getBoundingClientRect().height )/2
+    $('div').offset({ top: top, left: left });
+    
+    left = ($(window).width() - $('svg')[1].getBoundingClientRect().width )/2;
+    top = ($(window).height() - $('svg')[1].getBoundingClientRect().height )/2
+    
+    $( 'svg:nth-child(2)' ).offset({ top: top, left: left });
+    //console.log(top + " " + left);
+    
+    //$('svg:nth-child(1)').css('transform',  translateZ);
+    
+    //$('svg:nth-child(1)').css('transform',  translateZ);// + 'scale(' + newScale + ')');
+    
     left = ($(window).width() - $('svg')[0].getBoundingClientRect().width )/2;
     top = ($(window).height() - $('svg')[0].getBoundingClientRect().height )/2
     
-    $( 'svg' ).offset({ top: top, left: left });
+    $('svg:nth-child(1)').offset({ top: top, left: left });
     console.log(top + " " + left);
     
-    $('svg:nth-child(1)').css('transform',  translateZ + 'scale(' + newScale + ')');
-
+    $('svg:nth-child(1)').css('transform', 'scale(' + newScale + ')' + translateZ + rotate);
+    
+    /*$('svg:nth-child(1)').css('transform',  translateZ + 'scale(' + newScale + ')');
+    
+    left = ($(window).width() - $('svg')[0].getBoundingClientRect().width )/2;
+    top = ($(window).height() - $('svg')[0].getBoundingClientRect().height )/2
+    
+    $('svg:nth-child(1)').offset({ top: top, left: left });
+    console.log(top + " " + left);*/
+    
     //$('#outer').css('transform', 'rotateX(30deg)');
     
-    left = ($(window).width() - $('div')[0].getBoundingClientRect().width )/2;
-    top = ($(window).height() - 670)/2;// $('div')[0].getBoundingClientRect().height )/2
-    $( 'div' ).offset({ top: top, left: left });
+    
 }
 
 function testScale(x)
 {
-    $('#holder').css('transform', holderOriginalTransform + 'scale(' + x + ')');
+    
 }
 
 window.onload = function () {
 
     /////////////////////////////
-    //position r2 properly
-    /////////////////////////////
-    //enable #outer rotateX again and center porperly
-    /////////////////////////////
     //on with the 3d research
+
     
     var r = Raphael("outer", 670, 670);
     r2 = Raphael("outer", 670, 670);
@@ -96,7 +113,6 @@ window.onload = function () {
     var param = {stroke: "#F36B00", "stroke-width": 30, opacity: 0.6};
 
     $( window ).resize(resize);
-    resize();
     
     // Custom Attribute
     r.customAttributes.arc = function (value, R)
@@ -114,7 +130,7 @@ window.onload = function () {
         return {path: path};
     };
     r2.customAttributes.arc = r.customAttributes.arc;
-    
+
     /////////////draw stuff
     // https://steamuserimages-a.akamaihd.net/ugc/80342118768853730/E698567DFD278F74F96C12336E641041964E5C9F/?interpolation=lanczos-none&output-format=jpeg&output-quality=95&fit=inside%7C637%3A358&composite-to=*,*%7C637%3A358&background-color=black
     
@@ -182,6 +198,8 @@ window.onload = function () {
     
     animQuarters(r2, null);
     animRects(rects, 0);
+
+    resize();
 }
 
 function animRects(rects, i)
