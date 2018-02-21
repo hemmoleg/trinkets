@@ -38,9 +38,6 @@ function resize()
     var clientWidth = $(window).width();
     var newScale;
     
-    let rotate = "rotateX(10deg)";
-    let translateZ = "translateZ(80px)";
-    
     var svgDimesion = $('svg').height();
     
     if(clientHeight/svgDimesion < clientWidth/svgDimesion)
@@ -53,24 +50,37 @@ function resize()
     }
     newScale = newScale-0.1;
     
-    jqPapers.each(function(i, paper){
-        paper.style.transform = paper.style.transform.replace(/scale\(.+?\)/, 'scale(' + newScale + ')');
-    });
+    if(jqPapers[0].style.transform != "")
+    {
+        jqPapers.each(function(i, paper){
+            paper.style.transform = paper.style.transform.replace(/scale\(.+?\)/, 'scale(' + newScale + ')');
+        });
+    }
+    else
+    {
+        jqPapers.each(function(i, paper){
+            paper.style.transform = 'scale(' + newScale + ')';
+        });
+    }
     
     
     let left;
     let top;
     
     //position div
-    left = ($(window).width() - $('div')[0].getBoundingClientRect().width )/2;
+    left = ($(window).width() - $('#outer')[0].getBoundingClientRect().width )/2;
     top = ($(window).height() - 670)/2;// $('div')[0].getBoundingClientRect().height )/2
-    $('div').offset({ top: top, left: left });
+    $('#outer').offset({ top: top, left: left });
     
     
     for(let i = 0; i < jqPapers.length; i++)
     {
         left = ($(window).width() - jqPapers[i].getBoundingClientRect().width )/2;
-        top = ($(window).height() - jqPapers[i].getBoundingClientRect().height )/2
+        top = ($(window).height() - jqPapers[i].getBoundingClientRect().height )/2;
+        
+        
+        console.log(i + " new left: " + left);
+        
         $(jqPapers[i]).offset({ top: top, left: left });
     }
     
@@ -80,7 +90,11 @@ function resize()
 window.onload = function () {
 
     /////////////////////////////
+    //continue refactor of papers into seperate divs
+    /////////////////////////////
     //on with the 3d conversion
+    /////////////////////////////
+    //figure out TweenMax translateZ
 
     let customAttributes = function (value, R)
     {
@@ -95,23 +109,33 @@ window.onload = function () {
         return {path: path};
     };
     
-    for(let i = 1; i <= 3; i++)
+    for(let i = 1; i < $('.overlapping').length; i++)
     {
-        papers.push( Raphael("outer", 670, 670) );
+        papers.push( Raphael($('.overlapping')[i], 670, 670) );
         papers[papers.length-1].customAttributes.arc = customAttributes;
     }
-    //proper paper order in html
-    $('#outer').children().each(function(i,svg){$('#outer').prepend(svg)})
+    
+     //container: div#ring1.overlapping, width: 670, height: 670} -->
+    
+    /*//proper paper order in html
+    $('#outer').children().each(function(i,svg){$('#outer').prepend(svg)});
     
     jqPapers = $('#outer svg');
     
+    
     //set default style for all papers
     jqPapers.each(function(i, paper){
+        //paper.style.transform = "scale(1) rotateX(10deg) translateZ(0px)";
         paper.style.transform = "scale(1) rotateX(10deg) translateZ(0px)";
     });
     
+    resize();
+    */
+    
     //z-Coordinates
-    jqPapers[1].style.transform = jqPapers[1].style.transform.replace(/translateZ\(.+?\)/, 'translateZ(40px)');
+    //jqPapers[1].style.transform = jqPapers[1].style.transform.replace(/translateZ\(.+?\)/, 'translateZ(40px)');
+    
+    //TweenMax.to(jqPapers[1], 5, {transform:"translateZ(0px)"});
     
     $( window ).resize(resize);
     
@@ -135,25 +159,25 @@ window.onload = function () {
     let rects = [];
     for (let i = 0; i < 360; i = i + 2) 
     {
-        let currentRect = papers[0].rect(centerXY , posY, 4, 10);
+        let currentRect = papers[1].rect(centerXY , posY, 4, 10);
         currentRect.attr({'fill': '#F36B00', stroke: 0, opacity: 0.35});
         currentRect.rotate(i, centerXY, posY + radius);
         rects.push(currentRect);
     }
     
+    //lineRectsThin
+    param = {stroke: "#F36B00", "stroke-width": 2, opacity: 0.6};
+    var lineRectsThin = papers[1].path().attr(param).attr({arc: [180, 270, 2]});//.attr({opacity: 0.4});
+    
+    //lineRectsBig
+    param = {stroke: "#F36B00", "stroke-width": 4, opacity: 0.6};
+    var lineRectsBig = papers[1].path().attr(param).attr({arc: [180, 270, 4]});
+    lineRectsBig.rotate(180, centerXY, centerXY);
+    
     drawDeco(papers[0], 240, 3, 128, DecoShape.SquareAngelL, 0, true);
     drawDeco(papers[0], 240, 3, 128, DecoShape.SquareAngelR, 8, true);
     drawDeco(papers[0], 232, 3, 128, DecoShape.Bar, 0, false);
     drawDeco(papers[0], 330, 4, 128, DecoShape.Triangle, 0, false);
-    
-    //lineRectsThin
-    param = {stroke: "#F36B00", "stroke-width": 2, opacity: 0.6};
-    var lineRectsThin = papers[0].path().attr(param).attr({arc: [180, 270, 2]});//.attr({opacity: 0.4});
-    
-    //lineRectsBig
-    param = {stroke: "#F36B00", "stroke-width": 4, opacity: 0.6};
-    var lineRectsBig = papers[0].path().attr(param).attr({arc: [180, 270, 4]});
-    lineRectsBig.rotate(180, centerXY, centerXY);
     
     //outerThirds
     param = {stroke: "#F36B00", "stroke-width": 30, opacity: 0.3};
@@ -186,8 +210,6 @@ window.onload = function () {
     
     animQuarters(papers[1], null);
     animRects(rects, 0);
-
-    resize();
 }
 
 function animRects(rects, i)

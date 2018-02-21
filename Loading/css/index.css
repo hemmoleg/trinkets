@@ -12,7 +12,7 @@ body {
     font-family: 'RobotoRegular', 'Droid Sans', 'Segoe UI', Segoe, 'San Francisco', 'Helvetica Neue', Helvetica, Arial, Geneva, sans-serif;
     font-size:12px;
 
-    overflow: hidden;
+    /*overflow: hidden;*/
 
     
 }
@@ -24,8 +24,13 @@ body {
 
 #outer{
     perspective: 800px;
+    white-space: nowrap;
 }
 
 svg{
+    position: absolute;
+}
+
+.overlapping{
     position: absolute;
 }
