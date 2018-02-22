@@ -19,7 +19,7 @@ body {
 }
 
 div{
-    border: 1px solid white;
+    /*border: 1px solid white;*/
 }
 
 .stage{
@@ -33,7 +33,7 @@ div{
 
 #container{
    transform-style: preserve-3d; 
-   transform: rotateX(25deg) rotateY(10deg);
+   /*transform: rotateX(25deg) rotateY(10deg);*/
    white-space: nowrap;
    width: 670px;
    height: 670px;
