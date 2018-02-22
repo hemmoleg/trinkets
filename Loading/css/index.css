@@ -10,11 +10,7 @@ body {
     width:100%;
 	
     font-family: 'RobotoRegular', 'Droid Sans', 'Segoe UI', Segoe, 'San Francisco', 'Helvetica Neue', Helvetica, Arial, Geneva, sans-serif;
-    font-size:12px;
-
-    /*overflow: hidden;*/
-
-    
+    font-size:12px; 
 }
 
 * {
@@ -22,13 +18,33 @@ body {
     padding: 0;
 }
 
-#outer{
-    perspective: 800px;
-    white-space: nowrap;
+div{
+    border: 1px solid white;
+}
+
+.stage{
+    perspective: 1600px;
+   
+    position: absolute;
+    top: 50%;
+    left: 50%;
+    /*transform: translate(-50%, -50%);*/
+}
+
+#container{
+   transform-style: preserve-3d; 
+   transform: rotateX(25deg) rotateY(10deg);
+   white-space: nowrap;
+   width: 670px;
+   height: 670px;
 }
 
 svg{
     position: absolute;
+}
+
+#ring1{
+    /*transform: translateZ(150px);*/
 }
 
 .overlapping{

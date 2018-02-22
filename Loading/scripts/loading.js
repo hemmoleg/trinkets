@@ -3,6 +3,7 @@ var bigSixths;
 var smallSixths;
 var DecoShape = {"SquareAngelL":1, "SquareAngelR":2, "Bar":3, "Triangle":4}
 var holderOriginalTransform = "";
+var paperSize = 670;
 
 var papers = [];
 var jqPapers;
@@ -38,63 +39,32 @@ function resize()
     var clientWidth = $(window).width();
     var newScale;
     
-    var svgDimesion = $('svg').height();
-    
-    if(clientHeight/svgDimesion < clientWidth/svgDimesion)
+    if(clientHeight/$('.stage').height() < clientWidth/$('.stage').width())
     {
-        newScale = clientHeight/svgDimesion;
+        newScale = clientHeight/$('.stage').height();
     }
     else
     {
-        newScale = clientWidth/svgDimesion;
+        newScale = clientWidth/$('.stage').width();
     }
     newScale = newScale-0.1;
     
-    if(jqPapers[0].style.transform != "")
+    
+    if( $('.stage')[0].style.transform != "")
     {
-        jqPapers.each(function(i, paper){
-            paper.style.transform = paper.style.transform.replace(/scale\(.+?\)/, 'scale(' + newScale + ')');
-        });
+        $('.stage')[0].style.transform = $('.stage')[0].style.transform.replace(/scale\(.+?\)/, 'scale(' + newScale + ')');
     }
     else
     {
-        jqPapers.each(function(i, paper){
-            paper.style.transform = 'scale(' + newScale + ')';
-        });
+        $('.stage')[0].style.transform = 'scale(' + newScale + ')';
     }
-    
-    
-    let left;
-    let top;
-    
-    //position div
-    left = ($(window).width() - $('#outer')[0].getBoundingClientRect().width )/2;
-    top = ($(window).height() - 670)/2;// $('div')[0].getBoundingClientRect().height )/2
-    $('#outer').offset({ top: top, left: left });
-    
-    
-    for(let i = 0; i < jqPapers.length; i++)
-    {
-        left = ($(window).width() - jqPapers[i].getBoundingClientRect().width )/2;
-        top = ($(window).height() - jqPapers[i].getBoundingClientRect().height )/2;
-        
-        
-        console.log(i + " new left: " + left);
-        
-        $(jqPapers[i]).offset({ top: top, left: left });
-    }
-    
-    
 }
 
-window.onload = function () {
+window.onload = function () 
+{
 
     /////////////////////////////
-    //continue refactor of papers into seperate divs
-    /////////////////////////////
-    //on with the 3d conversion
-    /////////////////////////////
-    //figure out TweenMax translateZ
+    //restart button
 
     let customAttributes = function (value, R)
     {
@@ -109,35 +79,46 @@ window.onload = function () {
         return {path: path};
     };
     
-    for(let i = 1; i < $('.overlapping').length; i++)
+    for(let i = 0; i < $('.overlapping').length; i++)
     {
-        papers.push( Raphael($('.overlapping')[i], 670, 670) );
+        papers.push( Raphael($('.overlapping')[i], paperSize, paperSize) );
         papers[papers.length-1].customAttributes.arc = customAttributes;
     }
+    jqPapers = $('.overlapping svg');  
     
-     //container: div#ring1.overlapping, width: 670, height: 670} -->
-    
-    /*//proper paper order in html
-    $('#outer').children().each(function(i,svg){$('#outer').prepend(svg)});
-    
-    jqPapers = $('#outer svg');
-    
-    
-    //set default style for all papers
-    jqPapers.each(function(i, paper){
-        //paper.style.transform = "scale(1) rotateX(10deg) translateZ(0px)";
-        paper.style.transform = "scale(1) rotateX(10deg) translateZ(0px)";
-    });
-    
+    $('.stage').css('transform', 'translate(-50%, -50%) scale(1)');
     resize();
+    $( window ).resize(resize);
+    
+    /*TweenMax.set('#ring0', {scale:"0"});
+    TweenMax.to('#ring1', 5, { scale:"1"});
+    TweenMax.set('#ring1', {scale:"0"});
+    TweenMax.to('#ring1', 5, { z: 15, scale:"1"});
+    
+    
+    TweenMax.set('#ring3', {scale:"0"});
+    TweenMax.to('#ring3', 5, { z: 35, scale:"1"});
+    TweenMax.set('#ring4', {scale:"0"});
+    TweenMax.to('#ring4', 5, { z: 45, scale:"1"});
+    TweenMax.set('#ring5', {scale:"0"});
+    TweenMax.to('#ring5', 5, { z: 55, scale:"1"});
+    
+    TweenMax.to("#container", 5, {rotationY: -10, repeat: -1});
     */
     
-    //z-Coordinates
-    //jqPapers[1].style.transform = jqPapers[1].style.transform.replace(/translateZ\(.+?\)/, 'translateZ(40px)');
+    TweenMax.set('#ring0', {scale:"0.45"});
+    //TweenMax.to('#ring0', 5, { z: 25, scale:"1"});
+    TweenMax.set('#ring1', {scale:"0.55"});
+    //TweenMax.to('#ring1', 5, { z: 25, scale:"1"});
+    TweenMax.set('#ring2', {scale:"0.7"});
+    //TweenMax.to('#ring2', 5, { z: 25, scale:"1"});
     
-    //TweenMax.to(jqPapers[1], 5, {transform:"translateZ(0px)"});
+    //ring3 stays as is
+    //ring4 stays as is
     
-    $( window ).resize(resize);
+    TweenMax.set('#ring5', {opacity:"0"});
+    TweenMax.to('#ring5', 5, {opacity:"1"});
+    
     
     /////////////draw stuff
     // https://steamuserimages-a.akamaihd.net/ugc/80342118768853730/E698567DFD278F74F96C12336E641041964E5C9F/?interpolation=lanczos-none&output-format=jpeg&output-quality=95&fit=inside%7C637%3A358&composite-to=*,*%7C637%3A358&background-color=black
@@ -174,41 +155,40 @@ window.onload = function () {
     var lineRectsBig = papers[1].path().attr(param).attr({arc: [180, 270, 4]});
     lineRectsBig.rotate(180, centerXY, centerXY);
     
-    drawDeco(papers[0], 240, 3, 128, DecoShape.SquareAngelL, 0, true);
-    drawDeco(papers[0], 240, 3, 128, DecoShape.SquareAngelR, 8, true);
-    drawDeco(papers[0], 232, 3, 128, DecoShape.Bar, 0, false);
-    drawDeco(papers[0], 330, 4, 128, DecoShape.Triangle, 0, false);
+    drawDeco(papers[2], 240, 3, 128, DecoShape.SquareAngelL, 0, true);
+    drawDeco(papers[2], 240, 3, 128, DecoShape.SquareAngelR, 8, true);
+    drawDeco(papers[2], 232, 3, 128, DecoShape.Bar, 0, false);
+    drawDeco(papers[2], 330, 4, 128, DecoShape.Triangle, 0, false);
     
     //outerThirds
     param = {stroke: "#F36B00", "stroke-width": 30, opacity: 0.3};
-    let outerThirds = createCirlce(papers[0], 210, 3, 113, param, true);
+    let outerThirds = createCirlce(papers[2], 210, 3, 113, param, true);
+    
+    var runner = papers[2].rect(centerXY -12, centerXY - 188, 25, 3).attr({'fill': '#ffffff', stroke: 0});
+    animRunner(papers[2], runner);
     
     //innerThirds
     let innerThirdsRadius = 140;
     param = {stroke: "#F36B00", "stroke-width": 30, opacity: 0.2};
-    let innerThirds = createCirlce(papers[0], innerThirdsRadius, 3, 113, param, true);
+    let innerThirds = createCirlce(papers[3], innerThirdsRadius, 3, 113, param, true);
 
     //innerThirdsLines
     param = {stroke: "#F36B00", "stroke-width": 3, opacity: 0.6};
-    let innerThirdsLine1 = createCirlce(papers[0], 159, 3, 113, param, true);
-    let innerThirdsLine2 = createCirlce(papers[0], 121, 3, 113, param, true);
+    let innerThirdsLine1 = createCirlce(papers[3], 159, 3, 113, param, true);
+    let innerThirdsLine2 = createCirlce(papers[3], 121, 3, 113, param, true);
     
-    //ring
-    papers[1].circle(centerXY, centerXY, 90).attr({stroke: "#F36B00", "stroke-width": 3, opacity: 0.3});
-    
-    var runner = papers[0].rect(centerXY -12, centerXY - 188, 25, 3).attr({'fill': '#ffffff', stroke: 0});
-    animRunner(papers[0], runner);
-    
-    
-
-    let sixths = new Sixths(papers[0], innerThirdsRadius);
+    let sixths = new Sixths(papers[4], innerThirdsRadius);
     sixths.AnimSixths();
     sixths.HighlightSmallSixth(0);
     
-    let coreSixths = new CoreSixth(papers[0]);
+    //ring
+    papers[5].circle(centerXY, centerXY, 90).attr({stroke: "#F36B00", "stroke-width": 3, opacity: 0.3});
+    animQuarters(papers[5], null);
+    
+    let coreSixths = new CoreSixth(papers[5]);
     coreSixths.Anim1(58);
     
-    animQuarters(papers[1], null);
+    
     animRects(rects, 0);
 }
 
@@ -323,7 +303,7 @@ class Sixths
         this.Alpha = 59;
         this.Gap = (360 - 6*this.Alpha)/6;
         this.Radius = innerThirdsRadius;
-        this.Params = {stroke: "#F36B00", "stroke-width": 27, opacity: 0.2};
+        this.Params = {stroke: "#F36B00", "stroke-width": 27, opacity: 0.4};
         this.BigSixths = [];
         for(let i = 0; i < 6; i++)
         {
@@ -332,7 +312,7 @@ class Sixths
         }
         
         this.SmallSixths = [];
-        this.Params = {stroke: "#F36B00", "stroke-width": 5, opacity: 0.4};
+        this.Params = {stroke: "#F36B00", "stroke-width": 5, opacity: 0.6};
         for(let i = 0; i < 6; i++)
         {
             let newSixth = r.path().attr({arc: [0, this.Radius]}).attr(this.Params);
@@ -469,10 +449,10 @@ function animQuarters(r, quarters)
     for(let i = 0; i < quarters.length; i++)
     {
         finalAngle = -(360 -(alpha + gap)*i);
-        quarters[i].animate({transform: "r" +finalAngle + "," + centerXY + "," + centerXY}, 6000, "linear");
+        quarters[i].animate({transform: "r" +finalAngle + "," + centerXY + "," + centerXY}, 16000, "linear");
     }
      
-    setTimeout(animQuarters.bind(null, r, quarters), 6000);
+    setTimeout(animQuarters.bind(null, r, quarters), 16000);
 }
 
 function animRunner(r, runner)
