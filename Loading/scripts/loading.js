@@ -75,6 +75,7 @@ window.onload = function ()
     $('.stage').css('transform', 'translate(-50%, -50%) scale(1)');
     resize();
     $( window ).resize(resize);
+    $('#btnReset').click(reset);
     
     /////////////draw stuff
     // https://steamuserimages-a.akamaihd.net/ugc/80342118768853730/E698567DFD278F74F96C12336E641041964E5C9F/?interpolation=lanczos-none&output-format=jpeg&output-quality=95&fit=inside%7C637%3A358&composite-to=*,*%7C637%3A358&background-color=black
@@ -148,9 +149,16 @@ window.onload = function ()
     TweenMax.set('#ring1', {scale:"0.50"});
     TweenMax.set('#ring2', {scale:"0.68"});
     
-    //return;
-    //setTimeout(this.initalAnimation.bind(this), 2000);
-    initalAnimation();
+    setTimeout(this.initalAnimation.bind(this), 2000);
+    //initalAnimation();
+    
+    TweenMax.to('#btnReset', 1, {backgroundColor: "hsla(26, 100%, 48%, 1)"});
+    
+    //var rule = CSSRulePlugin.getRule("#btnReset:after"); //get the rule
+    //TweenLite.to(rule, 3, {cssRule:{color:"#0000FF"}});
+
+    var rule = CSSRulePlugin.getRule("#btnReset:after"); //get the rule
+    TweenLite.to(rule, 3, {cssRule: { right: 100 },ease: Power2.easeInOut}, 0);
 }
 
 function initalAnimation()
@@ -177,11 +185,11 @@ function initalAnimation()
 
     animWhiteThirds();
     animRunner();
-    animRects(0);
     if(!sixhtsRunning)
     {
         sixths.AnimSixthDown(sixths.BigSixths, 0);
         sixths.HighlightSmallSixth(0);
+        animRects(0);
     }
     sixhtsRunning = true;
     coreSixths.Anim1();
@@ -259,8 +267,8 @@ function containerAnim()
     anchors.push({rotationX: 12, rotationY: 7});
     anchors2.push({rotationX: -12, rotationY: -7});
     
-    tweenBezir1 = TweenMax.to('#container', 35, {bezier:{curviness:1.2, values:anchors}, ease:Power0.easeInOut, repeat: -1});
-    tweenBezir2 = TweenMax.to('#ring5', 35, {bezier:{curviness:1.2, values:anchors2}, ease:Power0.easeInOut, repeat: -1});
+    tweenBezir1 = TweenMax.to('#container', 40, {bezier:{curviness:1.2, values:anchors}, ease:Power0.easeInOut, repeat: -1});
+    tweenBezir2 = TweenMax.to('#ring5', 40, {bezier:{curviness:1.2, values:anchors2}, ease:Power0.easeInOut, repeat: -1});
     
 }
 
@@ -292,8 +300,16 @@ function reset()
     innerThirdsLine2.forEach(function(element) {
         element.animate({arc: [113, 120]}, 700, "easeOut");
     });
+ 
+    TweenMax.to('#btnReset', 3, {opacity: 1});//{top: "-8px", left: "-8px", right: "-8px", bottom: "-8px"});
     
-    setTimeout(this.initalAnimation.bind(this), ringAnimTime + 3000);
+    /*top: -8px;
+    left: -8px;
+    right: -8px;
+    bottom: -8px;
+    border-color: hsla(26, 100%, 48%, 0)*/
+    
+    setTimeout(initalAnimation.bind(this), ringAnimTime + 3000);
 }
 
 function animRects(i)

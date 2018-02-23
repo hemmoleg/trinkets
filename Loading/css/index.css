@@ -11,6 +11,8 @@ body {
 	
     font-family: 'RobotoRegular', 'Droid Sans', 'Segoe UI', Segoe, 'San Francisco', 'Helvetica Neue', Helvetica, Arial, Geneva, sans-serif;
     font-size:12px; 
+
+    overflow: hidden;
 }
 
 * {
@@ -47,7 +49,45 @@ svg{
 
 #btnReset
 {
+    width: 6vw;
+    height: 6vw;
     position: absolute;
-    top: 90%;
-    left: 90%;
+    background-color: hsla(26, 100%, 48%, 0.2);
+    right: 3vmin;
+    bottom: 3vmin;
+    border-radius: 5vw;
+    cursor: pointer;
+border: none;
+    transition: background-color 0.3s;
+    outline: none;
+
+}
+
+#btnReset:hover{
+    background-color: hsla(26, 100%, 48%, 0.4);
+}
+
+#btnReset:active
+{
+    transform: translateY(4px);
+}
+
+#iconReload{
+    position: absolute;
+    top: 50%;
+    left: 50%;
+    transform: translate(-50%, -50%);
+    font-size: 4vw;
+}
+
+#btnReset:after {
+    content: '';
+    position: absolute;
+    top: -5px;
+    left: -5px;
+    right: -5px;
+    bottom: -5px;
+    border: hsla(26, 100%, 48%, 0.2) 2px solid;
+    border-radius: 5vw;
+    transition: all 0.3s;
 }
