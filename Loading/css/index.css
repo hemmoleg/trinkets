@@ -28,12 +28,10 @@ div{
     position: absolute;
     top: 50%;
     left: 50%;
-    /*transform: translate(-50%, -50%);*/
 }
 
 #container{
    transform-style: preserve-3d; 
-   /*transform: rotateX(25deg) rotateY(10deg);*/
    white-space: nowrap;
    width: 670px;
    height: 670px;
@@ -43,10 +41,13 @@ svg{
     position: absolute;
 }
 
-#ring1{
-    /*transform: translateZ(150px);*/
-}
-
 .overlapping{
     position: absolute;
+}
+
+#btnReset
+{
+    position: absolute;
+    top: 90%;
+    left: 90%;
 }

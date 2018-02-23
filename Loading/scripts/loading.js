@@ -9,8 +9,15 @@ var runner;
 var innerThirdsLine1;
 var innerThirdsLine2;
 var sixths;
-var coreSixhts;
+var coreSixths;
 var whiteThirds;
+
+var ringAnimTime = 1.25;
+
+var tweenBezir1;
+var tweenBezir2;
+
+var sixhtsRunning = false;
 
 function resize()
 {
@@ -81,11 +88,11 @@ window.onload = function ()
     papers[0].rect(0, centerXY, 800, 1).attr({'fill': '#ffffff', stroke: 0});
     
     //outline
-    param = {stroke: "#F36B00", "stroke-width": 4, opacity: 0.3};
+    param = {stroke: "#F36B00", "stroke-width": 4, opacity: 0.2};
     createCirlce(papers[0], 310, 1, 0, param, false);
     
     //rects
-    let radius = 285;
+    let radius = 275;
     let posY = centerXY - radius;
     for (let i = 0; i < 360; i = i + 2) 
     {
@@ -97,34 +104,34 @@ window.onload = function ()
     
     //lineRectsThin
     param = {stroke: "#F36B00", "stroke-width": 2, opacity: 0.6};
-    var lineRectsThin = papers[1].path().attr(param).attr({arc: [180, 270, 2]});//.attr({opacity: 0.4});
+    var lineRectsThin = papers[1].path().attr(param).attr({arc: [180, 260, 2]});//.attr({opacity: 0.4});
     
     //lineRectsBig
     param = {stroke: "#F36B00", "stroke-width": 4, opacity: 0.6};
-    var lineRectsBig = papers[1].path().attr(param).attr({arc: [180, 270, 4]});
+    var lineRectsBig = papers[1].path().attr(param).attr({arc: [180, 260, 4]});
     lineRectsBig.rotate(180, centerXY, centerXY);
     
-    drawDeco(papers[2], 240, 3, 128, DecoShape.SquareAngelL, 0, true);
-    drawDeco(papers[2], 240, 3, 128, DecoShape.SquareAngelR, 8, true);
-    drawDeco(papers[0], 330, 4, 128, DecoShape.Triangle, 0, false);
+    drawDeco(papers[2], 230, 3, 128, DecoShape.SquareAngelL, 0, true);
+    drawDeco(papers[2], 230, 3, 128, DecoShape.SquareAngelR, 8, true);
+    drawDeco(papers[0], 320, 4, 128, DecoShape.Triangle, 0, false);
     
     //whiteThirds
     param = {stroke: "#FFFFFF", "stroke-width": 3, opacity: 1};
-    whiteThirds = createCirlce(papers[2], 232, 3, 95, param, true);
+    whiteThirds = createCirlce(papers[2], 222, 3, 95, param, true);
     
     //outerThirds
     param = {stroke: "#F36B00", "stroke-width": 30, opacity: 0.3};
-    let outerThirds = createCirlce(papers[2], 210, 3, 113, param, true);
+    let outerThirds = createCirlce(papers[2], 200, 3, 113, param, true);
     
     //innerThirds
-    let innerThirdsRadius = 140;
+    let innerThirdsRadius = 130;
     param = {stroke: "#F36B00", "stroke-width": 30, opacity: 0.2};
     let innerThirds = createCirlce(papers[3], innerThirdsRadius, 3, 113, param, true);
 
     //innerThirdsLines
     param = {stroke: "#F36B00", "stroke-width": 3, opacity: 0.6};
-    innerThirdsLine1 = createCirlce(papers[3], 130, 3, 113, param, true); //159
-    innerThirdsLine2 = createCirlce(papers[3], 130, 3, 113, param, true); //121
+    innerThirdsLine1 = createCirlce(papers[3], 120, 3, 113, param, true); //159
+    innerThirdsLine2 = createCirlce(papers[3], 120, 3, 113, param, true); //121
     
     sixths = new Sixths(papers[4], innerThirdsRadius);
     
@@ -132,47 +139,161 @@ window.onload = function ()
     papers[5].circle(centerXY, centerXY, 90).attr({stroke: "#F36B00", "stroke-width": 3, opacity: 0.3});
     animQuarters(papers[5], null);
     
-    coreSixths = new CoreSixth(papers[6]);
+    coreSixths = new CoreSixth(papers[5]);
+    
+    param = {stroke: "#F36B00", "stroke-width": 30, opacity: 1};
+    createCirlce(papers[6], innerThirdsRadius, 3, 118, param, true);
     
     TweenMax.set('#ring0', {scale:"0.45"});
     TweenMax.set('#ring1', {scale:"0.50"});
     TweenMax.set('#ring2', {scale:"0.68"});
     
-    setTimeout(this.initalAnimation.bind(this), 2000);
-    
-    //initalAnimation(rects, runner, sixths, coreSixths);
+    //return;
+    //setTimeout(this.initalAnimation.bind(this), 2000);
+    initalAnimation();
 }
 
 function initalAnimation()
 {
-    let ringAnimTime = 0.75;
-    //inital animation
-    TweenMax.to("#container", ringAnimTime, {rotationY: 10, rotationX: 25, ease: Power2.easeOut});
+    TweenMax.to("#container", ringAnimTime, {rotationX: 12, rotationY: 7, ease: Power2.easeOut, onComplete: containerAnim});
     
     
-    TweenMax.to('#ring0', ringAnimTime, { z: -50, scale:"1", ease: Power2.easeOut});
-    TweenMax.to('#ring1', ringAnimTime, { z: -30, scale:"1", ease: Power2.easeOut});
-    TweenMax.to('#ring2', ringAnimTime, { z: 5, scale:"1", ease: Power2.easeOut});
+    TweenMax.to('#ring0', ringAnimTime, {z: -50, scale:"1", ease: Power2.easeOut});
+    TweenMax.to('#ring1', ringAnimTime, {z: -30, scale:"1", ease: Power2.easeOut});
+    TweenMax.to('#ring2', ringAnimTime, {z: 5, scale:"1", ease: Power2.easeOut});
+    TweenMax.to('#ring3', ringAnimTime, {z: 20, scale:"1", ease: Power2.easeOut});
+    TweenMax.to('#ring4', ringAnimTime, {z: 40, scale:"1", ease: Power2.easeOut});
     
-    //ring3 stays as is
-    //ring4 stays as is
-    //ring5 stays as is
-    //ring6 stays as is
+    TweenMax.to('#ring5', ringAnimTime, {rotationX: -12, rotationY: -7, ease: Power2.easeOut});
+    
+    TweenMax.to('#ring6', ringAnimTime, { z: -150, opacity:"0", rotationX:45, ease: Power2.easeOut});
     
     innerThirdsLine1.forEach(function(element) {
-        element.animate({arc: [113, 159]}, 700, "easeOut");
+        element.animate({arc: [113, 149]}, 700, "easeOut");
     });
     innerThirdsLine2.forEach(function(element) {
-        element.animate({arc: [113, 121]}, 700, "easeOut");
+        element.animate({arc: [113, 111]}, 700, "easeOut");
+    });
+
+    animWhiteThirds();
+    animRunner();
+    animRects(0);
+    if(!sixhtsRunning)
+    {
+        sixths.AnimSixthDown(sixths.BigSixths, 0);
+        sixths.HighlightSmallSixth(0);
+    }
+    sixhtsRunning = true;
+    coreSixths.Anim1();
+}
+
+function containerAnim()
+{
+    let minX = 0;
+    let rotationX = 7;
+    let maxX = 20;
+    
+    let minY = -15;
+    let rotationY = 12;
+    let maxY = 15;
+    
+    let minAngle = 5;
+    let anchors = [];
+    let anchors2 = [];
+    
+    anchors.push({rotationX: 12, rotationY: 7});
+    anchors2.push({rotationX: -12, rotationY: -7});
+    for(let i = 0; i < 10; i++)
+    {
+        var canShiftUp = rotationX - minAngle >= minX;
+        var canShiftDown = rotationX + minAngle <= maxX;
+
+        //fallback
+        if(!canShiftUp && !canShiftDown)
+        {
+            console.log("Cant shift left AND cant shift right!");
+        }
+        else if((Math.random() > 0.5 && canShiftUp) || !canShiftDown)
+        {
+            //shift left
+            var max = rotationX;
+            var distance = Math.random() * (max - minAngle) + minAngle;
+            rotationX = rotationX - distance;
+        }
+        else
+        {
+            //shift right
+            var max = maxX - rotationX;
+            var distance = Math.random() * (max - minAngle) + minAngle;
+            rotationX = rotationX + distance;
+        }
+        
+        
+        var canShiftLeft = rotationY - minAngle >= minY;
+        var canShiftRight = rotationY + minAngle <= maxY;
+
+        //fallback
+        if(!canShiftLeft && !canShiftRight)
+        {
+            console.log("Cant shift left AND cant shift right!");
+        }
+        else if((Math.random() > 0.5 && canShiftLeft) || !canShiftRight)
+        {
+            //shift left
+            var max = rotationY - minY;
+            var distance = Math.random() * (max - minAngle) + minAngle;
+            rotationY = rotationY - distance;
+        }
+        else
+        {
+            //shift right
+            var max = maxY - rotationY;
+            var distance = Math.random() * (max - minAngle) + minAngle;
+            rotationY = rotationY + distance;
+        }
+        //console.log(rotationY);
+    
+        anchors.push({rotationX: rotationX, rotationY: rotationY});
+        anchors2.push({rotationX: -rotationX, rotationY: -rotationY});
+    }
+    anchors.push({rotationX: 12, rotationY: 7});
+    anchors2.push({rotationX: -12, rotationY: -7});
+    
+    tweenBezir1 = TweenMax.to('#container', 35, {bezier:{curviness:1.2, values:anchors}, ease:Power0.easeInOut, repeat: -1});
+    tweenBezir2 = TweenMax.to('#ring5', 35, {bezier:{curviness:1.2, values:anchors2}, ease:Power0.easeInOut, repeat: -1});
+    
+}
+
+function reset()
+{
+    tweenBezir1.pause();
+    tweenBezir2.pause();
+
+    //sixths.Reset();
+    coreSixths.Reset(false);
+    
+    TweenMax.to("#container", ringAnimTime, {rotationX: 0, rotationY: 0, ease: Power2.easeOut});
+    TweenMax.to('#ring0', ringAnimTime, {z: 0, scale:"0.45", ease: Power2.easeOut});
+    TweenMax.to('#ring1', ringAnimTime, {z: 0, scale:"0.50", ease: Power2.easeOut});
+    TweenMax.to('#ring2', ringAnimTime, {z: 0, scale:"0.68", ease: Power2.easeOut});
+    TweenMax.to('#ring3', ringAnimTime, {z: 0, scale:"1", ease: Power2.easeOut});
+    TweenMax.to('#ring4', ringAnimTime, { z: 0, scale:"1", ease: Power2.easeOut});
+    TweenMax.to('#ring5', ringAnimTime, {rotationX: 0, rotationY: 0, ease: Power2.easeOut});
+    TweenMax.to('#ring6', ringAnimTime, { z: 0, opacity:"1", rotationX:0, ease: Power2.easeOut});
+
+    runner.stop();
+    runner.attr({transform: "r0" + "," + centerXY + "," + centerXY});
+    
+    resetWhiteThirds();
+    
+    innerThirdsLine1.forEach(function(element) {
+        element.animate({arc: [113, 120]}, 700, "easeOut");
+    });
+    innerThirdsLine2.forEach(function(element) {
+        element.animate({arc: [113, 120]}, 700, "easeOut");
     });
     
-    
-    animWhiteThirds();
-    animRunner(papers[2]);
-    animRects(0);
-    sixths.AnimSixthDown(sixths.BigSixths, 0);
-    sixths.HighlightSmallSixth(0);
-    coreSixths.Anim1(58);
+    setTimeout(this.initalAnimation.bind(this), ringAnimTime + 3000);
 }
 
 function animRects(i)
@@ -192,20 +313,22 @@ class CoreSixth
     constructor(r)
     {
         this.Angle = 58;
-        this.StartR = 20;
-        this.maxWidth = 32;
+        this.StartR = 15;
+        this.maxWidth = 35;
         this.Params = {stroke: "#F36B00", "stroke-width": 0, opacity: 0};
-        this.CoreSitxths = createCirlce(r, this.StartR, 6, this.Angle, this.Params, true);
+        this.CoreSixths1 = createCirlce(r, this.StartR, 6, this.Angle, this.Params, true);
         this.Params = {stroke: "#F36B00", "stroke-width": 5, opacity: 0};
-        this.CoreSitxths2 = createCirlce(r, this.StartR-8, 6, this.Angle, this.Params, true);
+        this.CoreSixths2 = createCirlce(r, this.StartR-8, 6, this.Angle, this.Params, true);
+        this.AnimCoreSixths1;
+        this.AnimCoreSixths2;
     }
 
     Anim1()
     {   
-        for(let sixth of this.CoreSitxths)
+        for(let sixth of this.CoreSixths1)
         {
             //this.StartR + this.maxWidth/2 +20
-            if(this.CoreSitxths.indexOf(sixth) == this.CoreSitxths.length-1)
+            if(this.CoreSixths1.indexOf(sixth) == this.CoreSixths1.length-1)
             {
                 sixth.animate({arc: [this.Angle, this.StartR + this.maxWidth +25]}, 770, "easeInOut"); 
                 sixth.animate({"stroke-width": this.maxWidth}, 400, "linear", this.Six1StrokeTo0.bind(this)); 
@@ -218,10 +341,10 @@ class CoreSixth
             sixth.animate({opacity: 0.3}, 200, "linear"); 
         }
         
-        for(let sixth of this.CoreSitxths2)
+        for(let sixth of this.CoreSixths2)
         {
             //radius and fade in for Six2
-            if(this.CoreSitxths2.indexOf(sixth) == this.CoreSitxths.length-1)
+            if(this.CoreSixths2.indexOf(sixth) == this.CoreSixths2.length-1)
                 sixth.animate({arc: [this.Angle, this.StartR + this.maxWidth +  25]}, 770, "easeInOut", this.Six2FadeOut.bind(this));
             else
                 sixth.animate({arc: [this.Angle, this.StartR + this.maxWidth +  25]}, 770, "easeInOut");
@@ -232,9 +355,9 @@ class CoreSixth
     Six1StrokeTo0()
     {
         //stroke hide for Six1
-        for(let sixth of this.CoreSitxths)
+        for(let sixth of this.CoreSixths1)
         {
-            if(this.CoreSitxths.indexOf(sixth) == this.CoreSitxths.length-1)
+            if(this.CoreSixths1.indexOf(sixth) == this.CoreSixths1.length-1)
                 sixth.animate({"stroke-width":0}, 300, "linear", this.Six2StrokeTo0.bind(this));
             else
                 sixth.animate({"stroke-width":0}, 300, "linear");
@@ -244,7 +367,7 @@ class CoreSixth
     Six2StrokeTo0()
     {
         //stroke hide for Six1
-        for(let sixth of this.CoreSitxths2)
+        for(let sixth of this.CoreSixths2)
         {
             sixth.animate({"stroke-width":0}, 150, "linear");
         }
@@ -252,25 +375,34 @@ class CoreSixth
     
     Six2FadeOut()
     {
-        for(let sixth of this.CoreSitxths2)
+        for(let sixth of this.CoreSixths2)
         {
-            if(this.CoreSitxths2.indexOf(sixth) == this.CoreSitxths.length-1)
-                sixth.animate({opacity: 0}, 150, "linear", this.Reset.bind(this));
+            if(this.CoreSixths2.indexOf(sixth) == this.CoreSixths2.length-1)
+                sixth.animate({opacity: 0}, 150, "linear", this.Reset.bind(this, true));
             else
                 sixth.animate({opacity: 0}, 150, "linear"); 
         }
     }
     
-    Reset()
+    Reset(restart)
     {
-        for(let sixth of this.CoreSitxths)
+        for(let sixth of coreSixths.CoreSixths1)
+        {
+            sixth.stop();
+        }
+        for(let sixth of coreSixths.CoreSixths2)
+        {
+            sixth.stop();
+        }
+        
+        for(let sixth of this.CoreSixths1)
         {
             sixth.animate({arc: [this.Angle, this.StartR], opacity: 0}, 10, "linear");
         }
         
-        for(let sixth of this.CoreSitxths2)
+        for(let sixth of this.CoreSixths2)
         {
-            if(this.CoreSitxths2.indexOf(sixth) == this.CoreSitxths.length-1)
+            if(this.CoreSixths2.indexOf(sixth) == this.CoreSixths2.length-1 && restart)
                 sixth.animate({arc: [this.Angle, this.StartR-8], opacity: 0, "stroke-width":5}, 10, "linear", this.Anim1.bind(this));
             else
                 sixth.animate({arc: [this.Angle, this.StartR-8], opacity: 0, "stroke-width":5 }, 10, "linear"); 
@@ -375,6 +507,20 @@ class Sixths
 
         setTimeout(this.HighlightSmallSixth.bind(this, i), 800);
     }
+    
+    Reset()
+    {
+        for(let sixth of this.BigSixths)
+        {
+            sixth.stop();
+        }
+        for(let sixth of this.SmallSixths)
+        {
+            sixth.stop();
+        }
+        this.AnimSixthUp(this.BigSixths, 0);
+        this.AnimSixthUp(this.SmallSixths, 0);
+    }
 }
 
 function animQuarters(r, quarters)
@@ -421,14 +567,26 @@ function animWhiteThirds()
     }
 }
 
-function animRunner(r)
+function resetWhiteThirds()
+{
+    alpha = 95;
+    gap = (360 - 3*alpha) / 3;
+    let angle;
+    
+    for(let i = 0; i < whiteThirds.length; i++)
+    {
+        angle = i * (alpha + gap) - (alpha/2);
+        whiteThirds[i].animate({arc: [alpha, 222], transform: "r" + angle + "," + centerXY + "," + centerXY}, 700, "easeOut");
+    }
+}
+
+function animRunner()
 {
     if(runner == null)
-        runner = papers[2].rect(centerXY -12, centerXY - 188, 25, 3).attr({'fill': '#ffffff', stroke: 0});
+        runner = papers[2].rect(centerXY -12, centerXY - 178, 25, 3).attr({'fill': '#ffffff', stroke: 0});
     
     runner.attr({transform: "r0" + "," + centerXY + "," + centerXY});
-    runner.animate({transform: "r-360" + "," + centerXY + "," + centerXY}, 2000);
-    setTimeout(animRunner.bind(null, r, runner), 2000);
+    runner.animate({transform: "r-360" + "," + centerXY + "," + centerXY}, 2000, this.animRunner.bind(this));
 }
 
 function drawDeco(r, radius, decoCount, alpha, shape, angleOffset, rotated)
