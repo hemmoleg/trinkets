@@ -1,0 +1,94 @@
+body {
+    -webkit-text-size-adjust: none;
+    -webkit-user-select: none;
+	background-color:black;
+    
+    background-attachment:fixed;
+    height:100%;
+    margin:0px;
+    padding:0px;
+    width:100%;
+	
+    font-family: 'RobotoRegular', 'Droid Sans', 'Segoe UI', Segoe, 'San Francisco', 'Helvetica Neue', Helvetica, Arial, Geneva, sans-serif;
+    
+    overflow: hidden;
+}
+
+* {
+    margin: 0;
+    padding: 0;
+}
+
+div{
+    /*border: 1px solid white;*/
+}
+
+.stage{
+    perspective: 1600px;
+   
+    position: absolute;
+    top: 50%;
+    left: 50%;
+}
+
+#container{
+   transform-style: preserve-3d; 
+   white-space: nowrap;
+   width: 670px;
+   height: 670px;
+}
+
+svg{
+    position: absolute;
+}
+
+.overlapping{
+    position: absolute;
+}
+
+#btnReset
+{
+    width: 3vw;
+    height: 3vw;
+    position: absolute;
+    background-color: hsla(26, 100%, 48%, 0.4);
+    right: 3vmin;
+    bottom: 3vmin;
+    border-radius: 5vw;
+    cursor: pointer;
+    border: none;
+    transition: background-color 0.3s;
+    outline: none;
+
+}
+
+#btnReset:hover{
+    background-color: hsla(26, 100%, 48%, 0.4);
+}
+
+#btnReset:active
+{
+    transform: translateY(2px);
+}
+
+#iconReload{
+    position: absolute;
+    top: 50%;
+    left: 50%;
+    transform: translate(-50%, -50%);
+    font-size: 2vw;
+}
+
+#btnReset:after {
+    content: '';
+    position: absolute;
+    top: -5px;
+    left: -5px;
+    right: -5px;
+    bottom: -5px;
+    border: hsla(26, 100%, 48%, 0.4) 2px solid;
+    border-radius: 5vw;
+    transition: all 0.3s;
+    opacity: 0;
+    transform: scale(0);
+}
