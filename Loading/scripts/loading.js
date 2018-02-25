@@ -69,13 +69,14 @@ window.onload = function ()
     for(let i = 0; i < $('.overlapping').length; i++)
     {
         papers.push( Raphael($('.overlapping')[i], PaperSize, PaperSize) );
+        $('.overlapping').width(PaperSize);
+        $('.overlapping').height(PaperSize);
         papers[papers.length-1].customAttributes.arc = customAttributes;
     }
     
     $('.stage').css('transform', 'translate(-50%, -50%) scale(1)');
     resize();
     $( window ).resize(resize);
-    $('#btnReset').click(reset);
     
     /////////////draw stuff
     // https://steamuserimages-a.akamaihd.net/ugc/80342118768853730/E698567DFD278F74F96C12336E641041964E5C9F/?interpolation=lanczos-none&output-format=jpeg&output-quality=95&fit=inside%7C637%3A358&composite-to=*,*%7C637%3A358&background-color=black
@@ -85,8 +86,8 @@ window.onload = function ()
     var param = {stroke: "#F36B00", "stroke-width": 30, opacity: 0.6};
     
     //helpers
-    papers[0].rect(centerXY , 0, 1, 800).attr({'fill': '#ffffff', stroke: 0});
-    papers[0].rect(0, centerXY, 800, 1).attr({'fill': '#ffffff', stroke: 0});
+    //papers[0].rect(centerXY , 0, 1, 800).attr({'fill': '#ffffff', stroke: 0});
+    //papers[0].rect(0, centerXY, 800, 1).attr({'fill': '#ffffff', stroke: 0});
     
     //outline
     param = {stroke: "#F36B00", "stroke-width": 4, opacity: 0.2};
@@ -137,7 +138,7 @@ window.onload = function ()
     sixths = new Sixths(papers[4], innerThirdsRadius);
     
     //ring
-    papers[5].circle(centerXY, centerXY, 90).attr({stroke: "#F36B00", "stroke-width": 3, opacity: 0.3});
+    papers[5].circle(centerXY, centerXY, 85).attr({stroke: "#F36B00", "stroke-width": 3, opacity: 0.3});
     animQuarters(papers[5], null);
     
     coreSixths = new CoreSixth(papers[5]);
@@ -151,23 +152,19 @@ window.onload = function ()
     
     setTimeout(this.initalAnimation.bind(this), 2000);
     //initalAnimation();
-    
-    TweenMax.to('#btnReset', 1, {backgroundColor: "hsla(26, 100%, 48%, 1)"});
-    
-    //var rule = CSSRulePlugin.getRule("#btnReset:after"); //get the rule
-    //TweenLite.to(rule, 3, {cssRule:{color:"#0000FF"}});
-
-    var rule = CSSRulePlugin.getRule("#btnReset:after"); //get the rule
-    TweenLite.to(rule, 3, {cssRule: { right: 100 },ease: Power2.easeInOut}, 0);
 }
 
 function initalAnimation()
 {
+    var rule = CSSRulePlugin.getRule("#btnReset:after"); //get the rule
+    TweenLite.to(rule, 1, {cssRule: { scale: 1, opacity: 1}, ease: Power1.easeOut }, 0);
+    TweenLite.to('#btnReset', 1, {opacity: 1});
+    $('#btnReset').one("click", reset);
+    
     TweenMax.to("#container", ringAnimTime, {rotationX: 12, rotationY: 7, ease: Power2.easeOut, onComplete: containerAnim});
-    
-    
-    TweenMax.to('#ring0', ringAnimTime, {z: -50, scale:"1", ease: Power2.easeOut});
-    TweenMax.to('#ring1', ringAnimTime, {z: -30, scale:"1", ease: Power2.easeOut});
+     
+    TweenMax.to('#ring0', ringAnimTime, {z: -40, scale:"1", ease: Power2.easeOut});
+    TweenMax.to('#ring1', ringAnimTime, {z: -20, scale:"1", ease: Power2.easeOut});
     TweenMax.to('#ring2', ringAnimTime, {z: 5, scale:"1", ease: Power2.easeOut});
     TweenMax.to('#ring3', ringAnimTime, {z: 20, scale:"1", ease: Power2.easeOut});
     TweenMax.to('#ring4', ringAnimTime, {z: 40, scale:"1", ease: Power2.easeOut});
@@ -267,17 +264,20 @@ function containerAnim()
     anchors.push({rotationX: 12, rotationY: 7});
     anchors2.push({rotationX: -12, rotationY: -7});
     
-    tweenBezir1 = TweenMax.to('#container', 40, {bezier:{curviness:1.2, values:anchors}, ease:Power0.easeInOut, repeat: -1});
-    tweenBezir2 = TweenMax.to('#ring5', 40, {bezier:{curviness:1.2, values:anchors2}, ease:Power0.easeInOut, repeat: -1});
+    tweenBezir1 = TweenMax.to('#container', 45, {bezier:{curviness:1.2, values:anchors}, ease:Power0.easeInOut, repeat: -1});
+    tweenBezir2 = TweenMax.to('#ring5', 45, {bezier:{curviness:1.2, values:anchors2}, ease:Power0.easeInOut, repeat: -1});
     
 }
 
 function reset()
 {
+    var rule = CSSRulePlugin.getRule("#btnReset:after"); //get the rule
+    TweenLite.to(rule, 1, {cssRule: {scale: 1.5, opacity: 0}, ease: Power1.easeIn});
+    TweenLite.to('#btnReset', 1, {opacity: 0.4});
+    
     tweenBezir1.pause();
     tweenBezir2.pause();
 
-    //sixths.Reset();
     coreSixths.Reset(false);
     
     TweenMax.to("#container", ringAnimTime, {rotationX: 0, rotationY: 0, ease: Power2.easeOut});
@@ -300,14 +300,6 @@ function reset()
     innerThirdsLine2.forEach(function(element) {
         element.animate({arc: [113, 120]}, 700, "easeOut");
     });
- 
-    TweenMax.to('#btnReset', 3, {opacity: 1});//{top: "-8px", left: "-8px", right: "-8px", bottom: "-8px"});
-    
-    /*top: -8px;
-    left: -8px;
-    right: -8px;
-    bottom: -8px;
-    border-color: hsla(26, 100%, 48%, 0)*/
     
     setTimeout(initalAnimation.bind(this), ringAnimTime + 3000);
 }
@@ -330,7 +322,7 @@ class CoreSixth
     {
         this.Angle = 58;
         this.StartR = 15;
-        this.maxWidth = 35;
+        this.maxWidth = 30;
         this.Params = {stroke: "#F36B00", "stroke-width": 0, opacity: 0};
         this.CoreSixths1 = createCirlce(r, this.StartR, 6, this.Angle, this.Params, true);
         this.Params = {stroke: "#F36B00", "stroke-width": 5, opacity: 0};
@@ -549,7 +541,7 @@ function animQuarters(r, quarters)
         //initially create quarters
         let finalAngle;
         let param = {stroke: "#F36B00", "stroke-width": 8, opacity: 0.5};
-        quarters = createCirlce(r, 93, 4, alpha, param, false);
+        quarters = createCirlce(r, 88, 4, alpha, param, false);
     }
     else
     {
