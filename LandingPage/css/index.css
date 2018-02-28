@@ -16,7 +16,7 @@ body {
     background: #000;
 }
 
-.fullscreenBGVideo {
+#fullscreenBGVideo {
     position: absolute;
     top: 0;
     left: 0;
@@ -24,20 +24,28 @@ body {
     height: 100%;
 }
 
-.fullscreenBGPlaylist {
+.playlist {
 	display: none;
 }
 
 @media (min-aspect-ratio: 16/9) {
-    .fullscreenBGVideo {
+    #fullscreenBGVideo {
         height: 300%;
         top: -100%;
     }
 }
 
 @media (max-aspect-ratio: 16/9) {
-    .fullscreenBGVideo {
+    #fullscreenBGVideo {
         width: 300%;
         left: -100%;
     }
+}
+
+#curtain{
+    position: absolute;
+    width: 100%;
+    height: 100%;
+    background: #000;
+    opacity: 0;
 }
