@@ -22,6 +22,7 @@ body {
     left: 0;
     width: 100%;
     height: 100%;
+    filter:blur(5px);
 }
 
 .playlist {
@@ -42,10 +43,17 @@ body {
     }
 }
 
+#boxShadow{
+    position: absolute;
+    width: 100%;
+    height: 100%;
+    box-shadow: 0 0 350px 50vw #000 inset;
+}
+
 #curtain{
     position: absolute;
     width: 100%;
     height: 100%;
     background: #000;
-    opacity: 0;
+    opacity: 1;
 }
