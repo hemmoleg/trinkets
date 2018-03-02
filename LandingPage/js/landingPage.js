@@ -15,7 +15,7 @@ window.onload = function()
     video.addEventListener('canplaythrough', onCanPlayThrough);
     
     currentVideo = 0;
-    loadNextVideo();
+    //loadNextVideo();
 }
 
 
@@ -24,9 +24,8 @@ function curtainFall()
     //console.log(video.currentTime);
     if(tween == null && (video.duration - video.currentTime) <= 1.5)
     {
-        //tween = TweenMax.to($('#curtain'), 1.5, {opacity:1, ease: Power1.easeIn, onComplete: loadNextVideo});
-        tween = TweenMax.to($('#boxShadow'), 1.5, {boxShadow:"0 0 350px 50vw #000 inset",
-                                                    onComplete: loadNextVideo});
+        tween = TweenMax.to($('#curtain'),1.5,{height:"250%", onComplete: loadNextVideo});
+        TweenMax.set($('#curtain'), {height:"10%", top:"-40%", left:"-55%"})
     }
 }
 
@@ -44,9 +43,6 @@ function onCanPlayThrough()
 {
     video.play();
     //video.pause();
-    //TweenMax.to($('#curtain'), 1.5, {opacity:0, ease: Power1.easeIn});
+    TweenMax.to($('#curtain'),1.5,{height:"10%", top:"200%", left:"80%"});
     tween = null;
-
-    TweenMax.set($('#curtain'), {opacity:0, ease: Power1.easeIn});
-    TweenMax.to($('#boxShadow'), 1.5, {boxShadow:"0 0 0px 0vw #000 inset"});
 }

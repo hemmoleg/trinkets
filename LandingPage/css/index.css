@@ -2,6 +2,7 @@ body {
     margin: 0;
     padding: 0;
     color: #000;
+    overflow: hidden;
 }
 
 
@@ -22,6 +23,7 @@ body {
     left: 0;
     width: 100%;
     height: 100%;
+    
     filter:blur(5px);
 }
 
@@ -38,22 +40,25 @@ body {
 
 @media (max-aspect-ratio: 16/9) {
     #fullscreenBGVideo {
-        width: 300%;
-        left: -100%;
+        width: 120%;
+        height: 120%;
+        left: -10%;
+        top: -10%;
+        transform: scale(1.2)
     }
-}
-
-#boxShadow{
-    position: absolute;
-    width: 100%;
-    height: 100%;
-    box-shadow: 0 0 350px 50vw #000 inset;
 }
 
 #curtain{
     position: absolute;
-    width: 100%;
-    height: 100%;
+    width: 120%;
+    height: 300%;
     background: #000;
     opacity: 1;
+    transform: rotate(-45deg);
+    top:-40%;
+    left:-55%;
+    transform-origin: 50% top;
 }
+/* to height 300% (fade in) */
+/* TweenMax.to($('#curtain'),4,{height:"10%", top:"200%", left:"80%"}); */
+/* set height: 10% top: -40% left: -55%
