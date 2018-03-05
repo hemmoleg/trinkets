@@ -1,45 +1,41 @@
 var currentVideo;
 var video;
 var source;
-var tl;
 var tween;
 
-var TEST_C;
+var i = 0;
 var target;
+var angle;
+var scale;
 
 function initCurtain()
 {
-    /* a2 + b2 = c2
-            b2 = c2 - a2
-      -c2 + b2 = -a2
-       c2 - b2 = a2
-       height2 - width2 = a2 */
-
     let a2 = $(window).height() * $(window).height() + ($(window).width() * $(window).width());
-    TEST_C = Math.sqrt(a2);
-    /*$('#curtain').width(TEST_C);
-    $('#curtain').height(TEST_C);
-    $('#curtain').css('top', -TEST_C);
-    $('#curtain').css('left', -TEST_C/2);*/
+    let c = Math.sqrt(a2);
     
-    let angle = (360 / (2*Math.PI)) * (Math.atan( $(window).height() / $(window).width() ));
+    angle = (360 / (2*Math.PI)) * (Math.atan( $(window).height() / $(window).width() ));
 
-    let scale;
     if($(window).height() > $(window).width())
     {
-        scale = TEST_C / ($('#curtain').width());
+        scale = c / ($('#curtain').width());
     }
     else
     {
-        scale = TEST_C / ($('#curtain').height());
+        scale = c / ($('#curtain').height());
     }
-
+    scale = scale + 0.7;
     $('#curtain').css('transform', 'rotate('+ angle +'deg) scale('+scale+')');
-    //$('#curtain').css('transform', 'scale('+scale+')');
-    target = (TEST_C / $(window).height()) * 100 + '%';
-    /*$('#curtain').css('top', '-' + target);
-    $('#curtain').css('left', '-' + target);*/
+   
+    target = (c / $(window).height()) * 100 + '%';
+
+    TweenMax.set('.border', {rotationX:15});
+    TweenMax.set('.link',{z:-150, rotationX:15});
 }
+
+//////////////////////////////
+//resize?
+//////////////////////////////
+//three divs in one stretchcontainer, each div containing one link and one border
 
 window.onload = function()
 {
@@ -52,7 +48,7 @@ window.onload = function()
 
     video.addEventListener('canplaythrough', onCanPlayThrough);
     video.addEventListener('timeupdate', curtainFall);
-    
+
     currentVideo = 0;
     loadNextVideo();
 }
@@ -67,21 +63,41 @@ function loadNextVideo()
     video.load();
 }
 
+//curtain rise
 function onCanPlayThrough()
 {
     //return;
     video.play();
+    video.playbackRate = 0.6;
     //video.pause();
-    TweenMax.to($('#curtain'),1.5,{top: target, left: target});
+    if(i % 2 == 0)
+    {
+        //to bot right
+        TweenMax.to($('#curtain'),0.5,{top: target, left: target, ease: Power0.easeNone});
+    }
+    else
+    {
+        //to top right
+        TweenMax.to($('#curtain'),0.5,{top:"-" + target, left: target, ease: Power0.easeNone});
+    }
     tween = null;
 }
 
 function curtainFall()
 {
-    //console.log(video.currentTime);
     if(tween == null && (video.duration - video.currentTime) <= 1.5)
-    {
-        tween = TweenMax.to($('#curtain'),1.5,{top:"0%", left:"0%", onComplete: loadNextVideo});
-        TweenMax.set($('#curtain'), {top:"-" + target, left:"-" + target})
+    {   
+        i++;
+        if(i % 2 == 0)
+        {
+            $('#curtain').css('transform', 'rotate('+ angle +'deg) scale('+scale+')');
+            TweenMax.set($('#curtain'), {top:"-" + target, left:"-" + target});
+        }
+        else
+        {
+            $('#curtain').css('transform', 'rotate(-'+ angle +'deg) scale('+scale+')');
+            TweenMax.set($('#curtain'), {top: target, left:"-" + target});
+        }
+        tween = TweenMax.to($('#curtain'),0.5,{top:"0%", left:"0%", ease: Power0.easeNone, onComplete: loadNextVideo});
     }
 }
