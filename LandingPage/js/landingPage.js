@@ -28,8 +28,11 @@ function initCurtain()
    
     target = (c / $(window).height()) * 100 + '%';
 
-    TweenMax.set('.border', {rotationX:15});
-    TweenMax.set('.link',{z:-150, rotationX:15});
+    //TweenMax.set('.border', {rotationX:-15});
+    //TweenMax.set('.link',{z:-150, rotationX:-15});
+
+    //TweenMax.set('.link:nth-child(2)',{z:10});
+    //TweenMax.set('.border:nth-child(2)',{z:-10});
 }
 
 //////////////////////////////
@@ -45,7 +48,7 @@ window.onload = function()
     currentVideo = 1; 
     
     initCurtain();
-
+return;
     video.addEventListener('canplaythrough', onCanPlayThrough);
     video.addEventListener('timeupdate', curtainFall);
 
