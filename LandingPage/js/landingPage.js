@@ -38,7 +38,13 @@ function initCurtain()
 //////////////////////////////
 //resize?
 //////////////////////////////
-//three divs in one stretchcontainer, each div containing one link and one border
+//reduce space between links
+//////////////////////////////
+//move p's outsided of stage
+//////////////////////////////
+//monochramatic videos
+//////////////////////////////
+//vignette
 
 window.onload = function()
 {
@@ -52,7 +58,7 @@ window.onload = function()
     $('.linkContainer').mouseenter(onEnterLinkContainer);
     $('.linkContainer').mouseleave(onLeaveLinkContainer);
 
-return;
+
     video.addEventListener('canplaythrough', onCanPlayThrough);
     video.addEventListener('timeupdate', curtainFall);
 
@@ -62,26 +68,14 @@ return;
 
 function onEnterLinkContainer(e)
 {
-    let collection = e.target.parentElement.children;
-    for(let i = 0; i < collection.length; i++)
-    {
-        if($(collection[i]).hasClass('link'))
-        {
-            TweenMax.to(collection[i], 0.2, {z:-20, ease: Power1.easeInOut});
-        }
-    }
+    TweenMax.to($(e.target.parentElement).find('.link'), 0.2, {z:-20, ease: Power1.easeInOut});
+    TweenMax.to($(e.target.parentElement).find('p'), 1, {opacity:1, ease:RoughEase.ease.config({points:15, strength:2, clamp:true})});
 }
 
 function onLeaveLinkContainer(e)
 {
-    let collection = e.target.parentElement.children;
-    for(let i = 0; i < collection.length; i++)
-    {
-        if($(collection[i]).hasClass('link'))
-        {
-            TweenMax.to(collection[i], 0.2, {z:-50, ease: Power1.easeInOut});
-        }
-    }
+    TweenMax.to($(e.target.parentElement).find('.link'), 0.2, {z:-50, ease: Power1.easeInOut});
+    TweenMax.to($(e.target.parentElement).find('p'), 1, {opacity:0, ease:RoughEase.ease.config({points:25, strength:2, clamp:true})});
 }
 
 function loadNextVideo()
