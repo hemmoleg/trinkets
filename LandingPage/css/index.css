@@ -74,6 +74,7 @@ body {
 
 #stage{
     perspective: 1000px;
+    /*perspective-origin: top;*/
 
     display: flex;
     justify-content: space-around;
@@ -83,22 +84,25 @@ body {
 .linkContainer{
     transform-style: preserve-3d;
     width: 35vmin;
-    height: 20vmin;
+    height: 23vmin;
+
+    transform: rotateX(15deg);
+    /*border: solid 1px white;*/
 }
 
 .linkContainer:first-child{
-    transform: rotateY(35deg);
+    transform: rotateY(35deg) rotateX(15deg);
 }
 
 .linkContainer:last-child{
-    transform: rotateY(-35deg);
+    transform: rotateY(-35deg) rotateX(15deg);
 }
 
 .border{
     position: absolute;
     width: 100%;
     height: 100%;
-    border: solid white;
+    border: solid 1px white;
     border-radius: 4vmin;
 }
 
@@ -108,5 +112,19 @@ body {
     height: 100%;
     background: red;
     border-radius: 4vmin;
-    transform: translateZ(-150px);
+    transform: translateZ(-50px);
+    background-image: url("../images/index.jpg");
+    background-size: 100%;
+}
+
+.linkContainer:first-child .link{
+    background-image: url("https://i.imgur.com/DuGIBZZ.png");
+}
+
+.linkContainer:nth-child(2) .link{
+    background-image: url("https://i.imgur.com/SfAaBdg.png");
+}
+
+.linkContainer:nth-child(3) .link{
+    background-image: url("https://i.imgur.com/GBNwy2V.png");
 }

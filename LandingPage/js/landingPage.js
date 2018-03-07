@@ -48,12 +48,40 @@ window.onload = function()
     currentVideo = 1; 
     
     initCurtain();
+
+    $('.linkContainer').mouseenter(onEnterLinkContainer);
+    $('.linkContainer').mouseleave(onLeaveLinkContainer);
+
 return;
     video.addEventListener('canplaythrough', onCanPlayThrough);
     video.addEventListener('timeupdate', curtainFall);
 
     currentVideo = 0;
     loadNextVideo();
+}
+
+function onEnterLinkContainer(e)
+{
+    let collection = e.target.parentElement.children;
+    for(let i = 0; i < collection.length; i++)
+    {
+        if($(collection[i]).hasClass('link'))
+        {
+            TweenMax.to(collection[i], 0.2, {z:-20, ease: Power1.easeInOut});
+        }
+    }
+}
+
+function onLeaveLinkContainer(e)
+{
+    let collection = e.target.parentElement.children;
+    for(let i = 0; i < collection.length; i++)
+    {
+        if($(collection[i]).hasClass('link'))
+        {
+            TweenMax.to(collection[i], 0.2, {z:-50, ease: Power1.easeInOut});
+        }
+    }
 }
 
 function loadNextVideo()
