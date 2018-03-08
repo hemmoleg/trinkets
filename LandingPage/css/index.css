@@ -23,7 +23,7 @@ body {
     width: 100%;
     height: 100%;
     
-    filter:blur(5px);
+    filter:grayscale(70%) blur(3px);
 }
 
 .playlist {
@@ -63,8 +63,8 @@ body {
 }
 
 #blur{
-    background: rgba(0,0,0,0.6);
-    filter:blur(3px);
+    background: rgba(205,205,205,0.6);
+    filter:blur(0px);
 }
 
 
@@ -74,7 +74,7 @@ body {
 
 
 #stage{
-    perspective: 1200px;
+    perspective: 1400px;
     /*perspective-origin: top;*/
 
     display: flex;
@@ -89,16 +89,16 @@ body {
     transform-style: preserve-3d;
     width: 35vmin;
     height: 23vmin;
-    transform: rotateX(15deg);
+    transform: rotateX(10deg);
 }
 
 .linkContainer:first-child{
-    transform: rotateY(35deg) rotateX(15deg);
+    transform: rotateY(25deg) rotateX(10deg);
     transform-origin: right center;
 }
 
 .linkContainer:last-child{
-    transform: rotateY(-35deg) rotateX(15deg);
+    transform: rotateY(-25deg) rotateX(10deg);
     transform-origin: left center;
 }
 
@@ -106,8 +106,13 @@ body {
     position: absolute;
     width: 100%;
     height: 100%;
-    border: solid 2px white;
+    border: solid 1px white;
     border-radius: 4vmin;
+}
+
+.linkContainer .border:nth-child(2){
+    transform: translateZ(-25px);
+    border-style: dashed;
 }
 
 .link{
@@ -119,6 +124,7 @@ body {
     transform: translateZ(-50px);
     background-image: url("../images/index.jpg");
     background-size: 100%;
+    border: solid 2px white;
 }
 
 .linkContainer:first-child .link{
@@ -135,7 +141,7 @@ body {
 }
 
 p{
-    -webkit-margin-before: 1vmin;
+    -webkit-margin-before: 7%;
 
     font-family: 'Mina', sans-serif;
 

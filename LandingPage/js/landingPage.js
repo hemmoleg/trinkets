@@ -8,6 +8,9 @@ var target;
 var angle;
 var scale;
 
+var VPWidth;
+var VPHeight;
+
 function initCurtain()
 {
     let a2 = $(window).height() * $(window).height() + ($(window).width() * $(window).width());
@@ -28,11 +31,8 @@ function initCurtain()
    
     target = (c / $(window).height()) * 100 + '%';
 
-    //TweenMax.set('.border', {rotationX:-15});
-    //TweenMax.set('.link',{z:-150, rotationX:-15});
-
-    //TweenMax.set('.link:nth-child(2)',{z:10});
-    //TweenMax.set('.border:nth-child(2)',{z:-10});
+    VPWidth = $(window).width();
+    VPHeight = $(window).height();
 }
 
 //////////////////////////////
@@ -57,7 +57,7 @@ window.onload = function()
 
     $('.linkContainer').mouseenter(onEnterLinkContainer);
     $('.linkContainer').mouseleave(onLeaveLinkContainer);
-
+    $('body').mousemove(onMouseMove);
 
     video.addEventListener('canplaythrough', onCanPlayThrough);
     video.addEventListener('timeupdate', curtainFall);
@@ -76,6 +76,15 @@ function onLeaveLinkContainer(e)
 {
     TweenMax.to($(e.target.parentElement).find('.link'), 0.2, {z:-50, ease: Power1.easeInOut});
     TweenMax.to($(e.target.parentElement).find('p'), 1, {opacity:0, ease:RoughEase.ease.config({points:25, strength:2, clamp:true})});
+}
+
+function onMouseMove(e)
+{
+    //$('#stage').css('perspective-origin', e.clientX + "px " + e.clientY + "px");
+    //console.log(e.clientX + "px " + e.clientY + "px");
+
+    let x = ($(window).width()/2) - ($(window).width()/2 - e.clientX)/3;
+    $('#stage').css('perspective-origin', x + "px " + e.clientY/2 + "px");
 }
 
 function loadNextVideo()
