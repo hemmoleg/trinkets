@@ -5,6 +5,14 @@ body {
     overflow: hidden;
 }
 
+#vignette{
+    position: fixed;
+    width: 100%;
+    height: 100%;
+    box-shadow: 0 0 150px rgba(0,0,0,0.9) inset;
+    pointer-events: none;
+}
+
 .fullscreenBG {
     /*position: fixed;*/
     top: 0;
@@ -64,7 +72,7 @@ body {
 
 #blur{
     background: rgba(205,205,205,0.6);
-    filter:blur(0px);
+    filter:blur(5px);
 }
 
 
@@ -75,10 +83,9 @@ body {
 
 #stage{
     perspective: 1400px;
-    /*perspective-origin: top;*/
 
     display: flex;
-    justify-content: space-around;
+    justify-content: center;
     align-items: center;
     width:100%;
     left:0;
@@ -90,15 +97,20 @@ body {
     width: 35vmin;
     height: 23vmin;
     transform: rotateX(10deg);
+    cursor: pointer;
 }
 
 .linkContainer:first-child{
-    transform: rotateY(25deg) rotateX(10deg);
+    transform: rotateY(20deg) rotateX(10deg);
     transform-origin: right center;
 }
 
+.linkContainer:nth-child(2){
+    margin: 0px 7% 0px;
+}
+
 .linkContainer:last-child{
-    transform: rotateY(-25deg) rotateX(10deg);
+    transform: rotateY(-20deg) rotateX(10deg);
     transform-origin: left center;
 }
 
@@ -110,7 +122,11 @@ body {
     border-radius: 4vmin;
 }
 
-.linkContainer .border:nth-child(2){
+.linkContainer .border:first-child{
+    transform: translateZ(-50px);
+}
+
+.linkContainer .border:nth-child(3){
     transform: translateZ(-25px);
     border-style: dashed;
 }

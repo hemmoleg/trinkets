@@ -31,20 +31,11 @@ function initCurtain()
    
     target = (c / $(window).height()) * 100 + '%';
 
-    VPWidth = $(window).width();
-    VPHeight = $(window).height();
+    saveDimensions();
 }
 
 //////////////////////////////
 //resize?
-//////////////////////////////
-//reduce space between links
-//////////////////////////////
-//move p's outsided of stage
-//////////////////////////////
-//monochramatic videos
-//////////////////////////////
-//vignette
 
 window.onload = function()
 {
@@ -54,6 +45,8 @@ window.onload = function()
     currentVideo = 1; 
     
     initCurtain();
+
+    $( window ).resize(saveDimensions);
 
     $('.linkContainer').mouseenter(onEnterLinkContainer);
     $('.linkContainer').mouseleave(onLeaveLinkContainer);
@@ -66,24 +59,29 @@ window.onload = function()
     loadNextVideo();
 }
 
+function saveDimensions()
+{
+    VPWidth = $(window).width();
+    VPHeight = $(window).height();
+}
+
 function onEnterLinkContainer(e)
 {
     TweenMax.to($(e.target.parentElement).find('.link'), 0.2, {z:-20, ease: Power1.easeInOut});
-    TweenMax.to($(e.target.parentElement).find('p'), 1, {opacity:1, ease:RoughEase.ease.config({points:15, strength:2, clamp:true})});
+    //TweenMax.to($(e.target.parentElement).find('p'), 1, {opacity:1, ease:RoughEase.ease.config({points:15, strength:2, clamp:true})});
+    TweenMax.to($(e.target.parentElement).find('p'), 0.7, {opacity:1, ease:Power1.easeInOut});
 }
 
 function onLeaveLinkContainer(e)
 {
     TweenMax.to($(e.target.parentElement).find('.link'), 0.2, {z:-50, ease: Power1.easeInOut});
-    TweenMax.to($(e.target.parentElement).find('p'), 1, {opacity:0, ease:RoughEase.ease.config({points:25, strength:2, clamp:true})});
+    //TweenMax.to($(e.target.parentElement).find('p'), 1, {opacity:0, ease:RoughEase.ease.config({points:25, strength:2, clamp:true})});
+    TweenMax.to($(e.target.parentElement).find('p'), 0.7, {opacity:0, ease:Power1.easeInOut});
 }
 
 function onMouseMove(e)
 {
-    //$('#stage').css('perspective-origin', e.clientX + "px " + e.clientY + "px");
-    //console.log(e.clientX + "px " + e.clientY + "px");
-
-    let x = ($(window).width()/2) - ($(window).width()/2 - e.clientX)/3;
+    let x = (VPWidth/2) - (VPWidth/2 - e.clientX)/3;
     $('#stage').css('perspective-origin', x + "px " + e.clientY/2 + "px");
 }
 
