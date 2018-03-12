@@ -29,13 +29,14 @@ function initCurtain()
     scale = scale + 0.7;
     $('#curtain').css('transform', 'rotate('+ angle +'deg) scale('+scale+')');
    
-    target = (c / $(window).height()) * 100 + '%';
+    target = (c / $(window).width()) * 100 + 50 + '%';
 
     saveDimensions();
+    console.log("target: " + target);
 }
 
 //////////////////////////////
-//resize?
+//initCurtain on device landscape
 
 window.onload = function()
 {
