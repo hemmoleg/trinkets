@@ -5,11 +5,17 @@ body {
     overflow: hidden;
 }
 
+#body{
+    overflow: hidden;
+    box-shadow: 0 0 150px rgba(0,0,0,0.9) inset;
+    height: 100%;
+}
+
 #vignette{
     position: fixed;
     width: 100%;
     height: 100%;
-    box-shadow: 0 0 150px rgba(0,0,0,0.9) inset;
+    /*box-shadow: 0 0 150px rgba(0,0,0,0.9) inset;*/
     pointer-events: none;
 }
 
@@ -31,7 +37,7 @@ body {
     width: 100%;
     height: 100%;
     
-    filter:grayscale(70%) blur(3px);
+    filter:grayscale(70%) blur(10px);
 }
 
 .playlist {
@@ -71,15 +77,9 @@ body {
 }
 
 #blur{
-    background: rgba(205,205,205,0.6);
+    background: rgba(205,205,205,0);
     filter:blur(5px);
 }
-
-
-
-
-
-
 
 #stage{
     perspective: 1400px;
