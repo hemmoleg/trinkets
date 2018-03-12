@@ -149,6 +149,7 @@ body {
 
 .linkContainer:nth-child(2) .link{
     background-image: url("https://i.imgur.com/SfAaBdg.png");
+    background-size: 117%;
 }
 
 .linkContainer:nth-child(3) .link{
