@@ -52,12 +52,21 @@ window.onload = function()
     $('.linkContainer').mouseenter(onEnterLinkContainer);
     $('.linkContainer').mouseleave(onLeaveLinkContainer);
     $('body').mousemove(onMouseMove);
+    
+    $('.imprintContainer').click(onClickImprintContainer);
 
     video.addEventListener('canplaythrough', onCanPlayThrough);
     video.addEventListener('timeupdate', curtainFall);
 
     currentVideo = 0;
     loadNextVideo();
+}
+
+function onClickImprintContainer()
+{
+    $('.imprintContainer').toggleClass('big');
+    $('#imprint').toggleClass('hidden');
+    $('.copyrightIcon').toggleClass('topLeft');
 }
 
 function saveDimensions()

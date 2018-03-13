@@ -159,7 +159,8 @@ body {
     background-position: center;
 }
 
-p{
+
+.linkContainer p{
     -webkit-margin-before: 7%;
 
     font-family: 'Mina', sans-serif;
@@ -171,4 +172,66 @@ p{
     width: 100%;
     opacity: 0;
     font-size: 4vmin;
+}
+
+.imprintContainer{
+
+    position: absolute;
+    border-radius: 2.5vmin;
+
+    width: 5vmin;
+    height: 5vmin;
+    right: 2vmin;
+    bottom: 2vmin;
+    cursor: pointer;
+
+    background: wheat;
+
+    transition: width 0.5s ease-in-out, height 0.5s ease-in-out;
+}
+
+.big{
+    width: 90%;
+    height: 90%;
+}
+
+.copyrightIcon{
+    position: relative;
+    top: 50%;
+    left: 50%;
+    height: 4vmin;
+    width: 4vmin;
+    transform: translateX(-50%) translateY(-50%);
+    transition-delay: 0.5s;
+    transition: top 0.5, left 0.5;
+    pointer-events: none;
+}
+
+.topLeft{
+    transform: translateX(-0%) translateY(-0%);
+    top: 1vmin;
+    left: 1vmin;
+    transition-delay: 0s;
+}
+
+.copyrightIcon i{
+    font-size: 4vmin;
+    pointer-events: none;
+}
+
+#imprint{
+    position: absolute;
+    width: 95%;
+    height: 90%;
+    top:5%;
+    left:2.5%;
+    overflow-x: hidden;
+    overflow-y: scroll;
+    transition: opacity 0.5s;
+    transition-delay: 0.4s;
+}
+
+.hidden{
+    opacity: 0;
+    transition-delay: 0s !important;
 }
