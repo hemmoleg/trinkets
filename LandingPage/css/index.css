@@ -183,9 +183,8 @@ body {
     height: 5vmin;
     right: 2vmin;
     bottom: 2vmin;
-    cursor: pointer;
 
-    background: wheat;
+    background: rgba(186,186,186,0.8);
 
     transition: width 0.5s ease-in-out, height 0.5s ease-in-out;
 }
@@ -193,42 +192,54 @@ body {
 .big{
     width: 90%;
     height: 90%;
+    cursor: default;
 }
 
 .copyrightIcon{
     position: relative;
-    top: 50%;
-    left: 50%;
-    height: 4vmin;
-    width: 4vmin;
-    transform: translateX(-50%) translateY(-50%);
-    transition-delay: 0.5s;
-    transition: top 0.5, left 0.5;
-    pointer-events: none;
+    height: 5vmin;
+    width: 5vmin;
+    cursor: pointer;
+    text-align: center;
 }
 
 .topLeft{
     transform: translateX(-0%) translateY(-0%);
-    top: 1vmin;
+    top: 0.5vmin;
     left: 1vmin;
     transition-delay: 0s;
 }
 
 .copyrightIcon i{
     font-size: 4vmin;
-    pointer-events: none;
+    position: relative;
+    top: 50%;
+    transform: translateY(-50%);
+}
+
+.clearIcon{
+    position: absolute;
+    top: 1vmin;
+    left: 6vmin;
+    height: 4vmin;
+    width: 4vmin;
+    cursor: pointer;
 }
 
 #imprint{
     position: absolute;
     width: 95%;
     height: 90%;
-    top:5%;
+    top: 6vmin;
     left:2.5%;
     overflow-x: hidden;
     overflow-y: scroll;
     transition: opacity 0.5s;
     transition-delay: 0.4s;
+}
+
+#imprint>h1{
+    -webkit-margin-before: 0px;
 }
 
 .hidden{

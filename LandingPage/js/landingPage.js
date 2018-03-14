@@ -53,7 +53,8 @@ window.onload = function()
     $('.linkContainer').mouseleave(onLeaveLinkContainer);
     $('body').mousemove(onMouseMove);
     
-    $('.imprintContainer').click(onClickImprintContainer);
+    $('.copyrightIcon').click(toggleImprint);
+    $('.clearIcon').click(toggleImprint);
 
     video.addEventListener('canplaythrough', onCanPlayThrough);
     video.addEventListener('timeupdate', curtainFall);
@@ -62,11 +63,12 @@ window.onload = function()
     loadNextVideo();
 }
 
-function onClickImprintContainer()
+function toggleImprint()
 {
     $('.imprintContainer').toggleClass('big');
     $('#imprint').toggleClass('hidden');
     $('.copyrightIcon').toggleClass('topLeft');
+    $('.clearIcon').toggleClass('hidden');
 }
 
 function saveDimensions()
