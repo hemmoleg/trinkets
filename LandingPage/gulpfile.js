@@ -4,7 +4,9 @@ var less = require('gulp-less');
 
 gulp.task('less', function() {
     gulp.src('css/*.less')
-        .pipe(less())
+        .pipe(less({
+            strictMath: 'on'
+        }))
         .pipe(gulp.dest(function(f) {
             return f.base;
         }))
