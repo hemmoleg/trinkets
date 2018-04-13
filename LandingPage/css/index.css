@@ -124,7 +124,7 @@ body {
 .linkContainer .border:first-child {
   transform: translateZ(-50px);
 }
-.linkContainer .border:nth-child(3) {
+.linkContainer .border:nth-child(4) {
   transform: translateZ(-25px);
   border-style: dashed;
 }
@@ -150,6 +150,20 @@ body {
   height: 100%;
   border: solid 1px white;
   border-radius: 4vmin;
+}
+.hint {
+  position: absolute;
+  top: -10%;
+  left: -5%;
+  width: 110%;
+  height: 140%;
+  background: rgba(255, 155, 41, 0.59);
+  transform: translateZ(-50px);
+  border-radius: 4vmin;
+}
+.hint p {
+  top: 78%;
+  opacity: 1;
 }
 .link {
   position: absolute;

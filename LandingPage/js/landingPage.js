@@ -46,6 +46,7 @@ window.onload = function()
     currentVideo = 1; 
     
     initCurtain();
+    hints();
 
     $( window ).resize(saveDimensions);
 
@@ -61,6 +62,15 @@ window.onload = function()
 
     currentVideo = 0;
     loadNextVideo();
+}
+
+function hints()
+{
+    TweenLite.set($('.hint'),{opacity:0} )
+    var tl = new TimelineMax({delay:1});
+    tl.add(TweenLite.to($('.hint')[0], 1, {opacity:1}));
+    tl.add(TweenLite.to($('.hint')[1], 1, {opacity:1}));
+    tl.add(TweenLite.to($('.hint')[2], 1, {opacity:1}));
 }
 
 function toggleImprint()
@@ -79,9 +89,11 @@ function saveDimensions()
 
 function onEnterLinkContainer(e)
 {
+    //hide hint p
+    TweenMax.to($(e.target.parentElement).find('.hint'), 0.2, {opacity:0, ease:Power1.easeInOut});
     TweenMax.to($(e.target.parentElement).find('.link'), 0.2, {z:-20, ease: Power1.easeInOut});
     //TweenMax.to($(e.target.parentElement).find('p'), 1, {opacity:1, ease:RoughEase.ease.config({points:15, strength:2, clamp:true})});
-    TweenMax.to($(e.target.parentElement).find('p'), 0.7, {opacity:1, ease:Power1.easeInOut});
+    TweenMax.to(e.target.parentElement.getElementsByTagName('p')[1], 0.7, {opacity:1, ease:Power1.easeInOut});
 }
 
 function onLeaveLinkContainer(e)
