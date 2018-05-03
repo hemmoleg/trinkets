@@ -11,5 +11,9 @@
     "gulp": "^3.9.1",
     "gulp-less": "^4.0.0",
     "gulp-sass": "^3.1.0"
+  },
+  "dependencies": {
+    "gulp-typescript": "^4.0.2",
+    "typescript": "^2.8.3"
   }
 }
