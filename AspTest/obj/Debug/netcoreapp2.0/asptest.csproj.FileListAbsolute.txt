@@ -1,0 +1,10 @@
+C:\Users\Yakuza\Desktop\Mobile\AspTest\bin\Debug\netcoreapp2.0\asptest.deps.json
+C:\Users\Yakuza\Desktop\Mobile\AspTest\bin\Debug\netcoreapp2.0\asptest.runtimeconfig.json
+C:\Users\Yakuza\Desktop\Mobile\AspTest\bin\Debug\netcoreapp2.0\asptest.runtimeconfig.dev.json
+C:\Users\Yakuza\Desktop\Mobile\AspTest\bin\Debug\netcoreapp2.0\asptest.dll
+C:\Users\Yakuza\Desktop\Mobile\AspTest\bin\Debug\netcoreapp2.0\asptest.pdb
+C:\Users\Yakuza\Desktop\Mobile\AspTest\obj\Debug\netcoreapp2.0\asptest.csproj.CoreCompileInputs.cache
+C:\Users\Yakuza\Desktop\Mobile\AspTest\obj\Debug\netcoreapp2.0\asptest.AssemblyInfoInputs.cache
+C:\Users\Yakuza\Desktop\Mobile\AspTest\obj\Debug\netcoreapp2.0\asptest.AssemblyInfo.cs
+C:\Users\Yakuza\Desktop\Mobile\AspTest\obj\Debug\netcoreapp2.0\asptest.dll
+C:\Users\Yakuza\Desktop\Mobile\AspTest\obj\Debug\netcoreapp2.0\asptest.pdb
