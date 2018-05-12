@@ -2,6 +2,7 @@
 using System.Collections.Generic;
 using System.Linq;
 using System.Threading.Tasks;
+using asptest.Controllers;
 using Microsoft.AspNetCore.Builder;
 using Microsoft.AspNetCore.Hosting;
 using Microsoft.Extensions.Configuration;
@@ -22,6 +23,9 @@ namespace asptest
         public void ConfigureServices(IServiceCollection services)
         {
             services.AddMvc();
+
+            //services.AddSingleton<IUserRepository>(() => new SQLiteUserRepository());
+            //services.AddSingleton<IUserRepository>(() => new MySQLUserRepository());
         }
 
         // This method gets called by the runtime. Use this method to configure the HTTP request pipeline.
@@ -35,6 +39,9 @@ namespace asptest
             app.UseDefaultFiles();
             app.UseStaticFiles();
             app.UseMvc();
+
+           MainController main = new MainController();
+           main.Main();
         }
     }
 }

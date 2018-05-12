@@ -22,12 +22,12 @@ var xhr = new XMLHttpRequest();
 
 function testQuery()
 {
-    xhr.open('POST', "https://dataretrival.azurewebsites.net/api/HttpTriggerJS1?code=Eaa0WOyz1zLfmHh3RU/UWJkreTt4XnUAaecsYOWXXWnovpdvYYDY3g==", true);
+    xhr.open('POST', "Function/GetSummonerInfo", true);
     xhr.onreadystatechange = processRequest;
     
     let endpoint = "euw1";
     let name = "hemmoleg";
-    let key = "RGAPI-cfffb811-c408-4294-ab4a-95a22b8adeae";
+    let key = "RGAPI-1d119a28-2a71-4b6c-a026-35605540f684";
 
     xhr.setRequestHeader("Content-Type", "application/json;charset=UTF-8");
     xhr.send(JSON.stringify({ "endpoint": endpoint, "name": name, "key": key}));

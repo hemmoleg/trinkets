@@ -12,11 +12,11 @@ function greeter(person) {
 }
 var xhr = new XMLHttpRequest();
 function testQuery() {
-    xhr.open('POST', "Function/GetData", true);
+    xhr.open('POST', "Function/GetSummonerInfo", true);
     xhr.onreadystatechange = processRequest;
     var endpoint = "euw1";
     var name = "hemmoleg";
-    var key = "RGAPI-cfffb811-c408-4294-ab4a-95a22b8adeae";
+    var key = "RGAPI-1d119a28-2a71-4b6c-a026-35605540f684";
     xhr.setRequestHeader("Content-Type", "application/json;charset=UTF-8");
     xhr.send(JSON.stringify({ "endpoint": endpoint, "name": name, "key": key }));
 }
@@ -43,3 +43,4 @@ window.onload = function () {
     document.body.innerHTML = greeter(user);
     testQuery();
 };
+//# sourceMappingURL=index.js.map
