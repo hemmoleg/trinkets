@@ -9,7 +9,6 @@
                 "build",
                 "${workspaceFolder}/asptest.csproj"
             ],
-            "problemMatcher": "$msCompile"
         }
     ]
 }

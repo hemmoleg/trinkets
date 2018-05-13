@@ -3,7 +3,6 @@ using System.Collections.Generic;
 using System.Threading.Tasks;
 using asptest.Models;
 using Microsoft.AspNetCore.Mvc;
-using RiotSharp.MatchEndpoint;
 
 namespace asptest.Controllers
 {
@@ -19,20 +18,23 @@ namespace asptest.Controllers
         public async Task Main()
         {
             riotApiRequester = new RiotApiRequester();
-            List<MatchList> riotApiMatches = await riotApiRequester.GetAllMatchesAsync();
+            //List<MatchList> riotApiMatches = await riotApiRequester.GetAllMatchesAsync();
+            //riotApiRequester.CheckLatestMatchesAsync();
 
             dbReader = new DBReader();
-            List<DBMatch> matchesFromDB = await dbReader.GetAllMatchesAsync();
-            
-            foreach(MatchList matches in riotApiMatches)
+            //List<DBMatch> matchesFromDB = await dbReader.GetAllMatchesAsync();
+            //dbReader.WriteStaticChampionData(riotApiRequester.GetStaticChampionDataAsync());
+            dbReader.WriteStaticChampionDataTest();
+
+            /*foreach(MatchList matches in riotApiMatches)
             {
                 await CompareGames(matches, matchesFromDB);
-            }
+            }*/
         
         
         }
 
-        private async Task CompareGames(MatchList apiMatchList, List<DBMatch> matchesFromDB)
+        /*private async Task CompareGames(MatchList apiMatchList, List<DBMatch> matchesFromDB)
         {
             int gamesNotFound = 0;
             Console.WriteLine($"Checking queueType {apiMatchList.Matches[0].Queue}");
@@ -47,6 +49,6 @@ namespace asptest.Controllers
                 }
             }
             Console.WriteLine($"Games not found: {gamesNotFound}");
-        }
+        }*/
     }
 }

@@ -13,29 +13,31 @@ namespace asptest.Controllers
     [Route("Function")]
     public class RiotApiRequester : Controller
     {
-        private IRiotClient riotClient;
+        private IRiotClient RiotClient;
         private long SummonerID;
         private long AccountID;
         public RiotApiRequester()
         {
-            RiotClient.DefaultPlatformId = PlatformId.EUW1;
-            RiotClient.DefaultSettings = () => new RiotClientSettings
+            RiotNet.RiotClient.DefaultPlatformId = PlatformId.EUW1;
+            RiotNet.RiotClient.DefaultSettings = () => new RiotClientSettings
             {
-                ApiKey = "00000000-0000-0000-0000-000000000000" // Replace this with your API key, of course.
+                ApiKey = "RGAPI-ae7df57d-2c0e-493b-8d2d-1d707f5eca0d"
             };
-            IRiotClient riotClient = new RiotClient(); // Now you don't need to pass the settings or platform ID parameters.    
+            
+            RiotClient = new RiotClient(); // Now you don't need to pass the settings or platform ID parameters.    
             SummonerID = 0; //20757027
             AccountID = 0;  //24045056
             //test game Id for short game 3629403670 (loss, lux, mid)
             try
             {
-                SummonerID = riotClient.GetSummonerBySummonerNameAsync("hemmoleg").Result.Id;
-                AccountID = riotClient.GetSummonerBySummonerNameAsync("hemmoleg").Result.AccountId;
+                SummonerID = RiotClient.GetSummonerBySummonerNameAsync("hemmoleg").Result.Id;
+                AccountID = RiotClient.GetSummonerBySummonerNameAsync("hemmoleg").Result.AccountId;
             }
             catch (RestException ex)
             {
                 Console.WriteLine("Could not get SummonerID! " + ex.Message);
             }
+            
         }
 
         [HttpPost("GetSummonerInfo")]
@@ -77,23 +79,58 @@ namespace asptest.Controllers
             //return new FileStreamResult(streamResult, result.Content.Headers.ContentType.MediaType);t
         }
 
-        public async Task<bool> CheckLastMatchWin()
+        public async void CheckLatestMatchesAsync()
         {
-            Match recentMatch = await riotClient.GetMatchAsync(3629403670);
+            MatchList recentMatches = null;
+            try
+            {
+                recentMatches = await RiotClient.GetMatchListByAccountIdAsync(AccountID);    
+            }
+            catch (RestException ex)
+            {
+                Console.WriteLine(ex.Message);
+            }
+            
+            int i = 0;
+            foreach(MatchReference matchReference in recentMatches.Matches)
+            {
+                if(i > 20) 
+                {
+                    Console.WriteLine("done!");
+                    return;
+                }
+                Console.WriteLine("Checking Match from " + matchReference.Timestamp);  
+                if(await CheckLastMatchWinAsync(matchReference.GameId))
+                {
+                    Console.WriteLine("It was a wim!");
+                }
+                else
+                {
+                    Console.WriteLine("Someone fet their ass off");
+                }
+                i++;
+            }
+            
+
+        }
+
+        public async Task<bool> CheckLastMatchWinAsync(long matchID)
+        {
+            //ParticipabtIdentity == Account
+            //Participant == actual champion and match related statistics
+
+            //matchID = 3629403670;
+            Match recentMatch = await RiotClient.GetMatchAsync(matchID);
             MatchTeam team = recentMatch.Teams[0];
             foreach(MatchParticipantIdentity identity in recentMatch.ParticipantIdentities)
             {
                 if(identity.Player.AccountId == AccountID)
                 {
-                    if(recentMatch.Participants[0])
-                    {
-
-                    }
+                    return recentMatch.Participants[identity.ParticipantId].Stats.Win;
                 }
             }
-            
-            //team.
-            return false;
+
+            throw new Exception("Current AccuntID (" + AccountID + ") not found in match! MatchId: " + matchID);
         }
 
         /*public async Task<List<MatchList>> GetAllMatchesAsync()
@@ -129,5 +166,11 @@ namespace asptest.Controllers
         
             return matches;
         }*/
+
+        public async Task<StaticChampionList> GetStaticChampionDataAsync()
+        {
+            return await RiotClient.GetStaticChampionsAsync(RiotNet.Models.Locale.en_US);
+        }
+
     }
 }
