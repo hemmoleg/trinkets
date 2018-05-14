@@ -3,6 +3,7 @@ using System.Collections.Generic;
 using System.Threading.Tasks;
 using asptest.Models;
 using Microsoft.AspNetCore.Mvc;
+using RiotNet.Models;
 
 namespace asptest.Controllers
 {
@@ -17,24 +18,25 @@ namespace asptest.Controllers
 
         public async Task Main()
         {
-            riotApiRequester = new RiotApiRequester();
-            //List<MatchList> riotApiMatches = await riotApiRequester.GetAllMatchesAsync();
-            //riotApiRequester.CheckLatestMatchesAsync();
-
             dbReader = new DBReader();
-            //List<DBMatch> matchesFromDB = await dbReader.GetAllMatchesAsync();
+            riotApiRequester = new RiotApiRequester();
+            riotApiRequester.DB = dbReader;
+            
+            
+            List<MatchList> riotApiMatches = await riotApiRequester.GetAllMatchesAsync();
+            //riotApiRequester.CheckLatestMatchesAsync();
+            
+            List<DBMatch> matchesFromDB = await dbReader.GetAllMatchesAsync();
             //dbReader.WriteStaticChampionData(riotApiRequester.GetStaticChampionDataAsync());
-            dbReader.WriteStaticChampionDataTest();
-
-            /*foreach(MatchList matches in riotApiMatches)
+            //dbReader.WriteStaticChampionDataTest();
+            
+            foreach(MatchList matches in riotApiMatches)
             {
                 await CompareGames(matches, matchesFromDB);
-            }*/
-        
-        
+            }
         }
 
-        /*private async Task CompareGames(MatchList apiMatchList, List<DBMatch> matchesFromDB)
+        private async Task CompareGames(MatchList apiMatchList, List<DBMatch> matchesFromDB)
         {
             int gamesNotFound = 0;
             Console.WriteLine($"Checking queueType {apiMatchList.Matches[0].Queue}");
@@ -49,6 +51,6 @@ namespace asptest.Controllers
                 }
             }
             Console.WriteLine($"Games not found: {gamesNotFound}");
-        }*/
+        }
     }
 }

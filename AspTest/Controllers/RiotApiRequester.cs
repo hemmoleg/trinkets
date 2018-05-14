@@ -13,6 +13,9 @@ namespace asptest.Controllers
     [Route("Function")]
     public class RiotApiRequester : Controller
     {
+        /////////////TO BE REMOVED////////////////
+        public DBReader DB {get; set;}
+
         private IRiotClient RiotClient;
         private long SummonerID;
         private long AccountID;
@@ -21,7 +24,7 @@ namespace asptest.Controllers
             RiotNet.RiotClient.DefaultPlatformId = PlatformId.EUW1;
             RiotNet.RiotClient.DefaultSettings = () => new RiotClientSettings
             {
-                ApiKey = "RGAPI-ae7df57d-2c0e-493b-8d2d-1d707f5eca0d"
+                ApiKey = "RGAPI-94b3953f-654a-425a-b2d6-cf5b91879270"
             };
             
             RiotClient = new RiotClient(); // Now you don't need to pass the settings or platform ID parameters.    
@@ -79,7 +82,7 @@ namespace asptest.Controllers
             //return new FileStreamResult(streamResult, result.Content.Headers.ContentType.MediaType);t
         }
 
-        public async void CheckLatestMatchesAsync()
+        public async Task<IActionResult> CheckLatestMatchesAsync()
         {
             MatchList recentMatches = null;
             try
@@ -97,8 +100,9 @@ namespace asptest.Controllers
                 if(i > 20) 
                 {
                     Console.WriteLine("done!");
-                    return;
+                    return null;
                 }
+                
                 Console.WriteLine("Checking Match from " + matchReference.Timestamp);  
                 if(await CheckLastMatchWinAsync(matchReference.GameId))
                 {
@@ -106,12 +110,13 @@ namespace asptest.Controllers
                 }
                 else
                 {
-                    Console.WriteLine("Someone fet their ass off");
+                    Console.WriteLine("Someone fed their ass off");
                 }
+                Console.WriteLine("");
                 i++;
             }
             
-
+            return null;
         }
 
         public async Task<bool> CheckLastMatchWinAsync(long matchID)
@@ -121,37 +126,35 @@ namespace asptest.Controllers
 
             //matchID = 3629403670;
             Match recentMatch = await RiotClient.GetMatchAsync(matchID);
-            MatchTeam team = recentMatch.Teams[0];
+            //MatchTeam team = recentMatch.Teams[0];
             foreach(MatchParticipantIdentity identity in recentMatch.ParticipantIdentities)
             {
                 if(identity.Player.AccountId == AccountID)
                 {
-                    return recentMatch.Participants[identity.ParticipantId].Stats.Win;
+                    Console.WriteLine("You played " + await DB.GetChampionNameById(recentMatch.Participants[identity.ParticipantId-1].ChampionId));
+                    return recentMatch.Participants[identity.ParticipantId-1].Stats.Win;
                 }
             }
 
             throw new Exception("Current AccuntID (" + AccountID + ") not found in match! MatchId: " + matchID);
         }
 
-        /*public async Task<List<MatchList>> GetAllMatchesAsync()
+        public async Task<List<MatchList>> GetAllMatchesAsync()
         {
             //this.HttpContext.RequestServices.GetService<IUserRepository>();
 
-            //List<int> queueTypes = new List<int>(){42, 400, 410, 420, 440};
-            //MatchList matches = await riotApi.GetMatchListAsync(Region.euw, AccountID, null, queueTypes);    
-
-            //MatchList matches42 = await GetMatchesByQueueType(Region.euw, AccountID, 42);
-            MatchList matches400 = await GetMatchesByQueueTypeAsync(Region.euw, AccountID, 400);
-            MatchList matches410 = await GetMatchesByQueueTypeAsync(Region.euw, AccountID, 410);
-            MatchList matches420 = await GetMatchesByQueueTypeAsync(Region.euw, AccountID, 420);
-            MatchList matches440 = await GetMatchesByQueueTypeAsync(Region.euw, AccountID, 440);
+            //MatchList matches42 = await GetMatchesByQueueTypeAsync(42);
+            MatchList matches400 = await GetMatchesByQueueTypeAsync(400);
+            MatchList matches410 = await GetMatchesByQueueTypeAsync(410);
+            MatchList matches420 = await GetMatchesByQueueTypeAsync(420);
+            MatchList matches440 = await GetMatchesByQueueTypeAsync(440);
 
             List<MatchList> matches = new List<MatchList>{matches400, matches410, matches420, matches440};
         
             return matches;
-        }*/
+        }
 
-        /*public async Task<MatchList> GetMatchesByQueueTypeAsync(Region region, long accountId, int queueType)
+        public async Task<MatchList> GetMatchesByQueueTypeAsync(int queueType)
         {
             int beginIndex = 0;
             MatchList matches = new MatchList();
@@ -159,17 +162,17 @@ namespace asptest.Controllers
             MatchList matchesTemp;
 
             do{
-                matchesTemp = await riotApi.GetMatchListAsync(region, accountId, null, new []{ queueType }.ToList(), null, null, null, beginIndex);
+                matchesTemp = await RiotClient.GetMatchListByAccountIdAsync(AccountID, null, new QueueType[] { (QueueType)queueType }, null, null, null, beginIndex);
                 matches.Matches = matches.Matches.Concat(matchesTemp.Matches).ToList();
                 beginIndex += 100;
             }while(matchesTemp.TotalGames > matches.Matches.Count());
         
             return matches;
-        }*/
+        }
 
         public async Task<StaticChampionList> GetStaticChampionDataAsync()
         {
-            return await RiotClient.GetStaticChampionsAsync(RiotNet.Models.Locale.en_US);
+            return await RiotClient.GetStaticChampionsAsync(RiotNet.Models.Locale.en_US, null, true);
         }
 
     }
