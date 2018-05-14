@@ -9,24 +9,23 @@ namespace asptest.Controllers
 {
     public class MainController : Controller
     {
-        private RiotApiRequester riotApiRequester;
-        private DBReader dbReader;
-        public MainController()
+        private readonly RiotApiRequester riotApiRequester;
+        private readonly DBReader dbReader;
+        // dependency incejtion, inversion of control
+        public MainController(DBReader dbReader, RiotApiRequester riotApiRequester)
         {
-
+            this.dbReader = dbReader;
+            this.riotApiRequester = riotApiRequester;
         }
 
         public async Task Main()
         {
-            dbReader = new DBReader();
-            riotApiRequester = new RiotApiRequester();
-            riotApiRequester.DB = dbReader;
+            //var dbReader =(DBReader) this.HttpContext.RequestServices.GetService(typeof(DBReader));
             
-            
-            List<MatchList> riotApiMatches = await riotApiRequester.GetAllMatchesAsync();
+            List<MatchList> riotApiMatches = await this.riotApiRequester.GetAllMatchesAsync();
             //riotApiRequester.CheckLatestMatchesAsync();
             
-            List<DBMatch> matchesFromDB = await dbReader.GetAllMatchesAsync();
+            List<DBMatch> matchesFromDB = await this.dbReader.GetAllMatchesAsync();
             //dbReader.WriteStaticChampionData(riotApiRequester.GetStaticChampionDataAsync());
             //dbReader.WriteStaticChampionDataTest();
             

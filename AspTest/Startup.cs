@@ -24,6 +24,9 @@ namespace asptest
         {
             services.AddMvc();
 
+            services.AddSingleton<DBReader>( s => new DBReader());
+            services.AddSingleton<RiotApiRequester>( s => new RiotApiRequester());
+
             //services.AddSingleton<IUserRepository>(() => new SQLiteUserRepository());
             //services.AddSingleton<IUserRepository>(() => new MySQLUserRepository());
         }
@@ -40,8 +43,9 @@ namespace asptest
             app.UseStaticFiles();
             app.UseMvc();
 
-           MainController main = new MainController();
-           main.Main();
+            MainController main = new MainController((DBReader) app.ApplicationServices.GetService(typeof(DBReader)), 
+                                                    (RiotApiRequester) app.ApplicationServices.GetService(typeof(RiotApiRequester)));
+            main.Main();
         }
     }
 }
