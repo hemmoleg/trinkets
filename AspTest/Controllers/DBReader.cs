@@ -9,17 +9,8 @@ using SQLite;
 
 namespace asptest.Controllers
 {
-    public class DBReader
-    {
-        private SQLiteAsyncConnection db;
-
-        public DBReader()
-        {
-            string databasePath = Path.Combine(Directory.GetCurrentDirectory(), "games_new.db");
-            db = new SQLiteAsyncConnection(databasePath);
-            
-        }
-
+    public class DBReader : DBAccessor
+    {   
         public async Task<List<DBMatch>> GetAllMatchesAsync()
         {
             //var query = db.Table<DBItem>().Where(v => v.name.StartsWith("A"));
@@ -58,16 +49,10 @@ namespace asptest.Controllers
 
         }
 
-        public async Task<bool> IsMatchFountAsync(long matchId)
+        public async Task<bool> IsMatchFoundAsync(long matchId)
         {
             List<DBMatch> matches = await db.QueryAsync<DBMatch> ("select * from match where gameId =?", matchId);
             return matches.Count > 0 ? true : false;
-        }
-
-        public async Task<String> GetChampionNameById(int championId)
-        {
-            List<DBStaticChampion> matches = await db.QueryAsync<DBStaticChampion> ("select * from staticChampion where id =?", championId);
-            return matches[0].Name;
         }
     }
 }

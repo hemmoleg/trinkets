@@ -1,8 +1,4 @@
-﻿using System;
-using System.Collections.Generic;
-using System.Linq;
-using System.Threading.Tasks;
-using asptest.Controllers;
+﻿using asptest.Controllers;
 using Microsoft.AspNetCore.Builder;
 using Microsoft.AspNetCore.Hosting;
 using Microsoft.Extensions.Configuration;
@@ -25,6 +21,7 @@ namespace asptest
             services.AddMvc();
 
             services.AddSingleton<DBReader>( s => new DBReader());
+            services.AddSingleton<DBWriter>( s => new DBWriter());
             services.AddSingleton<RiotApiRequester>( s => new RiotApiRequester());
 
             //services.AddSingleton<IUserRepository>(() => new SQLiteUserRepository());
@@ -43,9 +40,11 @@ namespace asptest
             app.UseStaticFiles();
             app.UseMvc();
 
-            MainController main = new MainController((DBReader) app.ApplicationServices.GetService(typeof(DBReader)), 
-                                                    (RiotApiRequester) app.ApplicationServices.GetService(typeof(RiotApiRequester)));
+            MainController main = new MainController((DBReader) app.ApplicationServices.GetService(typeof(DBReader)),
+                                                     (DBWriter) app.ApplicationServices.GetService(typeof(DBWriter)),  
+                                                     (RiotApiRequester) app.ApplicationServices.GetService(typeof(RiotApiRequester)));
             main.Main();
+            
         }
     }
 }
