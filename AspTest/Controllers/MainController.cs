@@ -17,6 +17,7 @@ namespace asptest.Controllers
     //IMAGES
     //https://discussion.developer.riotgames.com/questions/1556/is-there-a-way-to-get-champions-icon-image.html
 
+    //C:\Users\yakuz\Documents\LoLReplay2
     public class MainController : Controller
     {
         private readonly RiotApiRequester riotApiRequester;
@@ -52,11 +53,14 @@ namespace asptest.Controllers
 
             createTestDBMatch(riotApiMatches);
 
-            /*foreach (MatchList matches in riotApiMatches)
+            /*long biggestGameID = 0;
+            foreach (MatchList matches in riotApiMatches)
             {
-                await CompareGamesApiAgainstDB(matches, matchesFromDB);
-            }*/
-
+                var currentBiggestGameId = await compareGamesApiAgainstDB(matches, matchesFromDB);
+                if(biggestGameID < currentBiggestGameId) biggestGameID = currentBiggestGameId;
+            }
+            Console.WriteLine("Total largest missing gameId: " + biggestGameID);
+            */
             //CompareGamesDBAgainstApi(riotApiMatches, matchesFromDB);
         }
 
@@ -66,12 +70,14 @@ namespace asptest.Controllers
             {
                 foreach( MatchReference match in matcheList.Matches )
                 {
-                    if( match.GameId == 3634905799)
+                    if( match.GameId == 3642647853)
                     {
-                        var dbMatch =dbWriter.WriteMatchToDB(match, riotApiRequester.GetMatchByIDAsync(match.GameId).Result);
+                        dbWriter.WriteMatchToDB(match, riotApiRequester.GetMatchByIDAsync(match.GameId).Result);
+                        //dbWriter.WriteParticpantsToDB(match, riotApiRequester.GetMatchByIDAsync(match.GameId).Result);
                     }
                 }
             }
+            Console.WriteLine("Test data written");
         }
 
         private void CompareGamesDBAgainstApi(List<MatchList> riotApiMatches, List<DBMatch> matchesFromDB)
@@ -149,9 +155,10 @@ namespace asptest.Controllers
             Grades grades = JsonConvert.DeserializeObject<Grades>(streamResult);
         }
 
-        private async Task compareGamesApiAgainstDB(MatchList apiMatchList, List<DBMatch> dbMatchList)
+        private async Task<long> compareGamesApiAgainstDB(MatchList apiMatchList, List<DBMatch> dbMatchList)
         {
             int gamesNotFound = 0;
+            long biggestGameID = 0;
             Console.WriteLine($"Checking queueType {apiMatchList.Matches[0].Queue}");
             foreach (MatchReference match in apiMatchList.Matches)
             {
@@ -159,10 +166,13 @@ namespace asptest.Controllers
                 if (!matchFound)
                 {
                     Console.WriteLine($"Match {match.GameId} not found in DB!");
+                    if(match.GameId > biggestGameID) biggestGameID = match.GameId;
                     gamesNotFound++;
                 }
             }
             Console.WriteLine($"Games not found: {gamesNotFound}");
+            Console.WriteLine("Largest missing gameId: " + biggestGameID);
+            return biggestGameID;
         }
     }
 }

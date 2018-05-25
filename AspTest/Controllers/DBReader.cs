@@ -36,19 +36,6 @@ namespace asptest.Controllers
             return test;// db.QueryAsync<DBMatch> ("select * from match where queueType IN('TEAM_BUILDER_DRAFT_UNRANKED_5x5', 'TEAM_BUILDER_DRAFT_RANKED_5x5', 'RANKED_TEAM_5x5', 'RANKED_SOLO_5x5', 'RANKED_FLEX_SR')");
         }
 
-        //TODO move to DBWriter
-        internal void WriteStaticChampionData(Task<StaticChampionList> task)
-        {
-            StaticChampionList champs = task.Result;
-            DBStaticChampion tempChamp;
-            foreach(KeyValuePair<String, StaticChampion> kvp in champs.Data)
-            {
-                tempChamp = new DBStaticChampion(kvp.Value);
-                Console.WriteLine("Write db: " + db.InsertAsync(tempChamp).Result + " inserted " + tempChamp.Name);
-            }
-
-        }
-
         public async Task<bool> IsMatchFoundAsync(long matchId)
         {
             List<DBMatch> matches = await db.QueryAsync<DBMatch> ("select * from match where gameId =?", matchId);
