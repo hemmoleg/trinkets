@@ -1,10 +1,12 @@
+using SQLite;
+
 namespace asptest.Models
 {
-    [SQLite.Table ("item")]
+    [Table("item")]
     public class DBItem
     {
-        [SQLite.Column ("id")]
-        public int Id { get; set; }
+        [Column("id")] public int Id { get; set; }
+
         public string name { get; set; }
         public bool final { get; set; }
         public bool consumable { get; set; }

@@ -1,10 +1,12 @@
+using SQLite;
+
 namespace asptest.Models
 {
-    [SQLite.Table ("participant")]
+    [Table("participant")]
     public class DBParticipant
     {
-        public int gameId {get; set;}
-        public string region{get; set;}
+        public int gameId { get; set; }
+        public string region { get; set; }
         public int participantId { get; set; }
         public int teamId { get; set; }
         public int championId { get; set; }
@@ -70,7 +72,7 @@ namespace asptest.Models
         public int killingSprees { get; set; }
         public int totalUnitsHealed { get; set; }
         public int totalTimeCrowdControlDealt { get; set; }
-        
+
         //NOT used in lolreplayDB
         /*public int visionScore { get; set; }
         public int longestTimeSpentLiving { get; set; }

@@ -38,5 +38,4 @@ namespace asptest.Models
         public int originalAccountId { get; set; }
         public string originalPlatformId { get; set; }
     }
-
 }

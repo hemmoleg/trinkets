@@ -3,8 +3,8 @@ using System.Collections.Generic;
 using System.Diagnostics;
 using System.IO;
 using System.Linq;
-using System.Net;
 using System.Net.Http;
+using System.Net.Http.Headers;
 using System.Text;
 using System.Threading.Tasks;
 using asptest.Models;
@@ -19,9 +19,11 @@ namespace asptest.Controllers
 
     public class MainController : Controller
     {
-        private readonly RiotApiRequester riotApiRequester;
         private readonly DBReader dbReader;
         private readonly DBWriter dbWriter;
+
+        private readonly RiotApiRequester riotApiRequester;
+
         // dependency incejtion, inversion of control
         public MainController(DBReader dbReader, DBWriter dbWriter, RiotApiRequester riotApiRequester)
         {
@@ -37,10 +39,10 @@ namespace asptest.Controllers
         {
             //var dbReader =(DBReader) this.HttpContext.RequestServices.GetService(typeof(DBReader));
 
-            List<MatchList> riotApiMatches = await this.riotApiRequester.GetAllMatchesAsync();
+            var riotApiMatches = await riotApiRequester.GetAllMatchesAsync();
             //riotApiRequester.CheckLatestMatchesAsync();
 
-            List<DBMatch> matchesFromDB = await this.dbReader.GetAllMatchesAsync();
+            var matchesFromDB = await dbReader.GetAllMatchesAsync();
             //dbReader.WriteStaticChampionData(riotApiRequester.GetStaticChampionDataAsync());
             //dbReader.WriteStaticChampionDataTest();
 
@@ -62,44 +64,42 @@ namespace asptest.Controllers
 
         private void createTestDBMatch(List<MatchList> riotApiMatches)
         {
-            foreach( MatchList matcheList in riotApiMatches )
-            {
-                foreach( MatchReference match in matcheList.Matches )
+            foreach (var matcheList in riotApiMatches)
+            foreach (var match in matcheList.Matches)
+                if (match.GameId == 3634905799)
                 {
-                    if( match.GameId == 3634905799)
-                    {
-                        var dbMatch =dbWriter.WriteMatchToDB(match, riotApiRequester.GetMatchByIDAsync(match.GameId).Result);
-                    }
+                    var dbMatch =
+                        dbWriter.WriteMatchToDB(match, riotApiRequester.GetMatchByIDAsync(match.GameId).Result);
                 }
-            }
         }
 
         private void CompareGamesDBAgainstApi(List<MatchList> riotApiMatches, List<DBMatch> matchesFromDB)
         {
-            bool matchFound = false;
-            int gamesNotFound = 0;
-            foreach(DBMatch dbMatch in matchesFromDB)
+            var matchFound = false;
+            var gamesNotFound = 0;
+            foreach (var dbMatch in matchesFromDB)
             {
                 Console.WriteLine($"Checking match id: {dbMatch.ID}");
                 matchFound = false;
-                foreach (MatchList matcheList in riotApiMatches)
+                foreach (var matcheList in riotApiMatches)
                 {
-                    foreach (MatchReference match in matcheList.Matches)
-                    {
-                        if(dbMatch.GameId == match.GameId)
+                    foreach (var match in matcheList.Matches)
+                        if (dbMatch.GameId == match.GameId)
                         {
                             matchFound = true;
                             break;
                         }
-                    }
-                    if(matchFound) break;
+
+                    if (matchFound) break;
                 }
-                if(!matchFound)
+
+                if (!matchFound)
                 {
                     Console.WriteLine($"Match {dbMatch.ID} not found in DB!");
                     gamesNotFound++;
                 }
             }
+
             Console.WriteLine($"Games not found: {gamesNotFound}");
         }
 
@@ -107,31 +107,33 @@ namespace asptest.Controllers
         {
             //find lockfile
             var procList = Process.GetProcesses().Where(process => process.ProcessName.Contains("League"));
-            string lockfilePath = "";
-            string[] texts = null; 
+            var lockfilePath = "";
+            string[] texts = null;
             string port = null;
             string key = null;
             foreach (var process in procList)
             {
-                string completePath = Path.GetDirectoryName(process.MainModule.FileName);
-                if(process.ProcessName == "LeagueClient")
+                var completePath = Path.GetDirectoryName(process.MainModule.FileName);
+                if (process.ProcessName == "LeagueClient")
                 {
                     Console.WriteLine("Path is: " + completePath.Substring(0, completePath.IndexOf("RADS")));
                     lockfilePath = completePath.Substring(0, completePath.IndexOf("RADS")) + "lockfile";
 
-                    if(!System.IO.File.Exists(lockfilePath))
+                    if (!System.IO.File.Exists(lockfilePath))
                         return;
-                       
+
                     Console.WriteLine("lockfile exists");
-                    
+
                     string text = null;
-                    using (var stream = System.IO.File.Open(lockfilePath, FileMode.Open, FileAccess.Read, FileShare.ReadWrite))
+                    using (var stream = System.IO.File.Open(lockfilePath, FileMode.Open, FileAccess.Read,
+                        FileShare.ReadWrite))
                     {
-                        StreamReader reader = new StreamReader(stream);
+                        var reader = new StreamReader(stream);
                         text = await reader.ReadToEndAsync();
                     }
+
                     texts = text.Split(":");
-                    
+
                     port = texts[2];
                     key = texts[3];
                     Console.WriteLine("port: " + port + " key: " + key);
@@ -140,28 +142,34 @@ namespace asptest.Controllers
                 }
             }
 
-            var httpClient = new HttpClient(new HttpClientHandler() { ServerCertificateCustomValidationCallback = (a, b, c, d) => true });
+            var httpClient =
+                new HttpClient(new HttpClientHandler
+                {
+                    ServerCertificateCustomValidationCallback = (a, b, c, d) => true
+                });
             var byteArray = Encoding.ASCII.GetBytes("riot:" + key);
-            httpClient.DefaultRequestHeaders.Authorization = new System.Net.Http.Headers.AuthenticationHeaderValue("Basic", Convert.ToBase64String(byteArray));
-            
+            httpClient.DefaultRequestHeaders.Authorization =
+                new AuthenticationHeaderValue("Basic", Convert.ToBase64String(byteArray));
+
             var result = await httpClient.GetAsync("https://127.0.0.1:" + port + "/lol-match-history/v1/delta");
             var streamResult = await result.Content.ReadAsStringAsync();
-            Grades grades = JsonConvert.DeserializeObject<Grades>(streamResult);
+            var grades = JsonConvert.DeserializeObject<Grades>(streamResult);
         }
 
         private async Task compareGamesApiAgainstDB(MatchList apiMatchList, List<DBMatch> dbMatchList)
         {
-            int gamesNotFound = 0;
+            var gamesNotFound = 0;
             Console.WriteLine($"Checking queueType {apiMatchList.Matches[0].Queue}");
-            foreach (MatchReference match in apiMatchList.Matches)
+            foreach (var match in apiMatchList.Matches)
             {
-                bool matchFound = await dbReader.IsMatchFoundAsync(match.GameId);
+                var matchFound = await dbReader.IsMatchFoundAsync(match.GameId);
                 if (!matchFound)
                 {
                     Console.WriteLine($"Match {match.GameId} not found in DB!");
                     gamesNotFound++;
                 }
             }
+
             Console.WriteLine($"Games not found: {gamesNotFound}");
         }
     }
