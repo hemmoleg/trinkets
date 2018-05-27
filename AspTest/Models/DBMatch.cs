@@ -1,3 +1,5 @@
+using System;
+using RiotNet.Models;
 using SQLite;
 
 namespace asptest.Models
@@ -21,6 +23,7 @@ namespace asptest.Models
         public string Season {get; set;} //season -> MathReference.Season
         
         [SQLite.Column ("id")]
+        [SQLite.PrimaryKey]
         public int ID{get; set;} //id -> get biggest id and increment
         
         [SQLite.Column ("duration")]
@@ -65,5 +68,26 @@ namespace asptest.Models
 
         //TODO add MatchReference.Lane
         //TODO add MatchReference.Role
+
+        public static DBMatch CreateFromApi( MatchReference matchReference, Match match )
+        {
+            return new DBMatch
+            {
+                GameId = matchReference.GameId,
+                Region = matchReference.PlatformId.Substring(0,3),
+                Creation = (long) ( matchReference.Timestamp.ToLocalTime() - new DateTime( 1970, 1, 1 ) ).TotalMilliseconds,
+
+                QueueType = Enum.GetName( typeof( QueueType ), matchReference.Queue ),
+                Season = Enum.GetName( typeof( Season ), matchReference.Season ),
+                //id
+                Duration = (int) match.GameDuration.TotalSeconds,
+                MapId = match.MapId,
+                Version = match.GameVersion,
+                WinningTeam = match.Teams[ 0 ].Win ? 1 : 2,
+                Uploaded = false,
+                ReplayName = "no_replay",
+                Grade = "C",
+            };
+        }
     }
 }

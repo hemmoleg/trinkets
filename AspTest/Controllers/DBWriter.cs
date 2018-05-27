@@ -10,29 +10,14 @@ namespace asptest.Controllers
     {
         public void WriteMatchToDB(MatchReference matchRef, Match match)
         {
-            var dbMatch = new DBMatch
-            {
-                GameId = matchRef.GameId,
-                Region = matchRef.PlatformId,
-                Creation = (long)( matchRef.Timestamp.ToLocalTime() - new DateTime( 1970, 1, 1 ) ).TotalMilliseconds,
-
-                QueueType = Enum.GetName( typeof( QueueType ), matchRef.Queue ),
-                Season = Enum.GetName( typeof( Season ), matchRef.Season ),
-                //id
-                Duration = (int) match.GameDuration.TotalSeconds,
-                MapId = match.MapId,
-                Version = match.GameVersion,
-                UserIndex = getUserIndex(match),
-                WinningTeam = match.Teams[0].Win ? 1 : 2,
-                Outcome = match.Participants[getUserIndex(match)].Stats.Win ? 1 : 2,
-                Team1Bans = getBannedChampsAsString(match, 0),
-                Team2Bans = getBannedChampsAsString(match, 1),
-                Title = getTitle(match),
-                Uploaded = false,
-                ReplayName = "no_replay",
-                Grade = "C"
-            };
+            var dbMatch = DBMatch.CreateFromApi(matchRef, match);
+            dbMatch.UserIndex = getUserIndex(match) + 1;
+            dbMatch.Outcome = match.Participants[getUserIndex(match)].Stats.Win ? 1 : 2;
+            dbMatch.Team1Bans = getBannedChampsAsString(match, 0);
+            dbMatch.Team2Bans = getBannedChampsAsString(match, 1);
+            dbMatch.Title = getTitle(match);
             dbMatch.ID = GetBiggestIdAsync().Result + 1;
+            
 
             //temp fix season
             if(dbMatch.Season == null)
@@ -43,114 +28,73 @@ namespace asptest.Controllers
                     dbMatch.Season = "SEASON2018";
             }
 
-
             try
             {
-                Console.WriteLine("Write dbMatch: " + db.InsertAsync(dbMatch).Result);
+                Console.WriteLine("Write dbMatch: " + DB.InsertAsync(dbMatch).Result);
             }
             catch(Exception ex)
             {
-                Console.WriteLine("Could not write to db: " + ex.Message);
+                Console.WriteLine("Could not write dbMatch to db: " + ex.Message);
             }
 
-            WriteParticpantsToDB(matchRef, match);
+            writeParticpantsToDB(matchRef, match);
         }
 
-        private void WriteParticpantsToDB(MatchReference matchRef, Match match)
+        public DBMatch CreateDBMatch( MatchReference matchReference, Match match )
+        {
+            var dbMatch = DBMatch.CreateFromApi( matchReference, match );
+            dbMatch.UserIndex = getUserIndex( match ) + 1;
+            dbMatch.Outcome = match.Participants[ getUserIndex( match ) ].Stats.Win ? 1 : 2;
+            dbMatch.Team1Bans = getBannedChampsAsString( match, 0 );
+            dbMatch.Team2Bans = getBannedChampsAsString( match, 1 );
+            dbMatch.Title = getTitle( match );
+            dbMatch.ID = GetBiggestIdAsync().Result + 1;
+
+
+            //temp fix season
+            if( dbMatch.Season == null )
+            {
+                if( (int) matchReference.Season == 10 )
+                    dbMatch.Season = "PRESEASON2018";
+                if( (int) matchReference.Season == 11 )
+                    dbMatch.Season = "SEASON2018";
+            }
+
+            return dbMatch;
+        }
+
+        private void writeParticpantsToDB(MatchReference matchRef, Match match)
         {
             var counter = 0;
             foreach(var matchParticipant in match.Participants)
             {
-                var dbParticipant = new DBParticipant();
-                
-                dbParticipant.gameId = match.GameId;
-                dbParticipant.region = matchRef.PlatformId;
-                dbParticipant.participantId = matchParticipant.ParticipantId;
-                dbParticipant.teamId = (int)matchParticipant.TeamId;
-                dbParticipant.championId = matchParticipant.ChampionId;
-                dbParticipant.spell1Id = matchParticipant.Spell1Id;
-                dbParticipant.spell2Id = matchParticipant.Spell2Id;
-                dbParticipant.name = match.ParticipantIdentities[matchParticipant.ParticipantId - 1].Player.SummonerName;
-                dbParticipant.championName = GetChampionNameByIdAsync(matchParticipant.ChampionId).Result;
-                dbParticipant.winner = matchParticipant.Stats.Win;
-                dbParticipant.champLevel = matchParticipant.Stats.ChampLevel;
-                dbParticipant.item0 = matchParticipant.Stats.Item0;
-                dbParticipant.item1 = matchParticipant.Stats.Item1;
-                dbParticipant.item2 = matchParticipant.Stats.Item2;
-                dbParticipant.item3 = matchParticipant.Stats.Item3;
-                dbParticipant.item4 = matchParticipant.Stats.Item4;
-                dbParticipant.item5 = matchParticipant.Stats.Item5;
-                dbParticipant.item6 = matchParticipant.Stats.Item6;
-                dbParticipant.kills = matchParticipant.Stats.Kills;
-                dbParticipant.doubleKills = matchParticipant.Stats.DoubleKills;
-                dbParticipant.tripleKills = matchParticipant.Stats.TripleKills;
-                dbParticipant.quadraKills = matchParticipant.Stats.QuadraKills;
-                dbParticipant.pentaKills = matchParticipant.Stats.PentaKills;
-                dbParticipant.unrealKills = matchParticipant.Stats.UnrealKills;
-                dbParticipant.largestKillingSpree = matchParticipant.Stats.LargestKillingSpree;
-                dbParticipant.deaths = matchParticipant.Stats.Deaths;
-                dbParticipant.assists = matchParticipant.Stats.Assists;
-                dbParticipant.totalDamageDealt = matchParticipant.Stats.TotalDamageDealt;
-                dbParticipant.totalDamageDealtToChampions = matchParticipant.Stats.TotalDamageDealtToChampions;
-                dbParticipant.totalDamageTaken = matchParticipant.Stats.TotalDamageTaken;
-                dbParticipant.largestCriticalStrike = matchParticipant.Stats.LargestCriticalStrike;
-                dbParticipant.totalHeal = matchParticipant.Stats.TotalHeal;
-                dbParticipant.minionsKilled = matchParticipant.Stats.TotalMinionsKilled;
-                dbParticipant.neutralMinionsKilled = matchParticipant.Stats.NeutralMinionsKilled;
-                dbParticipant.neutralMinionsKilledTeamJungle = matchParticipant.Stats.NeutralMinionsKilledTeamJungle;
-                dbParticipant.neutralMinionsKilledEnemyJungle = matchParticipant.Stats.NeutralMinionsKilledEnemyJungle;
-                dbParticipant.goldEarned = matchParticipant.Stats.GoldEarned;
-                dbParticipant.goldSpent = matchParticipant.Stats.GoldSpent;
-                dbParticipant.combatPlayerScore = matchParticipant.Stats.CombatPlayerScore;
-                dbParticipant.objectivePlayerScore = matchParticipant.Stats.ObjectivePlayerScore;
-                dbParticipant.totalPlayerScore = matchParticipant.Stats.TotalPlayerScore;
-                dbParticipant.totalScoreRank = matchParticipant.Stats.TotalScoreRank;
-                dbParticipant.magicDamageDealtToChampions = matchParticipant.Stats.MagicDamageDealtToChampions;
-                dbParticipant.physicalDamageDealtToChampions = matchParticipant.Stats.PhysicalDamageDealtToChampions;
-                dbParticipant.trueDamageDealtToChampions = matchParticipant.Stats.TrueDamageDealtToChampions;
-                dbParticipant.visionWardsBoughtInGame = matchParticipant.Stats.VisionWardsBoughtInGame;
-                dbParticipant.sightWardsBoughtInGame = matchParticipant.Stats.SightWardsBoughtInGame;
-                dbParticipant.magicDamageDealt = matchParticipant.Stats.MagicDamageDealt;
-                dbParticipant.physicalDamageDealt = matchParticipant.Stats.PhysicalDamageDealt;
-                dbParticipant.trueDamageDealt = matchParticipant.Stats.TrueDamageDealt;
-                dbParticipant.magicDamageTaken = matchParticipant.Stats.MagicalDamageTaken;
-                dbParticipant.physicalDamageTaken = matchParticipant.Stats.PhysicalDamageTaken;
-                dbParticipant.trueDamageTaken = matchParticipant.Stats.TrueDamageTaken;
-                dbParticipant.firstBloodKill = matchParticipant.Stats.FirstBloodKill;
-                dbParticipant.firstBloodAssist = matchParticipant.Stats.FirstBloodAssist;
-                dbParticipant.firstTowerKill = matchParticipant.Stats.FirstTowerKill;
-                dbParticipant.firstTowerAssist = matchParticipant.Stats.FirstTowerAssist;
-                dbParticipant.firstInhibitorKill = matchParticipant.Stats.FirstInhibitorKill;
-                dbParticipant.firstInhibitorAssist = matchParticipant.Stats.FirstInhibitorAssist;
-                dbParticipant.inhibitorKills = matchParticipant.Stats.InhibitorKills;
-                dbParticipant.towerKills = matchParticipant.Stats.TowerKills;
-                dbParticipant.wardsPlaced = matchParticipant.Stats.WardsPlaced;
-                dbParticipant.wardsKilled = matchParticipant.Stats.WardsKilled;
-                dbParticipant.largestMultiKill = matchParticipant.Stats.LargestMultiKill;
-                dbParticipant.killingSprees = matchParticipant.Stats.KillingSprees;
-                dbParticipant.totalUnitsHealed = matchParticipant.Stats.TotalUnitsHealed;
-                dbParticipant.totalTimeCrowdControlDealt = matchParticipant.Stats.TotalTimeCrowdControlDealt;
+                var dbParticipant = DBParticipant.CreateFromApi(matchRef, match,
+                    GetChampionNameByIdAsync(matchParticipant.ChampionId).Result, matchParticipant);
             
                 try
                 {
-                    Console.WriteLine("Write dbParticipant " + counter + ": " + db.InsertAsync(dbParticipant).Result);
+                    Console.WriteLine("Write dbParticipant " + counter + ": " + DB.InsertAsync(dbParticipant).Result);
                 }
                 catch(Exception ex)
                 {
-                    Console.WriteLine("Could not write to db: " + ex.Message);
+                    Console.WriteLine("Could not write dbParticipant to db: " + ex.Message);
                 }
                 counter++;
             }
         }
 
+        internal void CreateTableStaticChampion()
+        {
+            DB.CreateTableAsync<DBStaticChampion>();
+        }
+
         internal void WriteStaticChampionData(Task<StaticChampionList> task)
         {
             StaticChampionList champs = task.Result;
-            DBStaticChampion tempChamp;
             foreach(KeyValuePair<String, StaticChampion> kvp in champs.Data)
             {
-                tempChamp = new DBStaticChampion(kvp.Value);
-                Console.WriteLine("Write db: " + db.InsertAsync(tempChamp).Result + " inserted " + tempChamp.Name);
+                var tempChamp = new DBStaticChampion(kvp.Value);
+                Console.WriteLine("Write db: " + DB.InsertAsync(tempChamp).Result + " inserted " + tempChamp.Name);
             }
 
         }
@@ -176,6 +120,27 @@ namespace asptest.Controllers
             var bannedChampions = "";
             foreach (var bannedChampion in match.Teams[team].Bans) bannedChampions += bannedChampion.ChampionId + ",";
             return bannedChampions;
+        }
+
+        public void RemoveMatch(DBMatch match)
+        {
+            //var deletedMatches = await DB.DeleteAsync(match);
+            var x = DB.ExecuteAsync( "DELETE FROM match WHERE id = ?", match.ID ).Result;
+            Console.WriteLine("Deleted " + x + " matches ID: " + match.ID);
+
+            x = DB.ExecuteAsync( "DELETE FROM event WHERE gameId = ?", match.GameId ).Result;
+            Console.WriteLine( "Deleted " + x + " events ID: " + match.ID );
+
+            x = DB.ExecuteAsync( "DELETE FROM filter WHERE gameId = ?", match.GameId ).Result;
+            Console.WriteLine( "Deleted " + x + " filters ID: " + match.ID );
+
+            x = DB.ExecuteAsync( "DELETE FROM participant WHERE gameId = ?", match.GameId ).Result;
+            Console.WriteLine( "Deleted " + x + " participants ID: " + match.ID );
+
+            x = DB.ExecuteAsync( "DELETE FROM participantFrame WHERE gameId = ?", match.GameId ).Result;
+            Console.WriteLine( "Deleted " + x + " participantFrame ID: " + match.ID );
+
+            Console.WriteLine("Removed all traces of match.ID: " + match.ID);
         }
     }
 }

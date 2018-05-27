@@ -38,6 +38,10 @@ namespace asptest.Controllers
 
         public async Task Main()
         {
+            //validateDatabase();
+
+            //removeNewChampionAsync();
+
             //var dbReader =(DBReader) this.HttpContext.RequestServices.GetService(typeof(DBReader));
 
             var riotApiMatches = await riotApiRequester.GetAllMatchesAsync();
@@ -48,32 +52,61 @@ namespace asptest.Controllers
             //dbReader.WriteStaticChampionDataTest();
 
 
-            var id = await dbReader.GetBiggestIdAsync();
-            Debug.WriteLine("Biggest id: " + id);
+            //var id = await dbReader.GetBiggestIdAsync();
+            //Debug.WriteLine("Biggest id: " + id);
+            //Debug.WriteLine("Games as Ekko: " + await dbReader.GetGamesAsChampionAsync("Ekko"));
 
-            Debug.WriteLine("Games as Ekko: " + await dbReader.GetGamesAsChampionAsync("Ekko"));
+            //writeTestDBMatch(riotApiMatches);
 
-            createTestDBMatch(riotApiMatches);
+            var matchReferences = await compareGamesApiAgainstDB(riotApiMatches, matchesFromDB);
+            writeAllMissingGamesToDB(matchReferences);
 
-            /*long biggestGameID = 0;
-            foreach (MatchList matches in riotApiMatches)
-            {
-                var currentBiggestGameId = await compareGamesApiAgainstDB(matches, matchesFromDB);
-                if(biggestGameID < currentBiggestGameId) biggestGameID = currentBiggestGameId;
-            }
-            Console.WriteLine("Total largest missing gameId: " + biggestGameID);
-            */
             //CompareGamesDBAgainstApi(riotApiMatches, matchesFromDB);
         }
 
-        private void createTestDBMatch(List<MatchList> riotApiMatches)
+        private void writeAllMissingGamesToDB(List<MatchReference> matchReferences)
+        {
+            var counter = 0;
+            foreach (var matchReference in matchReferences)
+            {
+                dbWriter.WriteMatchToDB(matchReference,
+                            riotApiRequester.GetMatchByIDAsync(matchReference.GameId).Result);
+                counter++;
+                Console.WriteLine( "Written matches: " + counter );
+            }
+            Console.WriteLine("Wrote all missing games to db");
+        }
+
+        private async void removeNewChampionAsync()
+        {
+            var matchesFromDB = await dbReader.GetAllMatchesAsync();
+            foreach (var match in matchesFromDB)
+            {
+                if( match.Title.Contains( "New champion" ) )
+                {
+                    dbWriter.RemoveMatch(match);
+                }
+            }
+        }
+
+        private async void validateDatabase()
+        {
+            if( ! await dbReader.IsStaticChampionDBValid() )
+            {
+                dbWriter.CreateTableStaticChampion();
+                dbWriter.WriteStaticChampionData( riotApiRequester.GetStaticChampionDataAsync() );
+            }
+
+            dbReader.IsDatabaseValidAsync();
+        }
+
+        private void writeTestDBMatch(List<MatchList> riotApiMatches)
         {
             foreach (var matcheList in riotApiMatches)
             foreach (var match in matcheList.Matches)
-                if (match.GameId == 3634905799)
+                if (match.GameId == 3614786597 )
                 {
-                    var dbMatch =
-                        dbWriter.WriteMatchToDB(match, riotApiRequester.GetMatchByIDAsync(match.GameId).Result);
+                   dbWriter.WriteMatchToDB(match, riotApiRequester.GetMatchByIDAsync(match.GameId).Result);
                 }
         }
 
@@ -85,9 +118,9 @@ namespace asptest.Controllers
             {
                 Console.WriteLine($"Checking match id: {dbMatch.ID}");
                 matchFound = false;
-                foreach (var matcheList in riotApiMatches)
+                foreach (var matchList in riotApiMatches)
                 {
-                    foreach (var match in matcheList.Matches)
+                    foreach (var match in matchList.Matches)
                         if (dbMatch.GameId == match.GameId)
                         {
                             matchFound = true;
@@ -160,24 +193,23 @@ namespace asptest.Controllers
             var grades = JsonConvert.DeserializeObject<Grades>(streamResult);
         }
 
-        private async Task<long> compareGamesApiAgainstDB(MatchList apiMatchList, List<DBMatch> dbMatchList)
+        private async Task<List<MatchReference>> compareGamesApiAgainstDB(List<MatchList> riotApiMatches, List<DBMatch> dbMatchList)
         {
-            var gamesNotFound = 0;
-            Console.WriteLine($"Checking queueType {apiMatchList.Matches[0].Queue}");
-            foreach (var match in apiMatchList.Matches)
+            var matchRefsNotFound = new List<MatchReference>();
+            foreach (MatchList matchList in riotApiMatches)
             {
-                var matchFound = await dbReader.IsMatchFoundAsync(match.GameId);
-                if (!matchFound)
+                Console.WriteLine($"Checking queueType {matchList.Matches[0].Queue}");
+                foreach (var match in matchList.Matches)
                 {
+                    var matchFound = await dbReader.IsMatchFoundAsync(match.GameId);
+                    if (matchFound) continue;
                     Console.WriteLine($"Match {match.GameId} not found in DB!");
-                    if(match.GameId > biggestGameID) biggestGameID = match.GameId;
-                    gamesNotFound++;
+                    matchRefsNotFound.Add(match);
                 }
             }
 
-            Console.WriteLine($"Games not found: {gamesNotFound}");
-            Console.WriteLine("Largest missing gameId: " + biggestGameID);
-            return biggestGameID;
+            Console.WriteLine($"Games not found: {matchRefsNotFound.Count}");
+            return matchRefsNotFound;
         }
     }
 }

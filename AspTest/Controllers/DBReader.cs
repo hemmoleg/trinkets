@@ -29,29 +29,43 @@ namespace asptest.Controllers
             //var queryQueueType = await db.QueryAsync<DBMatch> ("select season from match where season IN ('SEASON2017', 'PRESEASON2017')");
             //var queryQueueType2 = await db.QueryAsync<DBMatch> ("select season from match where season IN ('SEASON2017')");
 
-            var test = await db.QueryAsync<DBMatch>(
+            var test = await DB.QueryAsync<DBMatch>(
                 "select * from match where queueType IN('TEAM_BUILDER_DRAFT_UNRANKED_5x5', 'TEAM_BUILDER_DRAFT_RANKED_5x5', 'RANKED_TEAM_5x5', 'RANKED_SOLO_5x5', 'RANKED_FLEX_SR')");
             return
                 test; // db.QueryAsync<DBMatch> ("select * from match where queueType IN('TEAM_BUILDER_DRAFT_UNRANKED_5x5', 'TEAM_BUILDER_DRAFT_RANKED_5x5', 'RANKED_TEAM_5x5', 'RANKED_SOLO_5x5', 'RANKED_FLEX_SR')");
         }
 
-        //TODO move to DBWriter
-        internal void WriteStaticChampionData(Task<StaticChampionList> task)
-        {
-            StaticChampionList champs = task.Result;
-            DBStaticChampion tempChamp;
-            foreach(KeyValuePair<String, StaticChampion> kvp in champs.Data)
-            {
-                tempChamp = new DBStaticChampion(kvp.Value);
-                Console.WriteLine("Write db: " + db.InsertAsync(tempChamp).Result + " inserted " + tempChamp.Name);
-            }
-
-        }
-
         public async Task<bool> IsMatchFoundAsync(long matchId)
         {
-            var matches = await db.QueryAsync<DBMatch>("select * from match where gameId =?", matchId);
+            var matches = await DB.QueryAsync<DBMatch>("select * from match where gameId =?", matchId);
             return matches.Count > 0 ? true : false;
+        }
+
+        public async Task<bool> IsDatabaseValidAsync()
+        {
+            var x = await DB.ExecuteScalarAsync<int>(
+                "SELECT count(*) FROM sqlite_master WHERE type = 'table' AND name = 'match'");
+            if (x == 0) return false;
+
+            x = await DB.ExecuteScalarAsync<int>(
+                "SELECT count(*) FROM sqlite_master WHERE type = 'table' AND name = 'filter'" );
+            if( x == 0 ) return false;
+
+            x = await DB.ExecuteScalarAsync<int>(
+                "SELECT count(*) FROM sqlite_master WHERE type = 'table' AND name = 'participant'" );
+            if( x == 0 ) return false;
+
+            return true;
+        }
+
+        public async Task<bool> IsStaticChampionDBValid()
+        {
+            var x = await DB.ExecuteScalarAsync<int>(
+                "SELECT count(*) FROM sqlite_master WHERE type = 'table' AND name = 'staticChampion'" );
+
+            Console.WriteLine(x == 1 ? "StaticChampionDB valid" : "StaticChampionDB NOT valid!");
+
+            return x != 0;
         }
     }
 }
