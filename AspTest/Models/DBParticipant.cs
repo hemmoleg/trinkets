@@ -5,12 +5,20 @@ namespace asptest.Models
     [Table("participant")]
     public class DBParticipant
     {
-        public int gameId { get; set; }
-        public string region { get; set; }
+        public int gameId {get; set;}
+        public string region{get; set;}
         public int participantId { get; set; }
+
+        [SQLite.Column ("teamId")]
         public int teamId { get; set; }
+
+        [SQLite.Column ("championId")]
         public int championId { get; set; }
+
+        [SQLite.Column ("spell1Id")]
         public int spell1Id { get; set; }
+
+        [SQLite.Column ("spell2Id")]
         public int spell2Id { get; set; }
         public string name { get; set; }
         public string championName { get; set; }
@@ -32,32 +40,32 @@ namespace asptest.Models
         public int largestKillingSpree { get; set; }
         public int deaths { get; set; }
         public int assists { get; set; }
-        public int totalDamageDealt { get; set; }
-        public int totalDamageDealtToChampions { get; set; }
-        public int totalDamageTaken { get; set; }
+        public long totalDamageDealt { get; set; }
+        public long totalDamageDealtToChampions { get; set; }
+        public long totalDamageTaken { get; set; }
         public int largestCriticalStrike { get; set; }
-        public int totalHeal { get; set; }
+        public long totalHeal { get; set; }
         public int minionsKilled { get; set; } //totalMisionKilled
         public int neutralMinionsKilled { get; set; }
         public int neutralMinionsKilledTeamJungle { get; set; }
         public int neutralMinionsKilledEnemyJungle { get; set; }
-        public int goldEarned { get; set; }
+        public long goldEarned { get; set; }
         public int goldSpent { get; set; }
         public int combatPlayerScore { get; set; }
         public int objectivePlayerScore { get; set; }
         public int totalPlayerScore { get; set; }
         public int totalScoreRank { get; set; }
-        public int physicalDamageDealtToChampions { get; set; }
-        public int magicDamageDealtToChampions { get; set; }
-        public int trueDamageDealtToChampions { get; set; }
+        public long physicalDamageDealtToChampions { get; set; }
+        public long magicDamageDealtToChampions { get; set; }
+        public long trueDamageDealtToChampions { get; set; }
         public int visionWardsBoughtInGame { get; set; }
         public int sightWardsBoughtInGame { get; set; }
-        public int magicDamageDealt { get; set; }
-        public int physicalDamageDealt { get; set; }
-        public int trueDamageDealt { get; set; }
-        public int magicalDamageTaken { get; set; }
-        public int physicalDamageTaken { get; set; }
-        public int trueDamageTaken { get; set; }
+        public long magicDamageDealt { get; set; }
+        public long physicalDamageDealt { get; set; }
+        public long trueDamageDealt { get; set; }
+        public long magicDamageTaken { get; set; }
+        public long physicalDamageTaken { get; set; }
+        public long trueDamageTaken { get; set; }
         public bool firstBloodKill { get; set; }
         public bool firstBloodAssist { get; set; }
         public bool firstTowerKill { get; set; }
@@ -70,7 +78,7 @@ namespace asptest.Models
         public int wardsKilled { get; set; }
         public int largestMultiKill { get; set; }
         public int killingSprees { get; set; }
-        public int totalUnitsHealed { get; set; }
+        public long totalUnitsHealed { get; set; }
         public int totalTimeCrowdControlDealt { get; set; }
 
         //NOT used in lolreplayDB

@@ -17,6 +17,7 @@ namespace asptest.Controllers
     //IMAGES
     //https://discussion.developer.riotgames.com/questions/1556/is-there-a-way-to-get-champions-icon-image.html
 
+    //C:\Users\yakuz\Documents\LoLReplay2
     public class MainController : Controller
     {
         private readonly DBReader dbReader;
@@ -54,11 +55,14 @@ namespace asptest.Controllers
 
             createTestDBMatch(riotApiMatches);
 
-            /*foreach (MatchList matches in riotApiMatches)
+            /*long biggestGameID = 0;
+            foreach (MatchList matches in riotApiMatches)
             {
-                await CompareGamesApiAgainstDB(matches, matchesFromDB);
-            }*/
-
+                var currentBiggestGameId = await compareGamesApiAgainstDB(matches, matchesFromDB);
+                if(biggestGameID < currentBiggestGameId) biggestGameID = currentBiggestGameId;
+            }
+            Console.WriteLine("Total largest missing gameId: " + biggestGameID);
+            */
             //CompareGamesDBAgainstApi(riotApiMatches, matchesFromDB);
         }
 
@@ -156,7 +160,7 @@ namespace asptest.Controllers
             var grades = JsonConvert.DeserializeObject<Grades>(streamResult);
         }
 
-        private async Task compareGamesApiAgainstDB(MatchList apiMatchList, List<DBMatch> dbMatchList)
+        private async Task<long> compareGamesApiAgainstDB(MatchList apiMatchList, List<DBMatch> dbMatchList)
         {
             var gamesNotFound = 0;
             Console.WriteLine($"Checking queueType {apiMatchList.Matches[0].Queue}");
@@ -166,11 +170,14 @@ namespace asptest.Controllers
                 if (!matchFound)
                 {
                     Console.WriteLine($"Match {match.GameId} not found in DB!");
+                    if(match.GameId > biggestGameID) biggestGameID = match.GameId;
                     gamesNotFound++;
                 }
             }
 
             Console.WriteLine($"Games not found: {gamesNotFound}");
+            Console.WriteLine("Largest missing gameId: " + biggestGameID);
+            return biggestGameID;
         }
     }
 }

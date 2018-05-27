@@ -38,13 +38,14 @@ namespace asptest.Controllers
         //TODO move to DBWriter
         internal void WriteStaticChampionData(Task<StaticChampionList> task)
         {
-            var champs = task.Result;
+            StaticChampionList champs = task.Result;
             DBStaticChampion tempChamp;
-            foreach (var kvp in champs.Data)
+            foreach(KeyValuePair<String, StaticChampion> kvp in champs.Data)
             {
                 tempChamp = new DBStaticChampion(kvp.Value);
                 Console.WriteLine("Write db: " + db.InsertAsync(tempChamp).Result + " inserted " + tempChamp.Name);
             }
+
         }
 
         public async Task<bool> IsMatchFoundAsync(long matchId)
