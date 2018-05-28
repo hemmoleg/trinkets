@@ -67,5 +67,10 @@ namespace asptest.Controllers
 
             return x != 0;
         }
+
+        public async Task<DBMatch> GetMatchByIDAsync(long matchId)
+        {
+            return await DB.GetAsync<DBMatch>((dbMatch) => dbMatch.GameId == matchId);
+        }
     }
 }

@@ -18,6 +18,7 @@ namespace asptest.Controllers
     //https://discussion.developer.riotgames.com/questions/1556/is-there-a-way-to-get-champions-icon-image.html
 
     //C:\Users\yakuz\Documents\LoLReplay2
+    [Route("Main")]
     public class MainController : Controller
     {
         private readonly DBReader dbReader;
@@ -38,7 +39,7 @@ namespace asptest.Controllers
 
         public async Task Main()
         {
-            validateDatabase();
+            //validateDatabase();
 
             //removeNewChampionAsync();
 
@@ -58,7 +59,14 @@ namespace asptest.Controllers
             var matchReferences = await compareGamesApiAgainstDB(riotApiMatches, matchesFromDB);
             //writeAllMissingGamesToDB(matchReferences);
 
-            //CompareGamesDBAgainstApi(riotApiMatches, matchesFromDB);
+            //compareGamesDBAgainstApi(riotApiMatches, matchesFromDB);
+        }
+
+        [HttpGet("GetMatchByID/{id}")]
+        public async Task<IActionResult> GetMatchByID( [FromRoute] long id )
+        {
+            var result = await dbReader.GetMatchByIDAsync(id);
+            return this.Ok(result);
         }
 
         private void writeAllMissingGamesToDB(List<MatchReference> matchReferences)
@@ -106,6 +114,12 @@ namespace asptest.Controllers
                 //TODO write all matches
             }
 
+            if( !await dbReader.IsTablePresent( "DBFilter" ) )
+            {
+                dbWriter.CreateTable<DBFilter>();
+                //TODO figure this out
+            }
+
 
 
             dbReader.IsDatabaseValidAsync();
@@ -121,14 +135,13 @@ namespace asptest.Controllers
                 }
         }
 
-        private void CompareGamesDBAgainstApi(List<MatchList> riotApiMatches, List<DBMatch> matchesFromDB)
+        private static void compareGamesDBAgainstApi(List<MatchList> riotApiMatches, List<DBMatch> matchesFromDB)
         {
-            var matchFound = false;
             var gamesNotFound = 0;
             foreach (var dbMatch in matchesFromDB)
             {
                 Console.WriteLine($"Checking match id: {dbMatch.ID}");
-                matchFound = false;
+                var matchFound = false;
                 foreach (var matchList in riotApiMatches)
                 {
                     foreach (var match in matchList.Matches)
@@ -141,11 +154,9 @@ namespace asptest.Controllers
                     if (matchFound) break;
                 }
 
-                if (!matchFound)
-                {
-                    Console.WriteLine($"Match {dbMatch.ID} not found in DB!");
-                    gamesNotFound++;
-                }
+                if (matchFound) continue;
+                Console.WriteLine($"Match {dbMatch.ID} not found in ApiMatches!");
+                gamesNotFound++;
             }
 
             Console.WriteLine($"Games not found: {gamesNotFound}");
