@@ -12,8 +12,8 @@ namespace asptest.Controllers
 
         public DBAccessor()
         {
-            var databasePath = Path.Combine(Directory.GetCurrentDirectory(), "games_new.db");
-            //var databasePath = Path.Combine( Directory.GetCurrentDirectory(), "my_games_new.db" );
+            //var databasePath = Path.Combine(Directory.GetCurrentDirectory(), "games_new.db");
+            var databasePath = Path.Combine( Directory.GetCurrentDirectory(), "my_games_new.db" );
             Console.WriteLine("Using database: " + databasePath);
             try
             {

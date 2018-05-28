@@ -15,18 +15,8 @@ namespace asptest.Controllers
             dbMatch.Outcome = match.Participants[getUserIndex(match)].Stats.Win ? 1 : 2;
             dbMatch.Team1Bans = getBannedChampsAsString(match, 0);
             dbMatch.Team2Bans = getBannedChampsAsString(match, 1);
-            dbMatch.Title = getTitle(match);
+            dbMatch.Title = getMatchTitle(match);
             dbMatch.ID = GetBiggestIdAsync().Result + 1;
-            
-
-            //temp fix season
-            if(dbMatch.Season == null)
-            {
-                if((int)matchRef.Season == 10)
-                    dbMatch.Season = "PRESEASON2018";
-                if((int)matchRef.Season == 11)
-                    dbMatch.Season = "SEASON2018";
-            }
 
             try
             {
@@ -47,18 +37,8 @@ namespace asptest.Controllers
             dbMatch.Outcome = match.Participants[ getUserIndex( match ) ].Stats.Win ? 1 : 2;
             dbMatch.Team1Bans = getBannedChampsAsString( match, 0 );
             dbMatch.Team2Bans = getBannedChampsAsString( match, 1 );
-            dbMatch.Title = getTitle( match );
+            dbMatch.Title = getMatchTitle( match );
             dbMatch.ID = GetBiggestIdAsync().Result + 1;
-
-
-            //temp fix season
-            if( dbMatch.Season == null )
-            {
-                if( (int) matchReference.Season == 10 )
-                    dbMatch.Season = "PRESEASON2018";
-                if( (int) matchReference.Season == 11 )
-                    dbMatch.Season = "SEASON2018";
-            }
 
             return dbMatch;
         }
@@ -83,23 +63,7 @@ namespace asptest.Controllers
             }
         }
 
-        internal void CreateTableStaticChampion()
-        {
-            DB.CreateTableAsync<DBStaticChampion>();
-        }
-
-        internal void WriteStaticChampionData(Task<StaticChampionList> task)
-        {
-            StaticChampionList champs = task.Result;
-            foreach(KeyValuePair<String, StaticChampion> kvp in champs.Data)
-            {
-                var tempChamp = new DBStaticChampion(kvp.Value);
-                Console.WriteLine("Write db: " + DB.InsertAsync(tempChamp).Result + " inserted " + tempChamp.Name);
-            }
-
-        }
-
-        private string getTitle(Match match)
+        private string getMatchTitle(Match match)
         {
             var championID = match.Participants[getUserIndex(match)].ChampionId;
             var championName = GetChampionNameByIdAsync(championID).Result;
@@ -115,7 +79,7 @@ namespace asptest.Controllers
             return -1;
         }
 
-        private string getBannedChampsAsString(Match match, int team)
+        private static string getBannedChampsAsString(Match match, int team)
         {
             var bannedChampions = "";
             foreach (var bannedChampion in match.Teams[team].Bans) bannedChampions += bannedChampion.ChampionId + ",";
@@ -141,6 +105,33 @@ namespace asptest.Controllers
             Console.WriteLine( "Deleted " + x + " participantFrame ID: " + match.ID );
 
             Console.WriteLine("Removed all traces of match.ID: " + match.ID);
+        }
+
+        internal void WriteStaticChampionData(Task<StaticChampionList> task)
+        {
+            var champs = task.Result;
+            foreach(var kvp in champs.Data)
+            {
+                var champion = DBStaticChampion.CreateFromApi(kvp.Value);
+                Console.WriteLine("Write db: " + DB.InsertAsync(champion).Result + " inserted " + champion.Name);
+            }
+
+        }
+
+        public void WriteStaticItemData(Task<StaticItemList> task)
+        {
+            var items = task.Result;
+            foreach( var kvp in items.Data )
+            {
+                var item = DBStaticItem.CreateFromApi(kvp.Value);
+                Console.WriteLine( "Write db: " + DB.InsertAsync( item ).Result + " inserted " + item.Name );
+            }
+
+        }
+
+        internal void CreateTable<T>( ) where T : new()
+        {
+            DB.CreateTableAsync<T>();
         }
     }
 }

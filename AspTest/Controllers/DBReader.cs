@@ -58,12 +58,12 @@ namespace asptest.Controllers
             return true;
         }
 
-        public async Task<bool> IsStaticChampionDBValid()
+        public async Task<bool> IsTablePresent(string tableName)
         {
             var x = await DB.ExecuteScalarAsync<int>(
-                "SELECT count(*) FROM sqlite_master WHERE type = 'table' AND name = 'staticChampion'" );
+                "SELECT count(*) FROM sqlite_master WHERE type = 'table' AND name = '" + tableName + "'");
 
-            Console.WriteLine(x == 1 ? "StaticChampionDB valid" : "StaticChampionDB NOT valid!");
+            Console.WriteLine(x == 1 ? tableName + " valid" : tableName + " NOT valid!");
 
             return x != 0;
         }

@@ -38,7 +38,7 @@ namespace asptest.Controllers
 
         public async Task Main()
         {
-            //validateDatabase();
+            validateDatabase();
 
             //removeNewChampionAsync();
 
@@ -47,10 +47,7 @@ namespace asptest.Controllers
             var riotApiMatches = await riotApiRequester.GetAllMatchesAsync();
             //riotApiRequester.CheckLatestMatchesAsync();
 
-            var matchesFromDB = await dbReader.GetAllMatchesAsync();
-            //dbReader.WriteStaticChampionData(riotApiRequester.GetStaticChampionDataAsync());
-            //dbReader.WriteStaticChampionDataTest();
-
+            var matchesFromDB = await dbReader.GetAllMatchesAsync(); 
 
             //var id = await dbReader.GetBiggestIdAsync();
             //Debug.WriteLine("Biggest id: " + id);
@@ -59,7 +56,7 @@ namespace asptest.Controllers
             //writeTestDBMatch(riotApiMatches);
 
             var matchReferences = await compareGamesApiAgainstDB(riotApiMatches, matchesFromDB);
-            writeAllMissingGamesToDB(matchReferences);
+            //writeAllMissingGamesToDB(matchReferences);
 
             //CompareGamesDBAgainstApi(riotApiMatches, matchesFromDB);
         }
@@ -91,11 +88,25 @@ namespace asptest.Controllers
 
         private async void validateDatabase()
         {
-            if( ! await dbReader.IsStaticChampionDBValid() )
+            if( ! await dbReader.IsTablePresent("staticChampion") )
             {
-                dbWriter.CreateTableStaticChampion();
+                dbWriter.CreateTable<DBStaticChampion>();
                 dbWriter.WriteStaticChampionData( riotApiRequester.GetStaticChampionDataAsync() );
             }
+
+            if( !await dbReader.IsTablePresent("staticItem") )
+            {
+                dbWriter.CreateTable<DBStaticItem>();
+                dbWriter.WriteStaticItemData( riotApiRequester.GetStaticItemDataAsync() );
+            }
+
+            if( !await dbReader.IsTablePresent( "match" ) )
+            {
+                dbWriter.CreateTable<DBMatch>();
+                //TODO write all matches
+            }
+
+
 
             dbReader.IsDatabaseValidAsync();
         }

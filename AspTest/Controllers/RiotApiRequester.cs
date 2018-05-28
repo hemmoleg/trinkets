@@ -11,7 +11,7 @@ namespace asptest.Controllers
     [Route("Function")]
     public class RiotApiRequester : Controller
     {
-        private readonly IRiotClient RiotClient;
+        private readonly IRiotClient riotClient;
 
         public RiotApiRequester()
         {
@@ -21,14 +21,14 @@ namespace asptest.Controllers
                 ApiKey = "RGAPI-3a7d6948-e378-4ac5-bb9f-70137fcf88ed"
             };
 
-            RiotClient = new RiotClient(); // Now you don't need to pass the settings or platform ID parameters.    
+            riotClient = new RiotClient(); // Now you don't need to pass the settings or platform ID parameters.    
             SummonerID = 0; //20757027
             AccountID = 0; //24045056
             //test game Id for short game 3629403670 (loss, lux, mid)
             try
             {
-                SummonerID = RiotClient.GetSummonerBySummonerNameAsync("hemmoleg").Result.Id;
-                AccountID = RiotClient.GetSummonerBySummonerNameAsync("hemmoleg").Result.AccountId;
+                SummonerID = riotClient.GetSummonerBySummonerNameAsync("hemmoleg").Result.Id;
+                AccountID = riotClient.GetSummonerBySummonerNameAsync("hemmoleg").Result.AccountId;
             }
             catch (RestException ex)
             {
@@ -82,7 +82,7 @@ namespace asptest.Controllers
             MatchList recentMatches = null;
             try
             {
-                recentMatches = await RiotClient.GetMatchListByAccountIdAsync(AccountID);
+                recentMatches = await riotClient.GetMatchListByAccountIdAsync(AccountID);
             }
             catch (RestException ex)
             {
@@ -114,7 +114,7 @@ namespace asptest.Controllers
 
         public async Task<Match> GetMatchByIDAsync(long matchID)
         {
-            return await RiotClient.GetMatchAsync(matchID);
+            return await riotClient.GetMatchAsync(matchID);
         }
 
         public async Task<bool> CheckLastMatchWinAsync(long matchId)
@@ -123,7 +123,7 @@ namespace asptest.Controllers
             //Participant == actual champion and match related statistics
 
             //matchID = 3629403670;
-            var recentMatch = await RiotClient.GetMatchAsync(matchId);
+            var recentMatch = await riotClient.GetMatchAsync(matchId);
             //MatchTeam team = recentMatch.Teams[0];
             foreach (var identity in recentMatch.ParticipantIdentities)
                 if (identity.Player.AccountId == AccountID)
@@ -161,7 +161,7 @@ namespace asptest.Controllers
 
             do
             {
-                matchesTemp = await RiotClient.GetMatchListByAccountIdAsync(AccountID, null,
+                matchesTemp = await riotClient.GetMatchListByAccountIdAsync(AccountID, null,
                     new[] {(QueueType) queueType}, null, null, null, beginIndex);
                 matches.Matches = matches.Matches.Concat(matchesTemp.Matches).ToList();
                 beginIndex += 100;
@@ -172,7 +172,12 @@ namespace asptest.Controllers
 
         public async Task<StaticChampionList> GetStaticChampionDataAsync()
         {
-            return await RiotClient.GetStaticChampionsAsync(Locale.en_US, null, true);
+            return await riotClient.GetStaticChampionsAsync(Locale.en_US, null, true);
+        }
+
+        public async Task<StaticItemList> GetStaticItemDataAsync()
+        {
+            return await riotClient.GetStaticItemsAsync(null, null, new[] {"gold", "from", "image"});
         }
     }
 }
