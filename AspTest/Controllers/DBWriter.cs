@@ -2,13 +2,14 @@ using System;
 using System.Collections.Generic;
 using System.Threading.Tasks;
 using asptest.Models;
+using Microsoft.AspNetCore.Mvc;
 using RiotNet.Models;
 
 namespace asptest.Controllers
 {
     public class DBWriter : DBAccessor
     {
-        public void WriteMatchToDB(MatchReference matchRef, Match match)
+        public void WriteMatchToDB(MatchReference matchRef, Match match, string grade)
         {
             var dbMatch = DBMatch.CreateFromApi(matchRef, match);
             dbMatch.UserIndex = getUserIndex(match) + 1;
@@ -17,6 +18,7 @@ namespace asptest.Controllers
             dbMatch.Team2Bans = getBannedChampsAsString(match, 1);
             dbMatch.Title = getMatchTitle(match);
             dbMatch.ID = GetBiggestIdAsync().Result + 1;
+            dbMatch.Grade = grade;
 
             try
             {
@@ -28,19 +30,6 @@ namespace asptest.Controllers
             }
 
             writeParticpantsToDB(matchRef, match);
-        }
-
-        public DBMatch CreateDBMatch( MatchReference matchReference, Match match )
-        {
-            var dbMatch = DBMatch.CreateFromApi( matchReference, match );
-            dbMatch.UserIndex = getUserIndex( match ) + 1;
-            dbMatch.Outcome = match.Participants[ getUserIndex( match ) ].Stats.Win ? 1 : 2;
-            dbMatch.Team1Bans = getBannedChampsAsString( match, 0 );
-            dbMatch.Team2Bans = getBannedChampsAsString( match, 1 );
-            dbMatch.Title = getMatchTitle( match );
-            dbMatch.ID = GetBiggestIdAsync().Result + 1;
-
-            return dbMatch;
         }
 
         private void writeParticpantsToDB(MatchReference matchRef, Match match)
@@ -132,6 +121,12 @@ namespace asptest.Controllers
         internal void CreateTable<T>( ) where T : new()
         {
             DB.CreateTableAsync<T>();
+        }
+
+        public async void AddGradeToMatch(DBMatch match, string champMasteryGrade)
+        {
+            match.Grade = champMasteryGrade;
+            await DB.UpdateAsync(match);
         }
     }
 }

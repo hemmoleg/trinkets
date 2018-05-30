@@ -1,5 +1,6 @@
 using System;
 using System.Collections.Generic;
+using System.Reflection.Metadata.Ecma335;
 using System.Threading.Tasks;
 using asptest.Models;
 using RiotNet.Models;
@@ -70,7 +71,15 @@ namespace asptest.Controllers
 
         public async Task<DBMatch> GetMatchByIDAsync(long matchId)
         {
-            return await DB.GetAsync<DBMatch>((dbMatch) => dbMatch.GameId == matchId);
+            try
+            {
+                return await DB.GetAsync<DBMatch>( ( dbMatch ) => dbMatch.GameId == matchId );
+            }
+            catch( InvalidOperationException e )
+            {
+                Console.WriteLine( "Match with id: " + matchId + " not found " + e.Message );
+                return null;
+            }
         }
     }
 }

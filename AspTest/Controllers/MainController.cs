@@ -48,7 +48,9 @@ namespace asptest.Controllers
             var riotApiMatches = await riotApiRequester.GetAllMatchesAsync();
             //riotApiRequester.CheckLatestMatchesAsync();
 
-            var matchesFromDB = await dbReader.GetAllMatchesAsync(); 
+            var matchesFromDB = await dbReader.GetAllMatchesAsync();
+
+            //addGradesToRecentGames();
 
             //var id = await dbReader.GetBiggestIdAsync();
             //Debug.WriteLine("Biggest id: " + id);
@@ -56,8 +58,9 @@ namespace asptest.Controllers
 
             //writeTestDBMatch(riotApiMatches);
 
-            var matchReferences = await compareGamesApiAgainstDB(riotApiMatches, matchesFromDB);
-            //writeAllMissingGamesToDB(matchReferences);
+            var grades = await getRecentGameGrades();
+            var missingMatchReferences = await compareGamesApiAgainstDB(riotApiMatches, matchesFromDB);
+            writeAllMissingGamesToDB(missingMatchReferences, grades);
 
             //compareGamesDBAgainstApi(riotApiMatches, matchesFromDB);
         }
@@ -69,13 +72,20 @@ namespace asptest.Controllers
             return this.Ok(result);
         }
 
-        private void writeAllMissingGamesToDB(List<MatchReference> matchReferences)
+        private void writeAllMissingGamesToDB(List<MatchReference> matchReferences, Grades grades)
         {
             var counter = 0;
             foreach (var matchReference in matchReferences)
             {
+                string grade = "?";
+                foreach (var delta in grades.Deltas)
+                {
+                    if(delta.GameId != matchReference.GameId) continue;
+                    grade = delta.ChampMastery.Grade;
+                }
+
                 dbWriter.WriteMatchToDB(matchReference,
-                            riotApiRequester.GetMatchByIDAsync(matchReference.GameId).Result);
+                            riotApiRequester.GetMatchByIDAsync(matchReference.GameId).Result, grade);
                 counter++;
                 Console.WriteLine( "Written matches: " + counter );
             }
@@ -131,8 +141,25 @@ namespace asptest.Controllers
             foreach (var match in matcheList.Matches)
                 if (match.GameId == 3614786597 )
                 {
-                   dbWriter.WriteMatchToDB(match, riotApiRequester.GetMatchByIDAsync(match.GameId).Result);
+                   dbWriter.WriteMatchToDB(match, riotApiRequester.GetMatchByIDAsync(match.GameId).Result, null);
                 }
+        }
+
+        private async void addGradesToRecentGames()
+        {
+            var grades = await getRecentGameGrades();
+            foreach (var delta in grades.Deltas)
+            {
+                var match = await dbReader.GetMatchByIDAsync(delta.GameId);
+                if( match == null )
+                {
+                    Console.WriteLine("Match not found, skipping update");
+                    continue;
+                }
+                dbWriter.AddGradeToMatch(match, delta.ChampMastery.Grade);
+                Console.WriteLine("Updated game " + match.Title + " with grade " + delta.ChampMastery.Grade);
+            }
+            
         }
 
         private static void compareGamesDBAgainstApi(List<MatchList> riotApiMatches, List<DBMatch> matchesFromDB)
@@ -162,43 +189,43 @@ namespace asptest.Controllers
             Console.WriteLine($"Games not found: {gamesNotFound}");
         }
 
-        public async Task GetRecentGameGrades()
+        private static async Task<Grades> getRecentGameGrades()
         {
             //find lockfile
             var procList = Process.GetProcesses().Where(process => process.ProcessName.Contains("League"));
-            var lockfilePath = "";
-            string[] texts = null;
             string port = null;
             string key = null;
             foreach (var process in procList)
             {
                 var completePath = Path.GetDirectoryName(process.MainModule.FileName);
-                if (process.ProcessName == "LeagueClient")
+                if (process.ProcessName != "LeagueClient") continue;
+
+                Console.WriteLine("Path is: " + completePath.Substring(0, completePath.IndexOf("RADS", StringComparison.Ordinal)));
+                var lockfilePath = completePath.Substring(0, completePath.IndexOf("RADS", StringComparison.Ordinal)) + "lockfile";
+
+                if( !System.IO.File.Exists( lockfilePath ) )
                 {
-                    Console.WriteLine("Path is: " + completePath.Substring(0, completePath.IndexOf("RADS")));
-                    lockfilePath = completePath.Substring(0, completePath.IndexOf("RADS")) + "lockfile";
-
-                    if (!System.IO.File.Exists(lockfilePath))
-                        return;
-
-                    Console.WriteLine("lockfile exists");
-
-                    string text = null;
-                    using (var stream = System.IO.File.Open(lockfilePath, FileMode.Open, FileAccess.Read,
-                        FileShare.ReadWrite))
-                    {
-                        var reader = new StreamReader(stream);
-                        text = await reader.ReadToEndAsync();
-                    }
-
-                    texts = text.Split(":");
-
-                    port = texts[2];
-                    key = texts[3];
-                    Console.WriteLine("port: " + port + " key: " + key);
-
-                    break;
+                    Console.WriteLine("Lockfile not found at " + lockfilePath);
+                    return new Grades();
                 }
+
+                Console.WriteLine("lockfile exists");
+
+                string text;
+                using (var stream = System.IO.File.Open(lockfilePath, FileMode.Open, FileAccess.Read,
+                    FileShare.ReadWrite))
+                {
+                    var reader = new StreamReader(stream);
+                    text = await reader.ReadToEndAsync();
+                }
+
+                var texts = text.Split(":");
+
+                port = texts[2];
+                key = texts[3];
+                Console.WriteLine("port: " + port + " key: " + key);
+
+                break;
             }
 
             var httpClient =
@@ -210,9 +237,18 @@ namespace asptest.Controllers
             httpClient.DefaultRequestHeaders.Authorization =
                 new AuthenticationHeaderValue("Basic", Convert.ToBase64String(byteArray));
 
-            var result = await httpClient.GetAsync("https://127.0.0.1:" + port + "/lol-match-history/v1/delta");
+            HttpResponseMessage result;
+            try
+            {
+                result = await httpClient.GetAsync("https://127.0.0.1:" + port + "/lol-match-history/v1/delta");
+            }
+            catch (Exception e)
+            {
+                Console.WriteLine("No response from httpClient, Lol client probably not running " + e);
+                return new Grades();
+            }
             var streamResult = await result.Content.ReadAsStringAsync();
-            var grades = JsonConvert.DeserializeObject<Grades>(streamResult);
+            return JsonConvert.DeserializeObject<Grades>(streamResult);
         }
 
         private async Task<List<MatchReference>> compareGamesApiAgainstDB(List<MatchList> riotApiMatches, List<DBMatch> dbMatchList)

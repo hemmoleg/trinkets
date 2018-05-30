@@ -4,38 +4,45 @@ namespace asptest.Models
 {
     public class ChampMastery
     {
-        public string grade { get; set; }
+        public string Grade { get; set; }
     }
 
     public class LeagueDelta
     {
-        public int leaguePointDelta { get; set; }
-        public IList<object> miniSeriesProgress { get; set; }
-        public string reason { get; set; }
-        public int timestamp { get; set; }
+        public int LeaguePointDelta { get; set; }
+        public IList<object> MiniSeriesProgress { get; set; }
+        public string Reason { get; set; }
+        public int Timestamp { get; set; }
     }
 
     public class PlatformDelta
     {
-        public bool compensationModeEnabled { get; set; }
-        public int ipDelta { get; set; }
-        public object timestamp { get; set; }
-        public int xpDelta { get; set; }
+        public bool CompensationModeEnabled { get; set; }
+        public int IpDelta { get; set; }
+        public object Timestamp { get; set; }
+        public int XpDelta { get; set; }
     }
 
     public class Delta
     {
-        public ChampMastery champMastery { get; set; }
-        public object gameId { get; set; }
-        public string gamePlatformId { get; set; }
-        public LeagueDelta leagueDelta { get; set; }
-        public PlatformDelta platformDelta { get; set; }
+        public ChampMastery ChampMastery { get; set; }
+        public long GameId { get; set; }
+        public string GamePlatformId { get; set; }
+        public LeagueDelta LeagueDelta { get; set; }
+        public PlatformDelta PlatformDelta { get; set; }
     }
 
     public class Grades
     {
-        public IList<Delta> deltas { get; set; }
-        public int originalAccountId { get; set; }
-        public string originalPlatformId { get; set; }
+        public Grades()
+        {
+            Deltas = new List<Delta>();
+            OriginalAccountId = null;
+            OriginalPlatformId = "";
+        }
+
+        public IList<Delta> Deltas { get; set; }
+        public int? OriginalAccountId { get; set; }
+        public string OriginalPlatformId { get; set; }
     }
 }

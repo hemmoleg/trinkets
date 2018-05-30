@@ -18,7 +18,7 @@ namespace asptest.Controllers
             RiotNet.RiotClient.DefaultPlatformId = PlatformId.EUW1;
             RiotNet.RiotClient.DefaultSettings = () => new RiotClientSettings
             {
-                ApiKey = "RGAPI-29de3914-3b5a-46dc-a77f-1d30d7b72f66"
+                ApiKey = "RGAPI-85f6d014-7897-4c02-adba-dea456145f95"
             };
 
             riotClient = new RiotClient(); // Now you don't need to pass the settings or platform ID parameters.    
