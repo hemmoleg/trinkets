@@ -17,7 +17,7 @@ namespace asptest.Controllers
             dbMatch.Team1Bans = getBannedChampsAsString(match, 0);
             dbMatch.Team2Bans = getBannedChampsAsString(match, 1);
             dbMatch.Title = getMatchTitle(match);
-            dbMatch.ID = GetBiggestIdAsync().Result + 1;
+            dbMatch.ID = GetBiggestIdAsync() + 1;
             dbMatch.Grade = grade;
 
             try

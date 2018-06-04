@@ -39,7 +39,7 @@ namespace asptest.Controllers
 
         public async Task Main()
         {
-            //validateDatabase();
+            validateDatabase();
 
             //removeNewChampionAsync();
 
@@ -52,6 +52,8 @@ namespace asptest.Controllers
 
             //addGradesToRecentGames();
 
+            writeTestDBMatch(riotApiMatches);
+
             //var id = await dbReader.GetBiggestIdAsync();
             //Debug.WriteLine("Biggest id: " + id);
             //Debug.WriteLine("Games as Ekko: " + await dbReader.GetGamesAsChampionAsync("Ekko"));
@@ -59,8 +61,8 @@ namespace asptest.Controllers
             //writeTestDBMatch(riotApiMatches);
 
             var grades = await getRecentGameGrades();
-            var missingMatchReferences = await compareGamesApiAgainstDB(riotApiMatches, matchesFromDB);
-            writeAllMissingGamesToDB(missingMatchReferences, grades);
+            //var missingMatchReferences = await compareGamesApiAgainstDB(riotApiMatches, matchesFromDB);
+            //writeAllMissingGamesToDB(missingMatchReferences, grades);
 
             //compareGamesDBAgainstApi(riotApiMatches, matchesFromDB);
         }
@@ -124,22 +126,25 @@ namespace asptest.Controllers
                 //TODO write all matches
             }
 
-            if( !await dbReader.IsTablePresent( "DBFilter" ) )
+            if( ! await dbReader.IsTablePresent("participant") )
+            {
+                dbWriter.CreateTable<DBParticipant>();
+            }
+
+            /*if( !await dbReader.IsTablePresent( "DBFilter" ) )
             {
                 dbWriter.CreateTable<DBFilter>();
                 //TODO figure this out
-            }
-
-
+            }*/
 
             dbReader.IsDatabaseValidAsync();
         }
 
         private void writeTestDBMatch(List<MatchList> riotApiMatches)
         {
-            foreach (var matcheList in riotApiMatches)
-            foreach (var match in matcheList.Matches)
-                if (match.GameId == 3614786597 )
+            foreach (var matchList in riotApiMatches)
+            foreach (var match in matchList.Matches)
+                if (match.GameId ==  3657034226) //3657034226 //3614786597
                 {
                    dbWriter.WriteMatchToDB(match, riotApiRequester.GetMatchByIDAsync(match.GameId).Result, null);
                 }
@@ -244,7 +249,7 @@ namespace asptest.Controllers
             }
             catch (Exception e)
             {
-                Console.WriteLine("No response from httpClient, Lol client probably not running " + e);
+                Console.WriteLine("No response from httpClient, Lol client probably not running. e.Message: " + e.Message);
                 return new Grades();
             }
             var streamResult = await result.Content.ReadAsStringAsync();
