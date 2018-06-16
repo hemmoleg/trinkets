@@ -7,7 +7,7 @@ namespace asptest.Models
     [Table("match")]
     public class DBMatch
     {
-        [SQLite.Column ("gameId")]
+        [SQLite.Column ("gameId")][Unique]
         public long GameId {get; set;}
 
         [SQLite.Column ("region")]

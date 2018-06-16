@@ -27,9 +27,16 @@ namespace asptest.Controllers
 
         public long AccountID { get; set; }
 
-        public Task<int> GetBiggestIdAsync()
+        public int GetBiggestIdAsync()
         {
-            return DB.ExecuteScalarAsync<int>("select MAX(id) from match");
+            try
+            {
+                return DB.ExecuteScalarAsync<int>("select MAX(id) from match").Result;
+            }
+            catch(Exception e)
+            {
+                return 0;
+            }
         } //db.rawQuery("SELECT MAX(price) FROM spendings", null)
         //await conn.ExecuteScalarAsync<int>("select count(*) from Stock");
 

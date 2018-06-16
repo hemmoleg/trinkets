@@ -18,11 +18,11 @@ namespace asptest.Models
             };
         }
 
-        [Column("id")] public int Id { get; set; }
+        [Column("id")][Unique]public int Id { get; set; }
 
         [Column("key")] public string Key { get; set; }
 
-        [Column("name")] public string Name { get; set; }
+        [Column("name")][Unique] public string Name { get; set; }
 
         [Column("title")] public string Title { get; set; }
     }
@@ -46,7 +46,7 @@ namespace asptest.Models
             };
         }
 
-        [Column("id")] public int Id { get; set; }
+        [Column("id")][Unique] public int Id { get; set; }
 
         [Column( "from" )] public string From { get; set; }
 

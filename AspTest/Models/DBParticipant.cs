@@ -6,8 +6,10 @@ namespace asptest.Models
     [Table("participant")]
     public class DBParticipant
     {
+        [Indexed(Name = "participantUnique", Order = 1, Unique = true)]
         public long GameId {get; set;}
         public string Region{get; set;}
+        [Indexed(Name = "participantUnique", Order = 2, Unique = true)]
         public int ParticipantId { get; set; }
 
         [SQLite.Column ("teamId")]
