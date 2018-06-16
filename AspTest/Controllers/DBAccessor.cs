@@ -12,8 +12,8 @@ namespace asptest.Controllers
 
         public DBAccessor()
         {
-            var databasePath = Path.Combine(Directory.GetCurrentDirectory(), "games_new.db");
-            //var databasePath = Path.Combine( Directory.GetCurrentDirectory(), "my_games_new.db" );
+            //var databasePath = Path.Combine(Directory.GetCurrentDirectory(), "games_new.db");
+            var databasePath = Path.Combine( Directory.GetCurrentDirectory(), "my_games_new.db" );
             Console.WriteLine("Using database: " + databasePath);
             try
             {
@@ -32,6 +32,16 @@ namespace asptest.Controllers
             return DB.ExecuteScalarAsync<int>("select MAX(id) from match");
         } //db.rawQuery("SELECT MAX(price) FROM spendings", null)
         //await conn.ExecuteScalarAsync<int>("select count(*) from Stock");
+
+        public int GetBiggestID()
+        {
+
+            if( DB.QueryAsync<DBMatch>( "select 1 from match" ).Result.Count != 0 )
+            {
+                return DB.ExecuteScalarAsync<int>( "select MAX(id) from match" ).Result;
+            }
+            return 0;
+        }
 
         public async Task<string> GetChampionNameByIdAsync(int championId)
         {

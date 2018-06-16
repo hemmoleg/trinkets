@@ -39,7 +39,9 @@ namespace asptest.Controllers
 
         public async Task Main()
         {
-            //validateDatabase();
+            validateDatabase();
+
+            //updateStaticChampionData();
 
             //removeNewChampionAsync();
 
@@ -56,11 +58,11 @@ namespace asptest.Controllers
             //Debug.WriteLine("Biggest id: " + id);
             //Debug.WriteLine("Games as Ekko: " + await dbReader.GetGamesAsChampionAsync("Ekko"));
 
-            //writeTestDBMatch(riotApiMatches);
+            writeTestDBMatch(riotApiMatches);
 
             var grades = await getRecentGameGrades();
             var missingMatchReferences = await compareGamesApiAgainstDB(riotApiMatches, matchesFromDB);
-            writeAllMissingGamesToDB(missingMatchReferences, grades);
+            //writeAllMissingGamesToDB(missingMatchReferences, grades);
 
             //compareGamesDBAgainstApi(riotApiMatches, matchesFromDB);
         }
@@ -104,6 +106,11 @@ namespace asptest.Controllers
             }
         }
 
+        private async void updateStaticChampionData()
+        {
+            dbWriter.WriteStaticChampionData( riotApiRequester.GetStaticChampionDataAsync() );
+        }
+
         private async void validateDatabase()
         {
             if( ! await dbReader.IsTablePresent("staticChampion") )
@@ -121,13 +128,11 @@ namespace asptest.Controllers
             if( !await dbReader.IsTablePresent( "match" ) )
             {
                 dbWriter.CreateTable<DBMatch>();
-                //TODO write all matches
             }
 
-            if( !await dbReader.IsTablePresent( "DBFilter" ) )
+            if( !await dbReader.IsTablePresent( "participant" ) )
             {
-                dbWriter.CreateTable<DBFilter>();
-                //TODO figure this out
+                dbWriter.CreateTable<DBParticipant>();
             }
 
 
@@ -139,8 +144,8 @@ namespace asptest.Controllers
         {
             foreach (var matcheList in riotApiMatches)
             foreach (var match in matcheList.Matches)
-                if (match.GameId == 3614786597 )
-                {
+                if (match.GameId == 3665228643 ) //  3614786597 //3664022406
+                    {
                    dbWriter.WriteMatchToDB(match, riotApiRequester.GetMatchByIDAsync(match.GameId).Result, null);
                 }
         }
