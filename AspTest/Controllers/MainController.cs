@@ -58,11 +58,11 @@ namespace asptest.Controllers
             //Debug.WriteLine("Biggest id: " + id);
             //Debug.WriteLine("Games as Ekko: " + await dbReader.GetGamesAsChampionAsync("Ekko"));
 
-            writeTestDBMatch(riotApiMatches);
+            //writeTestDBMatch(riotApiMatches);
 
             var grades = await getRecentGameGrades();
             var missingMatchReferences = await compareGamesApiAgainstDB(riotApiMatches, matchesFromDB);
-            //writeAllMissingGamesToDB(missingMatchReferences, grades);
+            writeAllMissingGamesToDB(missingMatchReferences, grades);
 
             //compareGamesDBAgainstApi(riotApiMatches, matchesFromDB);
         }
@@ -89,7 +89,7 @@ namespace asptest.Controllers
                 dbWriter.WriteMatchToDB(matchReference,
                             riotApiRequester.GetMatchByIDAsync(matchReference.GameId).Result, grade);
                 counter++;
-                Console.WriteLine( "Written matches: " + counter );
+                Console.WriteLine( "Written matches: " + counter + " of " + matchReferences.Count() );
             }
             Console.WriteLine("Wrote all missing games to db");
         }
@@ -145,7 +145,7 @@ namespace asptest.Controllers
             foreach (var matcheList in riotApiMatches)
             foreach (var match in matcheList.Matches)
                 if (match.GameId == 3665228643 ) //  3614786597 //3664022406
-                    {
+                {
                    dbWriter.WriteMatchToDB(match, riotApiRequester.GetMatchByIDAsync(match.GameId).Result, null);
                 }
         }
