@@ -56,7 +56,7 @@ namespace asptest.Controllers
         {
             var championID = match.Participants[getUserIndex(match)].ChampionId;
             var championName = GetChampionNameByIdAsync(championID).Result;
-            return championName + " (" + (GetGamesAsChampionAsync(championName).Result + 1) + ")";
+            return championName + " (" + (GetGameCountAsChampionAsync(championName).Result + 1) + ")";
         }
 
         private int getUserIndex(Match match)

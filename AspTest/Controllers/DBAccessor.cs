@@ -56,7 +56,7 @@ namespace asptest.Controllers
             return matches[0].Name;
         }
 
-        public async Task<int> GetGamesAsChampionAsync(string champion)
+        public async Task<int> GetGameCountAsChampionAsync(string champion)
         {
             var query = "select * from match where title LIKE '%" + champion.Replace( "'", "''" ) + "%'";
             var matches = await DB.QueryAsync<DBMatch>(query);

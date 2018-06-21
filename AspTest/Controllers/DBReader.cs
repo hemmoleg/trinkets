@@ -1,8 +1,10 @@
 using System;
 using System.Collections.Generic;
+using System.Linq;
 using System.Reflection.Metadata.Ecma335;
 using System.Threading.Tasks;
 using asptest.Models;
+using Newtonsoft.Json.Linq;
 using RiotNet.Models;
 
 namespace asptest.Controllers
@@ -80,6 +82,32 @@ namespace asptest.Controllers
                 Console.WriteLine( "Match with id: " + matchId + " not found " + e.Message );
                 return null;
             }
+        }
+
+        public async Task<JObject> GetWinrateByChampID(int id)
+        {
+            var championName = GetChampionNameByIdAsync(id).Result;
+            var query = "select * from match where title LIKE '%" + championName.Replace( "'", "''" ) + "%'";
+            var matches = await DB.QueryAsync<DBMatch>( query );
+
+            var wins = matches.Count(match => match.Outcome == 1);
+            float winrate = ( (float) wins / matches.Count) * 100;
+
+            dynamic jsonObj = new JObject();
+            jsonObj.Wins = wins;
+            jsonObj.WinRate = winrate;
+            jsonObj.GameCount = matches.Count;
+
+            return jsonObj;
+        }
+
+        public async Task<List<DBMatch>> GetMatchesByChampID( int id )
+        {
+            var championName = GetChampionNameByIdAsync( id ).Result;
+            var query = "select * from match where title LIKE '%" + championName.Replace( "'", "''" ) + "%'";
+            var matches = await DB.QueryAsync<DBMatch>( query );
+
+            return matches;
         }
     }
 }

@@ -1,4 +1,6 @@
-﻿using asptest.Controllers;
+﻿using System.Threading.Tasks;
+using asptest.Controllers;
+using ElectronNET.API;
 using Microsoft.AspNetCore.Builder;
 using Microsoft.AspNetCore.Hosting;
 using Microsoft.Extensions.Configuration;
@@ -40,7 +42,11 @@ namespace asptest
             var main = new MainController((DBReader) app.ApplicationServices.GetService(typeof(DBReader)),
                 (DBWriter) app.ApplicationServices.GetService(typeof(DBWriter)),
                 (RiotApiRequester) app.ApplicationServices.GetService(typeof(RiotApiRequester)));
-            main.Main();
+
+            //Task.Run( async () => await Electron.WindowManager.CreateWindowAsync() );
+
+            //Task.Run(async () => await main.Main());
+
         }
     }
 }

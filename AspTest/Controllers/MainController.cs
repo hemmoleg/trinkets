@@ -39,8 +39,8 @@ namespace asptest.Controllers
 
         public async Task Main()
         {
-            validateDatabase();
-
+            await validateDatabase();
+     
             //updateStaticChampionData();
 
             //removeNewChampionAsync();
@@ -51,18 +51,26 @@ namespace asptest.Controllers
             //riotApiRequester.CheckLatestMatchesAsync();
 
             var matchesFromDB = await dbReader.GetAllMatchesAsync();
-
+            
             //addGradesToRecentGames();
 
             //var id = await dbReader.GetBiggestIdAsync();
             //Debug.WriteLine("Biggest id: " + id);
-            //Debug.WriteLine("Games as Ekko: " + await dbReader.GetGamesAsChampionAsync("Ekko"));
+            //Debug.WriteLine("Games as Ekko: " + await dbReader.GetGameCountAsChampionAsync("Ekko"));
 
             //writeTestDBMatch(riotApiMatches);
 
             var grades = await getRecentGameGrades();
             var missingMatchReferences = await compareGamesApiAgainstDB(riotApiMatches, matchesFromDB);
-            writeAllMissingGamesToDB(missingMatchReferences, grades);
+            if( missingMatchReferences.Count > 0 )
+            {
+                Console.WriteLine("found missing games, but call to write is commented");
+                //writeAllMissingGamesToDB(missingMatchReferences, grades);
+            }
+            else
+            {
+                Console.WriteLine("No new matches");
+            }
 
             //compareGamesDBAgainstApi(riotApiMatches, matchesFromDB);
         }
@@ -72,6 +80,20 @@ namespace asptest.Controllers
         {
             var result = await dbReader.GetMatchByIDAsync(id);
             return this.Ok(result);
+        }
+
+        [HttpGet( "GetWinrateByChampID/{id}" )]
+        public async Task<IActionResult> GetWinrateByChampID( [FromRoute] int id )
+        {
+            var result = await dbReader.GetWinrateByChampID( id );
+            return this.Ok( result );
+        }
+
+        [HttpGet( "GetMatchesByChampID/{id}" )]
+        public async Task<IActionResult> GetMatchesByChampID( [FromRoute] int id )
+        {
+            var result = await dbReader.GetMatchesByChampID( id );
+            return this.Ok( result );
         }
 
         private void writeAllMissingGamesToDB(List<MatchReference> matchReferences, Grades grades)
@@ -111,7 +133,7 @@ namespace asptest.Controllers
             dbWriter.WriteStaticChampionData( riotApiRequester.GetStaticChampionDataAsync() );
         }
 
-        private async void validateDatabase()
+        private async Task validateDatabase()
         {
             if( ! await dbReader.IsTablePresent("staticChampion") )
             {
@@ -137,7 +159,7 @@ namespace asptest.Controllers
 
 
 
-            dbReader.IsDatabaseValidAsync();
+            await dbReader.IsDatabaseValidAsync();
         }
 
         private void writeTestDBMatch(List<MatchList> riotApiMatches)

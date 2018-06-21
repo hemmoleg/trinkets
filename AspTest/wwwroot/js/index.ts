@@ -13,6 +13,22 @@ interface Person
     lastName: string;
 }
 
+
+interface WinrateInfo {
+    Wins: number;
+    WinRate: number;
+    GameCount: number;
+
+}
+
+interface MatchesInfo {
+    Matches: DBMatch[];
+}
+
+interface DBMatch {
+    gameId: number;
+}
+
 function greeter(person: Person) 
 {
     return "Hello, " + person.firstName + " " + person.lastName;
@@ -44,7 +60,12 @@ function processRequest(e :Event)
         case 3: console.log("downloading...");
                 break;
         case 4: var response = JSON.parse(xhr.responseText);
+            let testMatchesInfo = response as DBMatch[];
+            console.log(response);
+            console.log(testMatchesInfo.length);
+                /*let testWinRate = response as WinrateInfo;
                 console.log(response);
+                console.log(testWinRate.WinRate);*/
                 break;
     }    
 }
@@ -52,7 +73,18 @@ function processRequest(e :Event)
 window.onload = function () 
 {
     //test
-    let user = new Student("Jane", "M.", "Doe");
-    document.body.innerHTML = greeter(user);
-    testQuery();
+    let user = new Student("Jane", "M.", "Doeeeee");
+    //document.body.innerHTML = greeter(user);
+    //testQuery();
+    console.log("TEST2");
+    /*xhr.open('GET', "http://localhost:50528/Main/GetMatchByID/2976859413");
+    xhr.onreadystatechange = processRequest;
+    xhr.setRequestHeader("Content-Type", "application/json;charset=UTF-8");
+    xhr.send(null);
+    */
+    xhr.open('GET', "http://localhost:50528/Main/GetMatchesByChampID/202");
+    xhr.onreadystatechange = processRequest;
+    xhr.setRequestHeader("Content-Type", "application/json;charset=UTF-8");
+    xhr.send(null);
+    
 }

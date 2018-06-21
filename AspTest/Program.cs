@@ -1,4 +1,5 @@
-﻿using Microsoft.AspNetCore;
+﻿using ElectronNET.API;
+using Microsoft.AspNetCore;
 using Microsoft.AspNetCore.Hosting;
 
 namespace asptest
@@ -13,6 +14,7 @@ namespace asptest
         public static IWebHost BuildWebHost(string[] args)
         {
             return WebHost.CreateDefaultBuilder(args)
+                //.UseElectron(args)
                 .UseStartup<Startup>()
                 .Build();
         }

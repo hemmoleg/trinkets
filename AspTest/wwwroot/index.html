@@ -1,7 +1,8 @@
-<!DOCTYPE html>
+﻿<!DOCTYPE html>
+<html>
 <head>
     <meta name="author" content="Robert Pluntke">
-    <meta name="date" content="2018-02-25T16:43:01 +0100">
+    <meta name="date" content="2018-06-21T16:43:01 +0100">
     
     <meta http-equiv="Content-Security-Policy" content="style-src 'self' https://fonts.googleapis.com">
     <meta http-equiv="content-type" content="text/html; charset=UTF-8" />  
@@ -19,69 +20,22 @@
 <!-- browsplay.com ? -->
 
 <body>
-        TEST
-<!--<div class="sitewrapper">
-    <div class="fullscreenBG">
-        <video id="fullscreenBGVideo" muted>
-            <source type="video/mp4">
-        </video>
-        <div class="playlist">
-            <a href="https://media.giphy.com/media/XKJ6nSaJE1OBVJFIe0/giphy.mp4"></a>            
-            <a href="https://media.giphy.com/media/7zxigRLmOixg1YmMrK/giphy.mp4"></a>
-            <a href="https://media.giphy.com/media/OPu8QLx6w8JGAuIAva/giphy.mp4"></a>
+<div class="sitewrapper">
+    <div class="flexContainer">
+        <div class="card">
+            <h3>Winrate</h3>
+            <div class="property">
+                <label>Winrate:</label>
+                <label id="lblWinRate">--%</label>
+            </div>
         </div>
+        <div class="card"></div>
+        <div class="card"></div>
     </div>
-    <div id="curtain"></div>
-    <div id="blur" class="stretch"></div>
- 
-    <div id="stage" class="stretch">
-        <div class="linkContainer"  onclick="location.href='../1024/1024/www/index.html';">
-            <div class="border"></div>
-            <div class="hint"><p>Click Me!</p></div>
-            <div class="link"></div>
-            <div class="border"></div>
-            <div class="border"></div>
-            <p>Game "1024"</p>
-        </div>
-        <div class="linkContainer" onclick="location.href='../1024MultiAsync/index.html';">
-            <div class="border"></div>
-            <div class="hint"><p>Or Me!</p></div>
-            <div class="link"></div>
-            <div class="border"></div>
-            <div class="border"></div>
-            <p>Animation "1024Multi"</p>
-        </div>
-        <div class="linkContainer" onclick="location.href='../Loading/index.html';">
-            <div class="border"></div>
-            <div class="hint"><p>No Me!</p></div>
-            <div class="link"></div>
-            <div class="border"></div>
-            <div class="border"></div>
-            <p>Animation "Loading"</p>
-        </div>
-    </div>
-    <div id="vignette"></div>
-    <div class="imprintContainer">
-        <div class="copyrightIcon"><i class="material-icons">copyright</i></div>
-        <div class="clearIcon hidden"><i class="material-icons">clear</i></div>
-        <div id="imprint" class="hidden">
-            <h1>Impressum</h1>
-            <h2>Angaben gem&auml;&szlig; &sect; 5 TMG:</h2> 
-            <p>Robert Pluntke<br/> Demmeringstra&szlig;e 92<br/> 04177 Leipzig</p> <h2>Kontakt:</h2> <p>Telefon: +49 (0) 172 350 16 42<br/> 
-            E-Mail:    <a href="mailto:robert_pluntke@gmx.de">robert_pluntke@gmx.de</a>
-            <h2>Haftung f&uuml;r Inhalte</h2> 
-            <p>Als Diensteanbieter sind wir gem&auml;&szlig; &sect; 7 Abs.1 TMG f&uuml;r eigene Inhalte auf diesen Seiten nach den allgemeinen Gesetzen verantwortlich. Nach &sect;&sect; 8 bis 10 TMG sind wir als Diensteanbieter jedoch nicht verpflichtet, &uuml;bermittelte oder gespeicherte fremde Informationen zu &uuml;berwachen oder nach Umst&auml;nden zu forschen, die auf eine rechtswidrige T&auml;tigkeit hinweisen.</p> 
-            <p>Verpflichtungen zur Entfernung oder Sperrung der Nutzung von Informationen nach den allgemeinen Gesetzen bleiben hiervon unber&uuml;hrt. Eine diesbez&uuml;gliche Haftung ist jedoch erst ab dem Zeitpunkt der Kenntnis einer konkreten Rechtsverletzung m&ouml;glich. Bei Bekanntwerden von entsprechenden Rechtsverletzungen werden wir diese Inhalte umgehend entfernen.</p> 
-            <h2>Haftung f&uuml;r Links</h2> 
-            <p>Unser Angebot enth&auml;lt Links zu externen Websites Dritter, auf deren Inhalte wir keinen Einfluss haben. Deshalb k&ouml;nnen wir f&uuml;r diese fremden Inhalte auch keine Gew&auml;hr &uuml;bernehmen. F&uuml;r die Inhalte der verlinkten Seiten ist stets der jeweilige Anbieter oder Betreiber der Seiten verantwortlich. Die verlinkten Seiten wurden zum Zeitpunkt der Verlinkung auf m&ouml;gliche Rechtsverst&ouml;&szlig;e &uuml;berpr&uuml;ft. Rechtswidrige Inhalte waren zum Zeitpunkt der Verlinkung nicht erkennbar.</p> 
-            <p>Eine permanente inhaltliche Kontrolle der verlinkten Seiten ist jedoch ohne konkrete Anhaltspunkte einer Rechtsverletzung nicht zumutbar. Bei Bekanntwerden von Rechtsverletzungen werden wir derartige Links umgehend entfernen.</p> 
-            <h2>Urheberrecht</h2> 
-            <p>Die durch die Seitenbetreiber erstellten Inhalte und Werke auf diesen Seiten unterliegen dem deutschen Urheberrecht. Die Vervielf&auml;ltigung, Bearbeitung, Verbreitung und jede Art der Verwertung au&szlig;erhalb der Grenzen des Urheberrechtes bed&uuml;rfen der schriftlichen Zustimmung des jeweiligen Autors bzw. Erstellers. Downloads und Kopien dieser Seite sind nur f&uuml;r den privaten, nicht kommerziellen Gebrauch gestattet.</p> 
-            <p>Soweit die Inhalte auf dieser Seite nicht vom Betreiber erstellt wurden, werden die Urheberrechte Dritter beachtet. Insbesondere werden Inhalte Dritter als solche gekennzeichnet. Sollten Sie trotzdem auf eine Urheberrechtsverletzung aufmerksam werden, bitten wir um einen entsprechenden Hinweis. Bei Bekanntwerden von Rechtsverletzungen werden wir derartige Inhalte umgehend entfernen.</p> 
-            <p>Quelle: <a href="https://www.erecht24.de">eRecht24</a></p>
-        </div>
-    </div>
-</div>-->
+</div>
+
+    <!--<div id="vignette"></div>-->
+   
 </body>
 
 </html>
