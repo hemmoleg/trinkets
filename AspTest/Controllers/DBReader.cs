@@ -6,6 +6,7 @@ using System.Threading.Tasks;
 using asptest.Models;
 using Newtonsoft.Json.Linq;
 using RiotNet.Models;
+using SQLite;
 
 namespace asptest.Controllers
 {
@@ -95,7 +96,7 @@ namespace asptest.Controllers
 
             dynamic jsonObj = new JObject();
             jsonObj.Wins = wins;
-            jsonObj.WinRate = winrate;
+            jsonObj.WinRate = Math.Round(winrate, 2);
             jsonObj.GameCount = matches.Count;
 
             return jsonObj;
@@ -108,6 +109,27 @@ namespace asptest.Controllers
             var matches = await DB.QueryAsync<DBMatch>( query );
 
             return matches;
+        }
+
+        private class ChampionName
+        {
+            // ReSharper disable once InconsistentNaming
+            public string championName
+            {
+                get; set;
+            }
+        }
+
+        public async Task<List<DBStaticChampion>> GetAllPlayedChampions(string userName)
+        {
+            var roughList = await DB.QueryAsync<ChampionName>("select distinct championName from participant where name = '" + userName + "'");
+            var champions = new List<DBStaticChampion>();
+            foreach (var championName in roughList)
+            {
+                champions.Add( DB.QueryAsync<DBStaticChampion>( "select * from staticChampion where name = \"" + championName.championName + "\"" ).Result[0]);
+            }
+
+            return champions;
         }
     }
 }

@@ -4,6 +4,9 @@
     <TypeScriptToolsVersion>2.8</TypeScriptToolsVersion>
   </PropertyGroup>
   <ItemGroup>
+    <Content Remove="wwwroot\js\Requester.ts" />
+  </ItemGroup>
+  <ItemGroup>
     <PackageReference Include="ElectronNET.API" Version="0.0.9" />
     <PackageReference Include="Microsoft.AspNetCore.All" Version="2.0.7" />
     <PackageReference Include="RiotNet" Version="6.3.0" />
@@ -12,6 +15,9 @@
   <ItemGroup>
     <DotNetCliToolReference Include="Microsoft.VisualStudio.Web.CodeGeneration.Tools" Version="2.0.3" />
     <DotNetCliToolReference Include="ElectronNET.CLI" Version="0.0.9" />
+  </ItemGroup>
+  <ItemGroup>
+    <TypeScriptCompile Include="wwwroot\js\Requester.ts" />
   </ItemGroup>
   <ItemGroup>
     <Content Update="electron.manifest.json">

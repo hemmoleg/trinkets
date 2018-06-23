@@ -12,23 +12,31 @@ namespace asptest.Controllers
     public class RiotApiRequester : Controller
     {
         private readonly IRiotClient riotClient;
+        /////////////TO BE REMOVED////////////////
+        public DBReader DB { get; set; }
+        public long SummonerID { get; set; }
+        public long AccountID { get; set; }
 
         public RiotApiRequester()
         {
             RiotNet.RiotClient.DefaultPlatformId = PlatformId.EUW1;
             RiotNet.RiotClient.DefaultSettings = () => new RiotClientSettings
             {
-                ApiKey = "RGAPI-27357930-388a-4c26-963d-c4e723296022"
+                ApiKey = "RGAPI-32c6a7e4-cebc-4658-bc42-fbfeb6821e07"
             };
 
             riotClient = new RiotClient(); // Now you don't need to pass the settings or platform ID parameters.    
             SummonerID = 0; //20757027
             AccountID = 0; //24045056
             //test game Id for short game 3629403670 (loss, lux, mid)
+        }
+
+        public void Init( string userName )
+        {
             try
             {
-                SummonerID = riotClient.GetSummonerBySummonerNameAsync("hemmoleg").Result.Id;
-                AccountID = riotClient.GetSummonerBySummonerNameAsync("hemmoleg").Result.AccountId;
+                SummonerID = riotClient.GetSummonerBySummonerNameAsync(userName).Result.Id;
+                AccountID = riotClient.GetSummonerBySummonerNameAsync(userName).Result.AccountId;
             }
             catch (RestException ex)
             {
@@ -36,10 +44,6 @@ namespace asptest.Controllers
             }
         }
 
-        /////////////TO BE REMOVED////////////////
-        public DBReader DB { get; set; }
-        public long SummonerID { get; }
-        public long AccountID { get; }
 
         [HttpPost("GetSummonerInfo")]
         public async Task<IActionResult> GetSummonerInfoAsync([FromBody] SummonerInfoParams parameters)

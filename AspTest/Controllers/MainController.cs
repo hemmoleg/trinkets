@@ -23,6 +23,7 @@ namespace asptest.Controllers
     {
         private readonly DBReader dbReader;
         private readonly DBWriter dbWriter;
+        private string userName = "hemmoleg";
 
         private readonly RiotApiRequester riotApiRequester;
 
@@ -32,6 +33,7 @@ namespace asptest.Controllers
             this.dbReader = dbReader;
             this.dbWriter = dbWriter;
             this.riotApiRequester = riotApiRequester;
+            this.riotApiRequester.Init(userName);
 
             this.dbReader.AccountID = riotApiRequester.AccountID;
             this.dbWriter.AccountID = riotApiRequester.AccountID;
@@ -93,6 +95,13 @@ namespace asptest.Controllers
         public async Task<IActionResult> GetMatchesByChampID( [FromRoute] int id )
         {
             var result = await dbReader.GetMatchesByChampID( id );
+            return this.Ok( result );
+        }
+
+        [HttpGet( "GetAllPlayedChampions" )]
+        public async Task<IActionResult> GetAllPlayedChampions()
+        {
+            var result = await dbReader.GetAllPlayedChampions(userName);
             return this.Ok( result );
         }
 

@@ -2,6 +2,7 @@
   margin: 0;
   padding: 0;
   overflow: hidden;
+  font-family: 'Mina', sans-serif;
 }
 .sitewrapper {
   position: fixed;
@@ -19,7 +20,7 @@
 }
 .card {
   width: 45vw;
-  height: 20vh;
+  height: 40vh;
   box-shadow: 0 1.5em 0.5em -1em rgba(0, 0, 0, 0.6);
   margin: 3vmin;
   background: white;
@@ -48,7 +49,6 @@
   }
 }
 h3 {
-  font-family: 'Mina', sans-serif;
   text-align: center;
   margin: 0.5em;
 }
