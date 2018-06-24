@@ -3,21 +3,33 @@ body {
     padding: 0;
     overflow: hidden;
     font-family: @font_family_1;
+    background: #213957;
 }
 
 .sitewrapper {
     position: fixed;
     overflow-x: hidden;
-    width: 100%;
+
     height: 100%;
     overflow-y: hidden;
-    background: #213957;
+    
+    
+    margin: 3vw;
+    width: 94vw;
+}
+
+#btnUpdateDatabase {
+    width: 100%;
+    margin-bottom: 2em;
+    height: 3em;
+    font-size: 1em;
+    font-family: @font_family_1;
 }
 
 .flexContainer {
     display: flex;
     background: white;
-    margin: 3vmin;
+    width: 100%;
     height: 50vmin;
 }
 
@@ -28,7 +40,37 @@ body {
     margin: 3vmin;
     background: white;
     border: 1px solid black;
+    text-align: center;
+    overflow-y:scroll;
 }
+
+
+webkit-scrollbar-button {
+    display: none;
+}
+
+::-webkit-scrollbar-thumb {
+    background-color: #CDCDCD;
+}
+
+::-webkit-scrollbar-thumb:hover {
+    background-color: #ff8000;
+}
+
+::-webkit-scrollbar-track {
+    background-color: #ffffff;
+    display:none;
+}
+
+::-webkit-scrollbar-track:hover {
+    background-color: #CCC;
+}
+
+::-webkit-scrollbar {
+    width: 10px;
+}
+
+
 
 #vignette{
     position: fixed;
@@ -38,30 +80,15 @@ body {
     pointer-events: none;
 }
 
-@media (min-aspect-ratio: 16/9) {
-    #fullscreenBGVideo {
-        height: 300%;
-        top: -100%;
-    }
-}
-
-@media (max-aspect-ratio: 16/9) {
-    #fullscreenBGVideo {
-        width: 120%;
-        height: 120%;
-        left: -10%;
-        top: -10%;
-        transform: scale(1.2);
-    }
-}
-
-h3{
-    text-align:center;
+h3 {
+    text-align: center;
     margin: 0.5em;
+    margin-bottom: 0em;
 }
 
-.property{
-    text-align:center;
+h4 {
+    margin: 0.4em;
+    margin-bottom: 0em;
 }
 
 @color_1: white;

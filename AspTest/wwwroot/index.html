@@ -21,18 +21,30 @@
 
 <body>
 <div class="sitewrapper">
+    <button id="btnUpdateDatabase">Update Database</button>
     <div class="flexContainer">
         <div class="card">
             <h3>Winrate</h3>
-            <div class="property">
-                <label>Winrate:</label>
-                <label id="lblWinRate">--%</label>
-            </div>
-            <div class="property">
-                <label>GamesPlayed:</label>
-                <label id="lblGamesPlayed">--</label>
-            </div>
             <select id="ddChampion"></select>
+
+            <h4>Last two weeks</h4>
+            <label>Winrate:</label>
+            <label id="lblWinRate2Weeks">--%</label> <br/>
+            <label>GamesPlayed:</label>
+            <label id="lblGamesPlayed2Weeks">--</label>
+
+            <h4>Last three months</h4>
+            <label>Winrate:</label>
+            <label id="lblWinRate3Months">--%</label> <br/>
+            <label>GamesPlayed:</label>
+            <label id="lblGamesPlayed3Months">--</label>
+
+            <h4>Overall</h4>
+            <label>Winrate:</label>
+            <label id="lblWinRate">--%</label> <br/>
+            <label>GamesPlayed:</label>
+            <label id="lblGamesPlayed">--</label>
+
         </div>
         <div class="card"></div>
         <div class="card"></div>

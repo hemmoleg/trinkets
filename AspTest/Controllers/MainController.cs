@@ -33,7 +33,7 @@ namespace asptest.Controllers
             this.dbReader = dbReader;
             this.dbWriter = dbWriter;
             this.riotApiRequester = riotApiRequester;
-            this.riotApiRequester.Init(userName);
+            //this.riotApiRequester.Init(userName);
 
             this.dbReader.AccountID = riotApiRequester.AccountID;
             this.dbWriter.AccountID = riotApiRequester.AccountID;
@@ -49,6 +49,7 @@ namespace asptest.Controllers
 
             //var dbReader =(DBReader) this.HttpContext.RequestServices.GetService(typeof(DBReader));
 
+            return;
             var riotApiMatches = await riotApiRequester.GetAllMatchesAsync();
             //riotApiRequester.CheckLatestMatchesAsync();
 

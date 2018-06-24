@@ -84,9 +84,21 @@ window.onload = function () {
 function setWinrateInfo(e) {
     if (requesterWinrate.requester.readyState === 4) {
         var response = JSON.parse(requesterWinrate.requester.responseText);
-        var winRateInfo = response;
-        document.getElementById("lblWinRate").innerText = winRateInfo.WinRate.toString() + "%";
-        document.getElementById("lblGamesPlayed").innerText = winRateInfo.GameCount.toString();
+        //let winRateInfo = response as WinrateInfo;
+        console.log(response);
+        //check NaN's
+        if (response.WinRate2Weeks.toString() === "NaN")
+            response.WinRate2Weeks = "-";
+        if (response.WinRate3Months.toString() === "NaN")
+            response.WinRate3Months = "-";
+        if (response.WinRate.toString() === "NaN")
+            response.WinRate = "-";
+        document.getElementById("lblWinRate2Weeks").innerText = response.WinRate2Weeks.toString() + "%";
+        document.getElementById("lblGamesPlayed2Weeks").innerText = response.GameCount2Weeks.toString();
+        document.getElementById("lblWinRate3Months").innerText = response.WinRate3Months.toString() + "%";
+        document.getElementById("lblGamesPlayed3Months").innerText = response.GameCount3Months.toString();
+        document.getElementById("lblWinRate").innerText = response.WinRate.toString() + "%";
+        document.getElementById("lblGamesPlayed").innerText = response.GameCount.toString();
     }
 }
 function setAllPlayedChampions(e) {

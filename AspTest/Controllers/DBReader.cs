@@ -91,6 +91,7 @@ namespace asptest.Controllers
             var query = "select * from match where title LIKE '%" + championName.Replace( "'", "''" ) + "%'";
             var matches = await DB.QueryAsync<DBMatch>( query );
 
+            //data total
             var wins = matches.Count(match => match.Outcome == 1);
             float winrate = ( (float) wins / matches.Count) * 100;
 
@@ -98,6 +99,43 @@ namespace asptest.Controllers
             jsonObj.Wins = wins;
             jsonObj.WinRate = Math.Round(winrate, 2);
             jsonObj.GameCount = matches.Count;
+
+
+            //data last 3 Months
+            var matchesLast3Months = new List<DBMatch>();
+            foreach (var match in matches)
+            {
+                var time = DateTime.UtcNow - new DateTime( 1970, 1, 1 ) - new TimeSpan( 90, 0, 0, 0 );
+                if( match.Creation > time.TotalMilliseconds )
+                {
+                    matchesLast3Months.Add(match);
+                }
+            }
+
+            wins = matchesLast3Months.Count( match => match.Outcome == 1 );
+            winrate = ( (float) wins / matchesLast3Months.Count ) * 100;
+
+            jsonObj.Wins3Months = wins;
+            jsonObj.WinRate3Months = Math.Round( winrate, 2 );
+            jsonObj.GameCount3Months = matchesLast3Months.Count;
+
+            //data last 14 Days
+            var matchesLast14Days = new List<DBMatch>();
+            foreach( var match in matchesLast14Days )
+            {
+                var time = DateTime.UtcNow - new DateTime( 1970, 1, 1 ) - new TimeSpan( 14, 0, 0, 0 );
+                if( match.Creation > time.TotalMilliseconds )
+                {
+                    matchesLast14Days.Add( match );
+                }
+            }
+
+            wins = matchesLast14Days.Count( match => match.Outcome == 1 );
+            winrate = ( (float) wins / matchesLast14Days.Count ) * 100;
+
+            jsonObj.Wins2Weeks = wins;
+            jsonObj.WinRate2Weeks = Math.Round( winrate, 2 );
+            jsonObj.GameCount2Weeks = matchesLast14Days.Count;
 
             return jsonObj;
         }
