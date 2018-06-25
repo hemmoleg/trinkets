@@ -15,6 +15,7 @@ namespace asptest
         {
             return WebHost.CreateDefaultBuilder(args)
                 //.UseElectron(args)
+                .UseUrls("http://localhost:5001/")
                 .UseStartup<Startup>()
                 .Build();
         }

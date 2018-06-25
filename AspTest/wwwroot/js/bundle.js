@@ -58,33 +58,22 @@ function processRequest(e) {
     }
 }
 var requesterWinrate;
-var requesterAllPlayedChampions;
+var tester;
 window.onload = function () {
-    //testQuery();
-    console.log("TEST3");
-    /*xhr.open('GET', "http://localhost:50528/Main/GetMatchByID/2976859413");
-    xhr.onreadystatechange = processRequest;
-    xhr.setRequestHeader("Content-Type", "application/json;charset=UTF-8");
-    xhr.send(null);
-    */
-    /*xhr.open('GET', "http://localhost:50528/Main/GetMatchesByChampID/202");
-    xhr.onreadystatechange = processRequest;
-    xhr.setRequestHeader("Content-Type", "application/json;charset=UTF-8");
-    xhr.send(null);*/
+    document.getElementById("btnUpdateDB").onclick = onClickBtnUpdateDB;
     document.getElementById("lblWinRate").innerText = "blubb3";
     document.getElementById("ddChampion").onchange = onDdChampionSelect;
-    requesterWinrate = new Requester("http://localhost:50528/Main/GetWinrateByChampID/");
+    requesterWinrate = new Requester("http://localhost:5001/Main/GetWinrateByChampID/");
     requesterWinrate.requester.onreadystatechange = setWinrateInfo;
     requesterWinrate.parameter = "202";
     requesterWinrate.send();
-    requesterAllPlayedChampions = new Requester("http://localhost:50528/Main/GetAllPlayedChampions");
-    requesterAllPlayedChampions.requester.onreadystatechange = setAllPlayedChampions;
-    requesterAllPlayedChampions.send();
+    tester = new Requester("http://localhost:5001/Main/GetAllPlayedChampions");
+    tester.requester.onreadystatechange = setAllPlayedChampions;
+    tester.send();
 };
 function setWinrateInfo(e) {
     if (requesterWinrate.requester.readyState === 4) {
         var response = JSON.parse(requesterWinrate.requester.responseText);
-        //let winRateInfo = response as WinrateInfo;
         console.log(response);
         //check NaN's
         if (response.WinRate2Weeks.toString() === "NaN")
@@ -102,8 +91,8 @@ function setWinrateInfo(e) {
     }
 }
 function setAllPlayedChampions(e) {
-    if (requesterAllPlayedChampions.requester.readyState === 4) {
-        var response = JSON.parse(requesterAllPlayedChampions.requester.responseText);
+    if (tester.requester.readyState === 4) {
+        var response = JSON.parse(tester.requester.responseText);
         console.log(response);
         response.forEach(function (champion) {
             var newoption = document.createElement("option");
@@ -117,5 +106,14 @@ function onDdChampionSelect(e) {
     var select = document.getElementById("ddChampion");
     requesterWinrate.parameter = select.options[select.selectedIndex].value.toString();
     requesterWinrate.send();
+}
+function onClickBtnUpdateDB() {
+    tester = new Requester("http://localhost:5001/Main/UpdateDB");
+    //requesterAllPlayedChampions.requester.onreadystatechange = setAllPlayedChampions;
+    tester.send();
+    if (document.getElementById("btnUpdateDB").classList.contains("AnimUpdateDB"))
+        document.getElementById("btnUpdateDB").classList.remove("AnimUpdateDB");
+    else
+        document.getElementById("btnUpdateDB").classList.add("AnimUpdateDB");
 }
 //# sourceMappingURL=bundle.js.map

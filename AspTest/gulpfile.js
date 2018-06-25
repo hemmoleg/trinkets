@@ -4,7 +4,7 @@ var less = require("gulp-less");
 
 gulp.task("less",
     function() {
-        gulp.src("*.less")
+        gulp.src("wwwroot/css/*.less")
             .pipe(less())
             .pipe(gulp.dest(function(f) {
                 return f.base;
@@ -14,5 +14,5 @@ gulp.task("less",
 gulp.task("watch_less",
     ["less"],
     function() {
-        gulp.watch("*.less", ["less"]);
+        gulp.watch("wwwroot/css/*.less", ["less"]);
     });

@@ -8,7 +8,14 @@
             "args": [
                 "build",
                 "${workspaceFolder}/asptest.csproj"
-            ],
+            ]
+        },
+        {
+            "type": "gulp",
+            "task": "less",
+            "problemMatcher": [
+                "$lessc"
+            ]
         }
     ]
 }

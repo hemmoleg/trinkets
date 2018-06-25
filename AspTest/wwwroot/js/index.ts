@@ -15,19 +15,6 @@ interface Person
     lastName: string;
 }
 
-
-interface WinrateInfo {
-    Wins: number;
-    WinRate: number;
-    GameCount: number;
-
-}
-
-interface IDBStaticChampion
-{
-    
-}
-
 interface MatchesInfo {
     Matches: DBMatch[];
 }
@@ -78,36 +65,26 @@ function processRequest(e :Event)
 }
 
 var requesterWinrate: Requester;
-var requesterAllPlayedChampions: Requester;
+var tester: Requester;
 
 window.onload = function () 
 {
-    //testQuery();
-    console.log("TEST3");
-    /*xhr.open('GET', "http://localhost:50528/Main/GetMatchByID/2976859413");
-    xhr.onreadystatechange = processRequest;
-    xhr.setRequestHeader("Content-Type", "application/json;charset=UTF-8");
-    xhr.send(null);
-    */
-    /*xhr.open('GET', "http://localhost:50528/Main/GetMatchesByChampID/202");
-    xhr.onreadystatechange = processRequest;
-    xhr.setRequestHeader("Content-Type", "application/json;charset=UTF-8");
-    xhr.send(null);*/
+    
 
-
+    document.getElementById("btnUpdateDB").onclick = onClickBtnUpdateDB;
 
     document.getElementById("lblWinRate").innerText = "blubb3";
 
     document.getElementById("ddChampion").onchange = onDdChampionSelect;
 
-    requesterWinrate = new Requester("http://localhost:50528/Main/GetWinrateByChampID/");
+    requesterWinrate = new Requester("http://localhost:5001/Main/GetWinrateByChampID/");
     requesterWinrate.requester.onreadystatechange = setWinrateInfo;
     requesterWinrate.parameter = "202";
     requesterWinrate.send();
 
-    requesterAllPlayedChampions = new Requester("http://localhost:50528/Main/GetAllPlayedChampions");
-    requesterAllPlayedChampions.requester.onreadystatechange = setAllPlayedChampions;
-    requesterAllPlayedChampions.send();
+    tester = new Requester("http://localhost:5001/Main/GetAllPlayedChampions");
+    tester.requester.onreadystatechange = setAllPlayedChampions;
+    tester.send();
 }
 
 function setWinrateInfo(e: Event)
@@ -115,7 +92,6 @@ function setWinrateInfo(e: Event)
     if (requesterWinrate.requester.readyState === 4)
     {
         var response = JSON.parse(requesterWinrate.requester.responseText);
-        //let winRateInfo = response as WinrateInfo;
         console.log(response);
 
         //check NaN's
@@ -139,9 +115,9 @@ function setWinrateInfo(e: Event)
 
 function setAllPlayedChampions(e: Event)
 {
-    if (requesterAllPlayedChampions.requester.readyState === 4)
+    if (tester.requester.readyState === 4)
     {
-        const response = JSON.parse(requesterAllPlayedChampions.requester.responseText);
+        const response = JSON.parse(tester.requester.responseText);
         console.log(response);
 
         response.forEach((champion: any) =>
@@ -159,4 +135,16 @@ function onDdChampionSelect(e: Event)
     var select = document.getElementById("ddChampion") as HTMLSelectElement;
     requesterWinrate.parameter = select.options[select.selectedIndex].value.toString();
     requesterWinrate.send();
+}
+
+function onClickBtnUpdateDB()
+{
+    tester = new Requester("http://localhost:5001/Main/UpdateDB");
+    //requesterAllPlayedChampions.requester.onreadystatechange = setAllPlayedChampions;
+    tester.send();
+
+    if(document.getElementById("btnUpdateDB").classList.contains("AnimUpdateDB"))
+        document.getElementById("btnUpdateDB").classList.remove("AnimUpdateDB");
+    else
+        document.getElementById("btnUpdateDB").classList.add("AnimUpdateDB");
 }

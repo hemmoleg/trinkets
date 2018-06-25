@@ -8,6 +8,7 @@ using System.Net.Http.Headers;
 using System.Text;
 using System.Threading.Tasks;
 using asptest.Models;
+using ElectronNET.API;
 using Microsoft.AspNetCore.Mvc;
 using Newtonsoft.Json;
 using RiotNet.Models;
@@ -76,6 +77,14 @@ namespace asptest.Controllers
             }
 
             //compareGamesDBAgainstApi(riotApiMatches, matchesFromDB);
+        }
+
+        [HttpGet("UpdateDB")]
+        public async Task<IActionResult> UpdateDB(  )
+        {//signalR?
+            var mainWindow = Electron.WindowManager.BrowserWindows.First();
+            Console.WriteLine("Electron: " + mainWindow);
+            return this.Ok();
         }
 
         [HttpGet("GetMatchByID/{id}")]
