@@ -84,11 +84,22 @@ function setWinrateInfo(e) {
             response.WinRate = "-";
         document.getElementById("lblWinRate2Weeks").innerText = response.WinRate2Weeks.toString() + "%";
         document.getElementById("lblGamesPlayed2Weeks").innerText = response.GameCount2Weeks.toString();
+        document.getElementById("lblAvgGameTime2Weeks").innerText = convertSecondsToTime(response.AvgGameTime2Weeks);
         document.getElementById("lblWinRate3Months").innerText = response.WinRate3Months.toString() + "%";
         document.getElementById("lblGamesPlayed3Months").innerText = response.GameCount3Months.toString();
+        document.getElementById("lblAvgGameTime3Months").innerText = convertSecondsToTime(response.AvgGameTime3Months);
         document.getElementById("lblWinRate").innerText = response.WinRate.toString() + "%";
         document.getElementById("lblGamesPlayed").innerText = response.GameCount.toString();
+        document.getElementById("lblAvgGameTime").innerText = convertSecondsToTime(response.AvgGameTime);
     }
+}
+function convertSecondsToTime(seconds) {
+    if (seconds === 0)
+        return "--:--";
+    var minutes = Math.floor(seconds / 60);
+    var secs = Math.floor(seconds - minutes * 60);
+    var secsS = secs < 10 ? "0" + secs : secs;
+    return minutes + ":" + secsS;
 }
 function setAllPlayedChampions(e) {
     if (tester.requester.readyState === 4) {

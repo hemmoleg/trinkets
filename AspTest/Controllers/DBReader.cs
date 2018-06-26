@@ -94,11 +94,13 @@ namespace asptest.Controllers
             //data total
             var wins = matches.Count(match => match.Outcome == 1);
             float winrate = ( (float) wins / matches.Count) * 100;
+            var avgGameTime = matches.Average(match => match.Duration);
 
             dynamic jsonObj = new JObject();
             jsonObj.Wins = wins;
             jsonObj.WinRate = Math.Round(winrate, 2);
             jsonObj.GameCount = matches.Count;
+            jsonObj.AvgGameTime = Math.Round( avgGameTime, 0);
 
 
             //data last 3 Months
@@ -114,10 +116,12 @@ namespace asptest.Controllers
 
             wins = matchesLast3Months.Count( match => match.Outcome == 1 );
             winrate = ( (float) wins / matchesLast3Months.Count ) * 100;
+            avgGameTime = matchesLast3Months.Count > 0 ? matchesLast3Months.Average( match => match.Duration ) : 0;
 
             jsonObj.Wins3Months = wins;
             jsonObj.WinRate3Months = Math.Round( winrate, 2 );
             jsonObj.GameCount3Months = matchesLast3Months.Count;
+            jsonObj.AvgGameTime3Months = Math.Round( avgGameTime, 0 );
 
             //data last 14 Days
             var matchesLast14Days = new List<DBMatch>();
@@ -132,10 +136,12 @@ namespace asptest.Controllers
 
             wins = matchesLast14Days.Count( match => match.Outcome == 1 );
             winrate = ( (float) wins / matchesLast14Days.Count ) * 100;
+            avgGameTime = matchesLast14Days.Count > 0 ? matchesLast14Days.Average( match => match.Duration ) : 0;
 
             jsonObj.Wins2Weeks = wins;
             jsonObj.WinRate2Weeks = Math.Round( winrate, 2 );
             jsonObj.GameCount2Weeks = matchesLast14Days.Count;
+            jsonObj.AvgGameTime2Weeks = Math.Round( avgGameTime, 0 );
 
             return jsonObj;
         }
