@@ -25,15 +25,16 @@ namespace LoLStats.Controllers
         private readonly DBReader dbReader;
         private readonly DBWriter dbWriter;
         private string userName = "hemmoleg";
-
+        
         private readonly RiotApiRequester riotApiRequester;
 
         // dependency incejtion, inversion of control
-        public MainController(DBReader dbReader, DBWriter dbWriter, RiotApiRequester riotApiRequester)
+        public MainController(DBReader dbReader, DBWriter dbWriter, RiotApiRequester riotApiRequester)//, ChatHub chatHub)
         {
             this.dbReader = dbReader;
             this.dbWriter = dbWriter;
             this.riotApiRequester = riotApiRequester;
+            //this.chatHub = chatHub;
             //this.riotApiRequester.Init(userName);
 
             this.dbReader.AccountID = riotApiRequester.AccountID;
@@ -81,7 +82,9 @@ namespace LoLStats.Controllers
 
         [HttpGet("UpdateDB")]
         public async Task<IActionResult> UpdateDB(  )
-        {//signalR?
+        {
+            var hub = (IHubContext<ChatHub>) this.HttpContext.RequestServices.GetService(typeof(IHubContext<ChatHub>));
+            hub.Clients.All.SendAsync("UpdateDB", "UpdateDBMsg");
             return this.Ok();
         }
 
@@ -95,6 +98,7 @@ namespace LoLStats.Controllers
         [HttpGet( "GetWinrateByChampID/{id}" )]
         public async Task<IActionResult> GetWinrateByChampID( [FromRoute] int id )
         {
+
             var result = await dbReader.GetWinrateByChampID( id );
             return this.Ok( result );
         }

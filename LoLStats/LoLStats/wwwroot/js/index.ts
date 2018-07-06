@@ -24,7 +24,7 @@ interface DBMatch {
 //import * as signalR from "signalr.js";
 //import signalR = require("./signalr.js");
 
-import { HubConnectionBuilder } from "@aspnet/signalr";
+import { HubConnectionBuilder, HubConnection } from "@aspnet/signalr";
 import { Requester } from "./Requester";
 
 function greeter(person: Person)
@@ -70,10 +70,11 @@ function processRequest(e :Event)
 
 var requesterWinrate: Requester;
 var tester: Requester;
+var connection: HubConnection;
 
 window.onload = function ()
 {
-    const connection = new HubConnectionBuilder()
+    connection = new HubConnectionBuilder()
         .withUrl("/chatHub")
         .build();
      
@@ -92,7 +93,21 @@ window.onload = function ()
     tester = new Requester("https://localhost:5001/Main/GetAllPlayedChampions");
     tester.requester.onreadystatechange = setAllPlayedChampions;
     tester.send();
+
+
+    connection.on("ReceiveMessage", (user, message) => {
+        const msg = message.replace(/&/g, "&amp;").replace(/</g, "&lt;").replace(/>/g, "&gt;");
+        const encodedMsg = user + " says " + msg;
+        const li = document.createElement("li");
+        li.textContent = encodedMsg;
+        console.log(encodedMsg);
+    });
+
+    connection.start().catch(err => console.error(err.toString()));
+
 }
+
+
 
 function setWinrateInfo(e: Event)
 {
@@ -160,7 +175,9 @@ function onDdChampionSelect(e: Event)
 
 function onClickBtnUpdateDB()
 {
-    tester = new Requester("http://localhost:5001/Main/UpdateDB");
+    connection.invoke("SendMessage", "onClickUpdateDB", "onClickUpdateDBMsg").catch(err => console.error(err.toString()));
+
+    tester = new Requester("https://localhost:5001/Main/UpdateDB");
     //requesterAllPlayedChampions.requester.onreadystatechange = setAllPlayedChampions;
     tester.send();
 
