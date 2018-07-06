@@ -10,6 +10,7 @@ using System.Threading.Tasks;
 using asptest.Models;
 using ElectronNET.API;
 using Microsoft.AspNetCore.Mvc;
+using Microsoft.AspNetCore.SignalR;
 using Newtonsoft.Json;
 using RiotNet.Models;
 
@@ -317,3 +318,11 @@ namespace asptest.Controllers
         }
     }
 }
+
+    public class ChatHub : Hub
+    {
+        public async Task SendMessage( string user, string message )
+        {
+            await Clients.All.SendAsync( "ReceiveMessage", user, message );
+        }
+    }

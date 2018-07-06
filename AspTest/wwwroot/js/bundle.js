@@ -1,17 +1,3 @@
-var Requester = /** @class */ (function () {
-    function Requester(addressParam) {
-        this.addressParam = addressParam;
-        this.parameter = "";
-        this.requester = new XMLHttpRequest();
-        this.address = addressParam;
-    }
-    Requester.prototype.send = function () {
-        this.requester.open('GET', this.address.concat(this.parameter));
-        this.requester.setRequestHeader("Content-Type", "application/json;charset=UTF-8");
-        this.requester.send(null);
-    };
-    return Requester;
-}());
 //import $ from "jquery";
 var Student = /** @class */ (function () {
     function Student(firstName, middleName, lastName) {
@@ -127,4 +113,18 @@ function onClickBtnUpdateDB() {
     else
         document.getElementById("btnUpdateDB").classList.add("AnimUpdateDB");
 }
+var Requester = /** @class */ (function () {
+    function Requester(addressParam) {
+        this.addressParam = addressParam;
+        this.parameter = "";
+        this.requester = new XMLHttpRequest();
+        this.address = addressParam;
+    }
+    Requester.prototype.send = function () {
+        this.requester.open('GET', this.address.concat(this.parameter));
+        this.requester.setRequestHeader("Content-Type", "application/json;charset=UTF-8");
+        this.requester.send(null);
+    };
+    return Requester;
+}());
 //# sourceMappingURL=bundle.js.map

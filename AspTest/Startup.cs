@@ -22,6 +22,8 @@ namespace asptest
         {
             services.AddMvc();
 
+            services.AddSignalR();
+
             services.AddSingleton(s => new DBReader());
             services.AddSingleton(s => new DBWriter());
             services.AddSingleton(s => new RiotApiRequester());
@@ -38,6 +40,10 @@ namespace asptest
             app.UseDefaultFiles();
             app.UseStaticFiles();
             app.UseMvc();
+            app.UseSignalR( routes =>
+            {
+                routes.MapHub<ChatHub>( "/chathub" );
+            } );
 
             var main = new MainController((DBReader) app.ApplicationServices.GetService(typeof(DBReader)),
                 (DBWriter) app.ApplicationServices.GetService(typeof(DBWriter)),
