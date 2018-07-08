@@ -4,17 +4,29 @@
   "description": "lolstatsdesc",
   "scripts": {
     "test": "echo \"Error: no test specified\" && exit 1",
-    "build": "webpack --watch --info-verbosity verbose"
+    "build": "webpack --watch --info-verbosity verbose",
+    "start": "webpack-dev-server --open --port 5001"
   },
   "author": "",
   "license": "ISC",
   "dependencies": {
-    "@aspnet/signalr": "^1.0.0"
+    "@aspnet/signalr": "^1.0.0",
+    "@types/node": "^10.5.2",
+    "aspnet-webpack": "^3.0.0",
+    "@types/webpack-env": "^1.13.6"
   },
   "devDependencies": {
+    "autoprefixer-loader": "^3.2.0",
+    "css-loader": "^1.0.0",
+    "extract-text-webpack-plugin": "^4.0.0-beta.0",
+    "less-loader": "^4.1.0",
+    "style-loader": "^0.21.0",
     "ts-loader": "^4.4.2",
     "typescript": "^2.9.2",
     "webpack": "^4.15.1",
-    "webpack-cli": "^3.0.8"
+    "webpack-cli": "^3.0.8",
+    "webpack-dev-server": "^3.1.4",
+    "webpack-hot-middleware": "^2.22.2",
+    "webpack-livereload-plugin": "^2.1.1"
   }
 }

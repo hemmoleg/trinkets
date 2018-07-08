@@ -9,6 +9,7 @@ using Microsoft.AspNetCore.Hosting;
 using Microsoft.AspNetCore.Http;
 using Microsoft.AspNetCore.HttpsPolicy;
 using Microsoft.AspNetCore.Mvc;
+using Microsoft.AspNetCore.SpaServices.Webpack;
 using Microsoft.Extensions.Configuration;
 using Microsoft.Extensions.DependencyInjection;
 
@@ -33,8 +34,10 @@ namespace LoLStats
                 options.MinimumSameSitePolicy = SameSiteMode.None;
             });*/
 
-
             services.AddMvc();//.SetCompatibilityVersion(CompatibilityVersion.Version_2_1);
+
+            //services.AddNodeServices();
+
             services.AddCors(options =>
                 options.AddPolicy("CorsPolicy",
                     builder => builder.AllowAnyHeader().AllowAnyMethod().AllowCredentials().WithOrigins("*"))
@@ -52,6 +55,10 @@ namespace LoLStats
             if( env.IsDevelopment() )
                 app.UseDeveloperExceptionPage();
 
+            //app.UseWebpackDevMiddleware(new WebpackDevMiddlewareOptions
+             //       { HotModuleReplacement = true }
+             //   );
+
             app.UseDefaultFiles();
             app.UseStaticFiles();
             app.UseCors("CorsPolicy");
@@ -64,7 +71,8 @@ namespace LoLStats
             var main = new MainController( (DBReader) app.ApplicationServices.GetService( typeof( DBReader ) ),
                 (DBWriter) app.ApplicationServices.GetService( typeof( DBWriter ) ),
                 (RiotApiRequester) app.ApplicationServices.GetService( typeof( RiotApiRequester ) ));
-                //app.ApplicationServices.GetRequiredService<ChatHub>() );
+
+            //main.Main();
         }
     }
 }

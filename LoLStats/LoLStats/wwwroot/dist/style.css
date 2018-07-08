@@ -1,4 +1,4 @@
-﻿body {
+body {
   margin: 0;
   padding: 0;
   overflow: hidden;
@@ -21,6 +21,7 @@
   font-family: 'Mina', sans-serif;
   background: linear-gradient(-45deg, #EE7752, #23A6D5, #E73C7E, #23D5AB);
   background-size: 400% 400%;
+  color: blue;
 }
 .AnimUpdateDB {
   animation: Gradient 7s linear infinite;
@@ -153,3 +154,5 @@ body {
   font-size: 4vmin;
   line-height: 1.2;
 }
+
+/*# sourceMappingURL=data:application/json;charset=utf-8;base64,eyJ2ZXJzaW9uIjozLCJzb3VyY2VzIjpbXSwibmFtZXMiOltdLCJtYXBwaW5ncyI6IiIsImZpbGUiOiJzdHlsZS5jc3MiLCJzb3VyY2VSb290IjoiIn0=*/

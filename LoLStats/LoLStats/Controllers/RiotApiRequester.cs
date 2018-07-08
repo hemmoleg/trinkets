@@ -16,13 +16,14 @@ namespace LoLStats.Controllers
         public DBReader DB { get; set; }
         public long SummonerID { get; set; }
         public long AccountID { get; set; }
+        public Boolean Enabled { get; private set; }
 
         public RiotApiRequester()
         {
             RiotNet.RiotClient.DefaultPlatformId = PlatformId.EUW1;
             RiotNet.RiotClient.DefaultSettings = () => new RiotClientSettings
             {
-                ApiKey = "RGAPI-a417e270-6fc0-4469-a409-e0742db6803c"
+                ApiKey = "RGAPI-29384117-1d68-43b7-abba-d425cf2881d6"
             };
 
             riotClient = new RiotClient(); // Now you don't need to pass the settings or platform ID parameters.    
@@ -35,12 +36,17 @@ namespace LoLStats.Controllers
         {
             try
             {
-                SummonerID = riotClient.GetSummonerBySummonerNameAsync(userName).Result.Id;
-                AccountID = riotClient.GetSummonerBySummonerNameAsync(userName).Result.AccountId;
+                SummonerID = riotClient.GetSummonerBySummonerNameAsync( userName ).Result.Id;
+                AccountID = riotClient.GetSummonerBySummonerNameAsync( userName ).Result.AccountId;
+                Enabled = true;
             }
-            catch (RestException ex)
+            catch( RestException ex )
             {
-                Console.WriteLine("Could not get SummonerID! " + ex.Message);
+                Console.WriteLine( "Could not get SummonerID! " + ex.Message );
+            }
+            catch( System.AggregateException ex )
+            {
+                Console.WriteLine( "Could not get SummonerID! " + ex.Message );
             }
         }
 

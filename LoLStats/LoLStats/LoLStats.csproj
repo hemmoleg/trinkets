@@ -13,6 +13,13 @@
   </ItemGroup>
 
   <ItemGroup>
+    <Content Include="Client\css\style.less" />
+    <Content Include="Client\ts\index.ts" />
+    <Content Include="Client\ts\jquery.d.ts" />
+    <Content Include="Client\ts\Requester.ts" />
+  </ItemGroup>
+
+  <ItemGroup>
     <PackageReference Include="Microsoft.AspNetCore.App" />
     <PackageReference Include="RiotNet" Version="6.3.0" />
     <PackageReference Include="sqlite-net-pcl" Version="1.4.118" />
@@ -21,7 +28,6 @@
   <ItemGroup>
     <Folder Include="Controllers\" />
     <Folder Include="Models\" />
-    <Folder Include="wwwroot\css\" />
   </ItemGroup>
 
   <ItemGroup>

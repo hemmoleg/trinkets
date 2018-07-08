@@ -10,6 +10,7 @@ using System.Threading.Tasks;
 using LoLStats.Models;
 using Microsoft.AspNetCore.Mvc;
 using Microsoft.AspNetCore.SignalR;
+using Microsoft.Extensions.DependencyInjection;
 using Newtonsoft.Json;
 using RiotNet.Models;
 
@@ -25,7 +26,7 @@ namespace LoLStats.Controllers
         private readonly DBReader dbReader;
         private readonly DBWriter dbWriter;
         private string userName = "hemmoleg";
-        
+
         private readonly RiotApiRequester riotApiRequester;
 
         // dependency incejtion, inversion of control
@@ -34,28 +35,44 @@ namespace LoLStats.Controllers
             this.dbReader = dbReader;
             this.dbWriter = dbWriter;
             this.riotApiRequester = riotApiRequester;
-            //this.chatHub = chatHub;
-            //this.riotApiRequester.Init(userName);
+            
+            this.riotApiRequester.Init(userName);
+
 
             this.dbReader.AccountID = riotApiRequester.AccountID;
             this.dbWriter.AccountID = riotApiRequester.AccountID;
         }
 
+        [HttpGet( "Main" )]
         public async Task Main()
         {
             await validateDatabase();
-     
+
+
+            if( riotApiRequester.Enabled )
+            {
+                var missingGamesCount = await checkForNewGames();
+                if( missingGamesCount > 0 )
+                {
+                    UpdateBtnUpdateDBText( missingGamesCount + " new Matches found" );
+                    Console.WriteLine( "found missing games, but call to write is commented" );
+                }
+                else
+                {
+                    UpdateBtnUpdateDBText( "No new Matches" );
+                    Console.WriteLine( "No new matches" );
+                }
+            } 
+            else
+                UpdateBtnUpdateDBText("No connection to Riot Servers");
+
             //updateStaticChampionData();
 
             //removeNewChampionAsync();
 
             //var dbReader =(DBReader) this.HttpContext.RequestServices.GetService(typeof(DBReader));
 
-            return;
-            var riotApiMatches = await riotApiRequester.GetAllMatchesAsync();
             //riotApiRequester.CheckLatestMatchesAsync();
-
-            var matchesFromDB = await dbReader.GetAllMatchesAsync();
             
             //addGradesToRecentGames();
 
@@ -65,26 +82,34 @@ namespace LoLStats.Controllers
 
             //writeTestDBMatch(riotApiMatches);
 
-            var grades = await getRecentGameGrades();
-            var missingMatchReferences = await compareGamesApiAgainstDB(riotApiMatches, matchesFromDB);
-            if( missingMatchReferences.Count > 0 )
-            {
-                Console.WriteLine("found missing games, but call to write is commented");
-                //writeAllMissingGamesToDB(missingMatchReferences, grades);
-            }
-            else
-            {
-                Console.WriteLine("No new matches");
-            }
-
             //compareGamesDBAgainstApi(riotApiMatches, matchesFromDB);
         }
 
-        [HttpGet("UpdateDB")]
-        public async Task<IActionResult> UpdateDB(  )
+        private async Task<int> checkForNewGames()
         {
-            var hub = (IHubContext<ChatHub>) this.HttpContext.RequestServices.GetService(typeof(IHubContext<ChatHub>));
-            hub.Clients.All.SendAsync("UpdateDB", "UpdateDBMsg");
+            var riotApiMatches = await riotApiRequester.GetAllMatchesAsync();
+            var matchesFromDB = await dbReader.GetAllMatchesAsync();
+            var grades = await getRecentGameGrades();
+            var missingMatchReferences = await compareGamesApiAgainstDB( riotApiMatches, matchesFromDB );
+            return missingMatchReferences.Count;
+        }
+
+        public void SendClientMessage(string message)
+        {
+            var hub = (IHubContext<ChatHub>) this.HttpContext.RequestServices.GetService<IHubContext<ChatHub>>();
+            hub.Clients.All.SendAsync( "ReceiveMessage", "MainController", message );
+        }
+
+        public void UpdateBtnUpdateDBText( string message )
+        {
+            var hub = (IHubContext<ChatHub>) this.HttpContext.RequestServices.GetService<IHubContext<ChatHub>>();
+            hub.Clients.All.SendAsync( "UpdateBtnUpdateDBText", "MainController", message );
+        }
+
+        [HttpGet("UpdateDB")]
+        public async Task<IActionResult> UpdateDBAsync(  )
+        {
+            //SendClientMessage("UpdateDBMsg");
             return this.Ok();
         }
 
@@ -292,7 +317,7 @@ namespace LoLStats.Controllers
             }
             catch (Exception e)
             {
-                Console.WriteLine("No response from httpClient, Lol client probably not running " + e);
+                Console.WriteLine("No response from httpClient, Lol client probably not running ");
                 return new Grades();
             }
             var streamResult = await result.Content.ReadAsStringAsync();

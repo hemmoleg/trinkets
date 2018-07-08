@@ -1,40 +1,12 @@
-class Student
-{
-    fullName:string;
-    constructor(public firstName: string, public middleName: string, public lastName: string)
-    {
-        this.fullName = this.firstName + " " + this.middleName + " " + this.lastName;
-    }
-}
-
-interface Person
-{
-    firstName: string;
-    lastName: string;
-}
-
-interface MatchesInfo {
-    Matches: DBMatch[];
-}
-
-interface DBMatch {
-    gameId: number;
-}
-
 //import * as signalR from "signalr.js";
 //import signalR = require("./signalr.js");
 
+import '../css/style.less';
 import { HubConnectionBuilder, HubConnection } from "@aspnet/signalr";
 import { Requester } from "./Requester";
+//import { module } from "../../webpack.config";
 
-function greeter(person: Person)
-{
-    return "Hello, " + person.firstName + " " + person.lastName;
-}
-
-var xhr = new XMLHttpRequest();
-
-function testQuery()
+/*function testQuery()
 {
     xhr.open('POST', "Function/GetSummonerInfo", true);
     xhr.onreadystatechange = processRequest;
@@ -45,13 +17,13 @@ function testQuery()
 
     xhr.setRequestHeader("Content-Type", "application/json;charset=UTF-8");
     xhr.send(JSON.stringify({ "endpoint": endpoint, "name": name, "key": key}));
-}
+}*/
 
-function processRequest(e :Event)
+/*function processRequest(e :Event)
 {
     switch(xhr.readyState)
     {
-        case 1: console.log("connection open, request not sent");
+        case 1: console.log("channelServerMsg open, request not sent");
                 break;
         case 2: console.log("request sent, status is " + xhr.status + " " + xhr.statusText);
                 break;
@@ -63,25 +35,38 @@ function processRequest(e :Event)
             console.log(testMatchesInfo.length);
                 /*let testWinRate = response as WinrateInfo;
                 console.log(response);
-                console.log(testWinRate.WinRate);*/
+                console.log(testWinRate.WinRate);
                 break;
     }    
-}
+}*/
 
 var requesterWinrate: Requester;
 var tester: Requester;
-var connection: HubConnection;
+var channelServerMsg: HubConnection;
 
-window.onload = function ()
+if (module.hot)
 {
-    connection = new HubConnectionBuilder()
+    module.hot.accept();/*[],
+        function()
+        {
+            console.log('Accepting the updated printMe module!');
+        });*/
+}
+
+window.onload = onLoad;
+
+function onLoad()
+{
+    channelServerMsg = new HubConnectionBuilder()
         .withUrl("/chatHub")
         .build();
-     
-    document.getElementById("btnUpdateDB").onclick = onClickBtnUpdateDB;
-    document.getElementById("btnUpdateDB").innerText = "TEST4";
 
-    document.getElementById("lblWinRate").innerText = "blubb3";
+    $("h3").text("TEST");
+
+    $("#btnUpdateDB").click(onClickBtnUpdateDB)
+        .toggleClass("AnimUpdateDB")
+        .text("looking for new games...")
+        .prop("disabled", true);
 
     document.getElementById("ddChampion").onchange = onDdChampionSelect;
 
@@ -95,16 +80,35 @@ window.onload = function ()
     tester.send();
 
 
-    connection.on("ReceiveMessage", (user, message) => {
-        const msg = message.replace(/&/g, "&amp;").replace(/</g, "&lt;").replace(/>/g, "&gt;");
-        const encodedMsg = user + " says " + msg;
-        const li = document.createElement("li");
-        li.textContent = encodedMsg;
-        console.log(encodedMsg);
-    });
+    channelServerMsg.on("ReceiveMessage",
+        (user, message) =>
+        {
+            const msg = message.replace(/&/g, "&amp;").replace(/</g, "&lt;").replace(/>/g, "&gt;");
+            const encodedMsg = user + " says " + msg;
+            const li = document.createElement("li");
+            li.textContent = encodedMsg;
+            console.log(encodedMsg);
+        }
+    );
 
-    connection.start().catch(err => console.error(err.toString()));
+    channelServerMsg.on("UpdateBtnUpdateDBText",
+        (user, message) =>
+        {
+            $("#btnUpdateDB").text("Update DB (" + message + ")")
+                .prop("disabled", false)
+                .toggleClass("AnimUpdateDB");
 
+            console.log(user, message);
+            
+            if (message === "No connection to Riot Servers")
+                (document.getElementById("btnUpdateDB") as HTMLButtonElement).disabled = true;
+        }
+    );
+
+    channelServerMsg.start().catch(err => console.error(err.toString()));
+
+    var requesterMain = new Requester("https://localhost:5001/Main/Main/");
+    requesterMain.send();
 }
 
 
@@ -138,17 +142,6 @@ function setWinrateInfo(e: Event)
     }
 }
 
-function convertSecondsToTime(seconds : number)
-{
-    if (seconds === 0)
-        return "--:--";
-
-    let minutes = Math.floor(seconds / 60);
-    var secs = Math.floor(seconds - minutes * 60);
-    let secsS = secs < 10 ? `0${secs}` : secs;
-    return minutes + ":" + secsS;
-}
-
 function setAllPlayedChampions(e: Event)
 {
     if (tester.requester.readyState === 4)
@@ -175,14 +168,24 @@ function onDdChampionSelect(e: Event)
 
 function onClickBtnUpdateDB()
 {
-    connection.invoke("SendMessage", "onClickUpdateDB", "onClickUpdateDBMsg").catch(err => console.error(err.toString()));
+    channelServerMsg.invoke("SendMessage", "onClickUpdateDB", "onClickUpdateDBMsg").catch(err => console.error(err.toString()));
 
     tester = new Requester("https://localhost:5001/Main/UpdateDB");
     //requesterAllPlayedChampions.requester.onreadystatechange = setAllPlayedChampions;
     tester.send();
 
-    if(document.getElementById("btnUpdateDB").classList.contains("AnimUpdateDB"))
-        document.getElementById("btnUpdateDB").classList.remove("AnimUpdateDB");
-    else
-        document.getElementById("btnUpdateDB").classList.add("AnimUpdateDB");
+    $("#btnUpdateDB").toggleClass("AnimUpdateDB");
+
+    console.log("TEST3");
+}
+
+function convertSecondsToTime(seconds : number)
+{
+    if (seconds === 0)
+        return "--:--";
+
+    let minutes = Math.floor(seconds / 60);
+    var secs = Math.floor(seconds - minutes * 60);
+    let secsS = secs < 10 ? `0${secs}` : secs;
+    return minutes + ":" + secsS;
 }
