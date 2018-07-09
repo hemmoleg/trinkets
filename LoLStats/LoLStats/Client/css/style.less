@@ -18,9 +18,22 @@ body {
     width: 94vw;
 }
 
+#topContainer {
+    height: 11vmin;
+    transition: height ease-in-out 0.4s;
+}
+
+.topContainerOnNoRiotConnection{
+    height: calc(11vmin + 2rem) !important
+}
+
+#topContainer.topContainerOnNoRiotConnection #inputApiKey {
+    top: 0.3em;
+}
+
 #btnUpdateDB {
     width: 100%;
-    margin-bottom: 2em;
+    
     height: 3em;
     font-size: 1em;
 	font-family: @font_family_1;
@@ -29,6 +42,20 @@ body {
 	background-size: 400% 400%;
     color: blue;
 }
+
+#inputApiKey {
+    position: relative;
+    margin-left: 20%;
+    width: 60%;
+    height: 1.5rem;
+    text-align: center;
+    font-size: 1.3rem;
+    top: -2em;
+    transition: top ease-in-out 0.4s;
+    z-index: -1;
+}
+
+#iptApiKey:hover{top: 200px}
 
 .AnimUpdateDB{
 	animation: Gradient 7s linear infinite;

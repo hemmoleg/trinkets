@@ -12,6 +12,9 @@
 # User-specific files (MonoDevelop/Xamarin Studio)
 *.userprefs
 
+#config for LolStats
+**/LoLStats/config.txt
+
 # Build results
 [Dd]ebug/
 [Dd]ebugPublic/

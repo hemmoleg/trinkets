@@ -25,7 +25,7 @@ namespace LoLStats.Controllers
     {
         private readonly DBReader dbReader;
         private readonly DBWriter dbWriter;
-        private string userName = "hemmoleg";
+        //private string userName = "hemmoleg";
 
         private readonly RiotApiRequester riotApiRequester;
 
@@ -36,7 +36,7 @@ namespace LoLStats.Controllers
             this.dbWriter = dbWriter;
             this.riotApiRequester = riotApiRequester;
             
-            this.riotApiRequester.Init(userName);
+            this.riotApiRequester.Init();
 
 
             this.dbReader.AccountID = riotApiRequester.AccountID;
@@ -138,9 +138,20 @@ namespace LoLStats.Controllers
         [HttpGet( "GetAllPlayedChampions" )]
         public async Task<IActionResult> GetAllPlayedChampions()
         {
-            var result = await dbReader.GetAllPlayedChampions(userName);
+            var result = await dbReader.GetAllPlayedChampions(riotApiRequester.UserName);
             return this.Ok( result );
         }
+
+        [HttpGet( "UpdateApiKey/{newApiKey}" )]
+        public async Task UpdateApiKey( [FromRoute] string newApiKey )
+        {
+            riotApiRequester.UpdateApiKey(newApiKey);
+            if( riotApiRequester.Enabled )
+            {
+                await Main();
+            }
+        }
+
 
         private void writeAllMissingGamesToDB(List<MatchReference> matchReferences, Grades grades)
         {

@@ -1,8 +1,11 @@
 using System;
 using System.Collections.Generic;
+using System.IO;
 using System.Linq;
+using System.Runtime.CompilerServices;
 using System.Threading.Tasks;
 using Microsoft.AspNetCore.Mvc;
+using Newtonsoft.Json;
 using RiotNet;
 using RiotNet.Models;
 
@@ -11,42 +14,53 @@ namespace LoLStats.Controllers
     [Route("Function")]
     public class RiotApiRequester : Controller
     {
-        private readonly IRiotClient riotClient;
+        private IRiotClient riotClient;
         /////////////TO BE REMOVED////////////////
         public DBReader DB { get; set; }
-        public long SummonerID { get; set; }
+        public string UserName { get; private set; }
+        private long SummonerID { get; set; }
         public long AccountID { get; set; }
-        public Boolean Enabled { get; private set; }
+        public bool Enabled { get; private set; }
 
         public RiotApiRequester()
         {
-            RiotNet.RiotClient.DefaultPlatformId = PlatformId.EUW1;
-            RiotNet.RiotClient.DefaultSettings = () => new RiotClientSettings
-            {
-                ApiKey = "RGAPI-29384117-1d68-43b7-abba-d425cf2881d6"
-            };
+            var r = new StreamReader(
+                new FileStream(Path.Combine(Directory.GetCurrentDirectory(), "config.txt"), FileMode.Open)
+            );
+            var json = r.ReadToEnd();
+            dynamic config = JsonConvert.DeserializeObject(json);
 
-            riotClient = new RiotClient(); // Now you don't need to pass the settings or platform ID parameters.    
+            var settings = new RiotClientSettings {ApiKey = config.apiKey};
+
+
+            RiotNet.RiotClient.DefaultPlatformId = config.platformID;//PlatformId.EUW1;
+            RiotNet.RiotClient.DefaultSettings = () => settings;
+
             SummonerID = 0; //20757027
             AccountID = 0; //24045056
+            UserName = config.accountName;
+            riotClient = new RiotClient(); // Now you don't need to pass the settings or platform ID parameters.    
             //test game Id for short game 3629403670 (loss, lux, mid)
+
+            r.Close();
         }
 
-        public void Init( string userName )
+        public void Init()
         {
+
             try
             {
-                SummonerID = riotClient.GetSummonerBySummonerNameAsync( userName ).Result.Id;
-                AccountID = riotClient.GetSummonerBySummonerNameAsync( userName ).Result.AccountId;
+                SummonerID = riotClient.GetSummonerBySummonerNameAsync( this.UserName ).Result.Id;
+                AccountID = riotClient.GetSummonerBySummonerNameAsync( this.UserName ).Result.AccountId;
                 Enabled = true;
             }
             catch( RestException ex )
             {
-                Console.WriteLine( "Could not get SummonerID! " + ex.Message );
+                Console.Error.WriteLine( "Could not get SummonerID! " + ex.Message );
             }
             catch( System.AggregateException ex )
             {
-                Console.WriteLine( "Could not get SummonerID! " + ex.Message );
+                Console.Error.WriteLine( "Could not get SummonerID! " + ex.Message );
             }
         }
 
@@ -178,6 +192,22 @@ namespace LoLStats.Controllers
             } while (matchesTemp.TotalGames > matches.Matches.Count());
 
             return matches;
+        }
+
+        public void UpdateApiKey( string newApiKey )
+        {
+            var settings = new RiotClientSettings { ApiKey = newApiKey };
+            RiotNet.RiotClient.DefaultSettings = () => settings;
+            riotClient = new RiotClient();
+            Init();
+            if( Enabled )
+            {
+                string allText = System.IO.File.ReadAllText( Path.Combine( Directory.GetCurrentDirectory(), "config.txt" ) );
+                dynamic config = Newtonsoft.Json.JsonConvert.DeserializeObject( allText );
+                config.apiKey = newApiKey;
+                var output = Newtonsoft.Json.JsonConvert.SerializeObject( config, Newtonsoft.Json.Formatting.Indented );
+                System.IO.File.WriteAllText( Path.Combine( Directory.GetCurrentDirectory(), "config.txt" ), output );
+            }
         }
 
         public async Task<StaticChampionList> GetStaticChampionDataAsync()
