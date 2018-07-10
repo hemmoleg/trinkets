@@ -5,6 +5,35 @@ body {
   font-family: 'Mina', sans-serif;
   background: #213957;
 }
+#veil {
+  width: 100%;
+  height: 100%;
+  position: absolute;
+  background-color: rgba(120, 120, 120, 0.3);
+}
+#consoleContainer {
+  position: absolute;
+  top: 25%;
+  left: 25%;
+  background-color: snow;
+  width: 50%;
+  height: 50%;
+  padding: 2%;
+  border-radius: 2vmin;
+}
+#updates {
+  margin-top: 0px;
+  margin-bottom: 0px;
+  list-style: none;
+  overflow-y: scroll;
+  height: 100%;
+  border: 0.1vmin solid black;
+  border-radius: 2vmin;
+  background-color: aquamarine;
+}
+#updates label {
+  padding-left: 1%;
+}
 .sitewrapper {
   position: fixed;
   overflow-x: hidden;

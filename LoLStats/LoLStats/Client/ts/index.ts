@@ -72,19 +72,6 @@ function onLoad()
         .text("looking for new games...")
         .prop("disabled", true);
 
-    inputApiKey.keypress(function(e)
-    {
-        var key = e.which;
-        if (key == 13)
-        {
-            var requester = new Requester("https://localhost:5001/Main/UpdateApiKey/");
-            requester.parameter = inputApiKey.val().toString();
-            requester.send();
-            btnUpdateDB.text("looking for new games...");
-            btnUpdateDB.toggleClass("AnimUpdateDB");
-        }
-    });
-
     inputApiKey.on("transitionend",function()
     {
         if ($("#topContainer").hasClass("topContainerOnNoRiotConnection"))
@@ -128,6 +115,7 @@ function onLoad()
             if (message === "No connection to Riot Servers") {
                 btnUpdateDB.prop("disabled", true);
                 $("#topContainer").toggleClass("topContainerOnNoRiotConnection");
+                inputApiKey.on("keypress", onKeypressInputApiKey);
             }
             else if ($("#topContainer").hasClass("topContainerOnNoRiotConnection"))
             {
@@ -140,10 +128,42 @@ function onLoad()
     channelServerMsg.start().catch(err => console.error(err.toString()));
 
     var requesterMain = new Requester("https://localhost:5001/Main/Main/");
-    requesterMain.send();
+    //requesterMain.send();
+
+    i = 0;
+    $("#btnAddMessage").click(onBtnAddMessageClick);
 }
 
+function onKeypressInputApiKey(e : any)
+{
+    var key = e.which;
+    if (key == 13)
+    {
+        var requester = new Requester("https://localhost:5001/Main/UpdateApiKey/");
+        requester.parameter = inputApiKey.val().toString();
+        requester.send();
+        btnUpdateDB.text("looking for new games...");
+        btnUpdateDB.toggleClass("AnimUpdateDB");
+        inputApiKey.off("keypress");
+    }
+}
 
+function addMessageToUpdates(message: string)
+{
+    $("#updates").append('<label>' + message + '</label><br/>');
+    //$('#updates').animate({ scrollTop: $("label:last-child").offset().top }, 1000);
+    var scrollPos = $("#updates > label:last").height() * $("#updates").children().length / 2;
+    $("#updates").animate({ scrollTop: scrollPos }, "fast", "", () => { });
+    console.log($("#updates > label:last").offset().top);
+    //$("updates").animate()
+}
+
+var i : number;
+function onBtnAddMessageClick()
+{
+    addMessageToUpdates("test " + i);
+    i++;
+}
 
 function setWinrateInfo(e: Event)
 {
@@ -200,7 +220,7 @@ function onDdChampionSelect(e: Event)
 
 function onClickBtnUpdateDB()
 {
-    channelServerMsg.invoke("SendMessage", "onClickUpdateDB", "onClickUpdateDBMsg").catch(err => console.error(err.toString()));
+    //channelServerMsg.invoke("SendMessage", "onClickUpdateDB", "onClickUpdateDBMsg").catch(err => console.error(err.toString()));
 
     tester = new Requester("https://localhost:5001/Main/UpdateDB");
     //requesterAllPlayedChampions.requester.onreadystatechange = setAllPlayedChampions;
@@ -208,7 +228,7 @@ function onClickBtnUpdateDB()
 
     btnUpdateDB.toggleClass("AnimUpdateDB");
 
-    console.log("TEST3");
+    
 }
 
 function convertSecondsToTime(seconds : number)

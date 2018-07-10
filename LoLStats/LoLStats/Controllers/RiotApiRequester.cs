@@ -53,6 +53,7 @@ namespace LoLStats.Controllers
                 SummonerID = riotClient.GetSummonerBySummonerNameAsync( this.UserName ).Result.Id;
                 AccountID = riotClient.GetSummonerBySummonerNameAsync( this.UserName ).Result.AccountId;
                 Enabled = true;
+                Console.WriteLine("Got SummonerID");
             }
             catch( RestException ex )
             {
