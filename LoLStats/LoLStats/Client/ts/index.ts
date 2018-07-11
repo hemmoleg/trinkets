@@ -44,7 +44,7 @@ var btnUpdateDB: JQuery<HTMLElement>;
 var inputApiKey: JQuery<HTMLElement>;
 
 var requesterWinrate: Requester;
-var tester: Requester;
+var requesterUpdateDB: Requester;
 var channelServerMsg: HubConnection;
 
 if (module.hot)
@@ -87,9 +87,9 @@ function onLoad()
     requesterWinrate.parameter = "202";
     requesterWinrate.send();
 
-    tester = new Requester("https://localhost:5001/Main/GetAllPlayedChampions");
-    tester.requester.onreadystatechange = setAllPlayedChampions;
-    tester.send();
+    requesterUpdateDB = new Requester("https://localhost:5001/Main/GetAllPlayedChampions");
+    requesterUpdateDB.requester.onreadystatechange = setAllPlayedChampions;
+    requesterUpdateDB.send();
 
 
     channelServerMsg.on("ReceiveMessage",
@@ -112,9 +112,14 @@ function onLoad()
 
             console.log(user, message);
 
+            if (message === "No new Matches")
+            {
+                btnUpdateDB.text("No new Matches");
+                btnUpdateDB.prop("disabled", true);
+            }
             if (message === "No connection to Riot Servers") {
                 btnUpdateDB.prop("disabled", true);
-                $("#topContainer").toggleClass("topContainerOnNoRiotConnection");
+                $("#topContainer").addClass("topContainerOnNoRiotConnection");
                 inputApiKey.on("keypress", onKeypressInputApiKey);
             }
             else if ($("#topContainer").hasClass("topContainerOnNoRiotConnection"))
@@ -125,10 +130,23 @@ function onLoad()
         }
     );
 
+    channelServerMsg.on("AddMessageToConsole",
+        (user, message) => {
+            addMessageToConsole(message);
+            console.log(user, message);
+        }
+    );
+
     channelServerMsg.start().catch(err => console.error(err.toString()));
 
+    $("#btnTest").click(function()
+    {
+        var x = new Requester("https://localhost:5001/Main/Main/");
+        x.send();
+    });
+
     var requesterMain = new Requester("https://localhost:5001/Main/Main/");
-    //requesterMain.send();
+    requesterMain.send();
 
     i = 0;
     $("#btnAddMessage").click(onBtnAddMessageClick);
@@ -148,20 +166,18 @@ function onKeypressInputApiKey(e : any)
     }
 }
 
-function addMessageToUpdates(message: string)
+function addMessageToConsole(message: string)
 {
     $("#updates").append('<label>' + message + '</label><br/>');
-    //$('#updates').animate({ scrollTop: $("label:last-child").offset().top }, 1000);
+    
     var scrollPos = $("#updates > label:last").height() * $("#updates").children().length / 2;
-    $("#updates").animate({ scrollTop: scrollPos }, "fast", "", () => { });
-    console.log($("#updates > label:last").offset().top);
-    //$("updates").animate()
+    $("#updates").animate({ scrollTop: scrollPos }, 0, "", () => { });
 }
 
 var i : number;
 function onBtnAddMessageClick()
 {
-    addMessageToUpdates("test " + i);
+    addMessageToConsole("test " + i);
     i++;
 }
 
@@ -196,9 +212,9 @@ function setWinrateInfo(e: Event)
 
 function setAllPlayedChampions(e: Event)
 {
-    if (tester.requester.readyState === 4)
+    if (requesterUpdateDB.requester.readyState === 4)
     {
-        const response = JSON.parse(tester.requester.responseText);
+        const response = JSON.parse(requesterUpdateDB.requester.responseText);
         console.log(response);
 
         response.forEach((champion: any) =>
@@ -222,13 +238,24 @@ function onClickBtnUpdateDB()
 {
     //channelServerMsg.invoke("SendMessage", "onClickUpdateDB", "onClickUpdateDBMsg").catch(err => console.error(err.toString()));
 
-    tester = new Requester("https://localhost:5001/Main/UpdateDB");
-    //requesterAllPlayedChampions.requester.onreadystatechange = setAllPlayedChampions;
-    tester.send();
+    requesterUpdateDB = new Requester("https://localhost:5001/Main/UpdateDB");
+    requesterUpdateDB.send();
+
+    requesterUpdateDB.requester.onload = onUpdateDBSuccess;
 
     btnUpdateDB.toggleClass("AnimUpdateDB");
+    $("#veil").css("display", "block");
+    $("#consoleContainer").toggleClass("scale1");
+}
 
-    
+function onUpdateDBSuccess()
+{
+    console.log("UpdateDB done");
+    $("#veil").css("display", "none");
+    $("#consoleContainer").toggleClass("scale1");
+    btnUpdateDB.text("DB is up to date");
+    btnUpdateDB.prop("disabled", true);
+    btnUpdateDB.toggleClass("AnimUpdateDB");
 }
 
 function convertSecondsToTime(seconds : number)

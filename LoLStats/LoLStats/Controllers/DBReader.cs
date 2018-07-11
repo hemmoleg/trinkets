@@ -3,7 +3,9 @@ using System.Collections.Generic;
 using System.Linq;
 using System.Threading.Tasks;
 using LoLStats.Models;
+using Microsoft.AspNetCore.Routing.Tree;
 using Newtonsoft.Json.Linq;
+using RiotNet.Models;
 
 namespace LoLStats.Controllers
 {
@@ -122,7 +124,7 @@ namespace LoLStats.Controllers
 
             //data last 14 Days
             var matchesLast14Days = new List<DBMatch>();
-            foreach( var match in matchesLast14Days )
+            foreach( var match in matches)
             {
                 var time = DateTime.UtcNow - new DateTime( 1970, 1, 1 ) - new TimeSpan( 14, 0, 0, 0 );
                 if( match.Creation > time.TotalMilliseconds )

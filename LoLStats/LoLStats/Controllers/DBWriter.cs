@@ -1,12 +1,15 @@
 using System;
 using System.Threading.Tasks;
 using LoLStats.Models;
+using Microsoft.AspNetCore.SignalR;
 using RiotNet.Models;
 
 namespace LoLStats.Controllers
 {
     public class DBWriter : DBAccessor
     {
+        public IHubContext<ChatHub> hub { get; set; }
+
         public void WriteMatchToDB(MatchReference matchRef, Match match, string grade)
         {
             var dbMatch = DBMatch.CreateFromApi(matchRef, match);
@@ -20,10 +23,13 @@ namespace LoLStats.Controllers
 
             try
             {
-                Console.WriteLine("Write dbMatch: " + DB.InsertAsync(dbMatch).Result + " matchID: " + match.GameId);
+                DB.InsertAsync(dbMatch);
+                addMessageToConsole("Writing match " + dbMatch.Title + " Grade: " + dbMatch.Grade + " id: " + match.GameId);
+                Console.WriteLine( "Writing match " + dbMatch.Title + " id: " + dbMatch.ID );
             }
             catch(Exception ex)
             {
+                addMessageToConsole( "Could not write dbMatch to db: " + ex.Message );
                 Console.WriteLine("Could not write dbMatch to db: " + ex.Message);
             }
 
@@ -40,10 +46,13 @@ namespace LoLStats.Controllers
             
                 try
                 {
-                    Console.WriteLine("Write dbParticipant " + counter + ": " + DB.InsertAsync(dbParticipant).Result);
+                    DB.InsertAsync(dbParticipant);
+                    //addMessageToConsole( "Write dbParticipant " + counter + ": 1" );
+                    Console.WriteLine( "Write dbParticipant " + counter + ": 1");
                 }
                 catch(Exception ex)
                 {
+                    addMessageToConsole( "Could not write dbParticipant to db: " + ex.Message );
                     Console.WriteLine("Could not write dbParticipant to db: " + ex.Message);
                 }
                 counter++;
@@ -125,6 +134,12 @@ namespace LoLStats.Controllers
         {
             match.Grade = champMasteryGrade;
             await DB.UpdateAsync(match);
+        }
+
+        private void addMessageToConsole( string message )
+        {
+            //var hub = (IHubContext<ChatHub>) this.HttpContext.RequestServices.GetService<IHubContext<ChatHub>>();
+            hub.Clients.All.SendAsync( "AddMessageToConsole", "MainController", message );
         }
     }
 }

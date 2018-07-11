@@ -68,9 +68,9 @@ namespace LoLStats
                 routes.MapHub<ChatHub>( "/chathub" );
             } );
             
-            var main = new MainController( (DBReader) app.ApplicationServices.GetService( typeof( DBReader ) ),
-                (DBWriter) app.ApplicationServices.GetService( typeof( DBWriter ) ),
-                (RiotApiRequester) app.ApplicationServices.GetService( typeof( RiotApiRequester ) ));
+            //var main = new MainController( (DBReader) app.ApplicationServices.GetService( typeof( DBReader ) ),
+              //  (DBWriter) app.ApplicationServices.GetService( typeof( DBWriter ) ),
+              //  (RiotApiRequester) app.ApplicationServices.GetService( typeof( RiotApiRequester ) ));
 
             //main.Main();
         }

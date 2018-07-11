@@ -12,7 +12,7 @@
     <link href="https://fonts.googleapis.com/icon?family=Material+Icons" rel="stylesheet">
 
     <script src="https://cdnjs.cloudflare.com/ajax/libs/jquery/3.3.1/jquery.min.js"></script>
-    <script src="https://cdnjs.cloudflare.com/ajax/libs/gsap/1.20.4/TweenMax.min.js"></script>
+    <!--<script src="https://cdnjs.cloudflare.com/ajax/libs/gsap/1.20.4/TweenMax.min.js"></script>-->
     <!--<script src="js/system.js"></script>-->
     <!--<script src="js/signalr.js"></script>-->
     <!--<script src="js/index.js"></script>-->
@@ -35,51 +35,52 @@
         SystemJS.import('../js/index.js');
     </script>-->
     
-<div class="sitewrapper">
-    <div id="topContainer">
-        <button id="btnUpdateDB">Update Database</button>
-        <input id="inputApiKey" type="text" placeholder="Enter new api key here"/>
-    </div>
-    <div class="flexContainer">
-        <div class="card">
-            <h3>Winrate</h3>
-            <select id="ddChampion"></select>
-
-            <h4>Last two weeks</h4>
-            <label>Winrate:</label>
-            <label id="lblWinRate2Weeks">--%</label> <br />
-            <label>GamesPlayed:</label>
-            <label id="lblGamesPlayed2Weeks">--</label><br />
-            <label>avg. Gametime:</label>
-            <label id="lblAvgGameTime2Weeks">--:--</label>
-
-            <h4>Last three months</h4>
-            <label>Winrate:</label>
-            <label id="lblWinRate3Months">--%</label> <br />
-            <label>GamesPlayed:</label>
-            <label id="lblGamesPlayed3Months">--</label><br />
-            <label>avg. Gametime:</label>
-            <label id="lblAvgGameTime3Months">--:--</label>
-
-            <h4>Overall</h4>
-            <label>Winrate:</label>
-            <label id="lblWinRate">--%</label> <br />
-            <label>GamesPlayed:</label>
-            <label id="lblGamesPlayed">--</label><br />
-            <label>avg. Gametime:</label>
-            <label id="lblAvgGameTime">--:--</label>
-
+    <div class="sitewrapper">
+        <div id="topContainer">
+            <button id="btnUpdateDB">Update Database</button>
+            <input id="inputApiKey" type="text" placeholder="Enter new api key here" />
         </div>
-        <div class="card"></div>
-        <div class="card"></div>
+        
+        <div class="flexContainer">
+            <div class="card">
+                <h3>Winrate</h3>
+                <select id="ddChampion"></select>
+
+                <h4>Last two weeks</h4>
+                <label>Winrate:</label>
+                <label id="lblWinRate2Weeks">--%</label> <br />
+                <label>GamesPlayed:</label>
+                <label id="lblGamesPlayed2Weeks">--</label><br />
+                <label>avg. Gametime:</label>
+                <label id="lblAvgGameTime2Weeks">--:--</label>
+
+                <h4>Last three months</h4>
+                <label>Winrate:</label>
+                <label id="lblWinRate3Months">--%</label> <br />
+                <label>GamesPlayed:</label>
+                <label id="lblGamesPlayed3Months">--</label><br />
+                <label>avg. Gametime:</label>
+                <label id="lblAvgGameTime3Months">--:--</label>
+
+                <h4>Overall</h4>
+                <label>Winrate:</label>
+                <label id="lblWinRate">--%</label> <br />
+                <label>GamesPlayed:</label>
+                <label id="lblGamesPlayed">--</label><br />
+                <label>avg. Gametime:</label>
+                <label id="lblAvgGameTime">--:--</label>
+
+            </div>
+            <div class="card"></div>
+            <div class="card"></div>
+        </div>
     </div>
+<div id="veil">
 </div>
-<div id="veil"></div>
 <div id="consoleContainer">
     <div id="updates"></div>
-    <button id="btnAddMessage">add message</button>
+    <!--<button id="btnAddMessage">add message</button>-->
 </div>
-
     <!--<div id="vignette"></div>-->
 
 </body>

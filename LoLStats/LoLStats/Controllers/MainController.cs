@@ -25,11 +25,12 @@ namespace LoLStats.Controllers
     {
         private readonly DBReader dbReader;
         private readonly DBWriter dbWriter;
-        //private string userName = "hemmoleg";
 
         private readonly RiotApiRequester riotApiRequester;
+        private static List<MatchReference> missingMatchReferences;
+        private static Grades missingMatchGrades;
 
-        // dependency incejtion, inversion of control
+        // dependency injection, inversion of control
         public MainController(DBReader dbReader, DBWriter dbWriter, RiotApiRequester riotApiRequester)//, ChatHub chatHub)
         {
             this.dbReader = dbReader;
@@ -89,8 +90,8 @@ namespace LoLStats.Controllers
         {
             var riotApiMatches = await riotApiRequester.GetAllMatchesAsync();
             var matchesFromDB = await dbReader.GetAllMatchesAsync();
-            var grades = await getRecentGameGrades();
-            var missingMatchReferences = await compareGamesApiAgainstDB( riotApiMatches, matchesFromDB );
+            missingMatchGrades = await getRecentGameGrades();
+            missingMatchReferences = await compareGamesApiAgainstDB( riotApiMatches, matchesFromDB );
             return missingMatchReferences.Count;
         }
 
@@ -106,11 +107,17 @@ namespace LoLStats.Controllers
             hub.Clients.All.SendAsync( "UpdateBtnUpdateDBText", "MainController", message );
         }
 
-        [HttpGet("UpdateDB")]
-        public async Task<IActionResult> UpdateDBAsync(  )
+        public void AddMessageToConsole( string message )
         {
-            //SendClientMessage("UpdateDBMsg");
-            return this.Ok();
+            var hub = (IHubContext<ChatHub>) this.HttpContext.RequestServices.GetService<IHubContext<ChatHub>>();
+            hub.Clients.All.SendAsync( "AddMessageToConsole", "MainController", message );
+        }
+
+        [HttpGet("UpdateDB")]
+        public StatusCodeResult UpdateDBAsync(  )
+        {
+            writeAllMissingGamesToDB(missingMatchReferences, missingMatchGrades);
+            return this.StatusCode(200);
         }
 
         [HttpGet("GetMatchByID/{id}")]
@@ -146,31 +153,38 @@ namespace LoLStats.Controllers
         public async Task UpdateApiKey( [FromRoute] string newApiKey )
         {
             riotApiRequester.UpdateApiKey(newApiKey);
-            if( riotApiRequester.Enabled )
-            {
-                await Main();
-            }
+            await Main();
         }
 
 
         private void writeAllMissingGamesToDB(List<MatchReference> matchReferences, Grades grades)
         {
+            dbWriter.hub = (IHubContext<ChatHub>) this.HttpContext.RequestServices.GetService<IHubContext<ChatHub>>();
+
+            //matchReferences[0].Timestamp
+
+            matchReferences = matchReferences.OrderBy(x => x.Timestamp).ToList();
+
             var counter = 0;
             foreach (var matchReference in matchReferences)
             {
-                string grade = "?";
-                foreach (var delta in grades.Deltas)
+                var grade = "?";
+                foreach (var delta in grades.Deltas.Where(delta => delta.GameId == matchReference.GameId))
                 {
-                    if(delta.GameId != matchReference.GameId) continue;
                     grade = delta.ChampMastery.Grade;
                 }
 
-                dbWriter.WriteMatchToDB(matchReference,
-                    riotApiRequester.GetMatchByIDAsync(matchReference.GameId).Result, grade);
+                AddMessageToConsole( "Getting next match from Riot...");
+                var match = riotApiRequester.GetMatchByIDAsync(matchReference.GameId).Result;
+
+                dbWriter.WriteMatchToDB(matchReference, match, grade);
                 counter++;
+                
+                AddMessageToConsole( "Written matches: " + counter + " of " + matchReferences.Count() );
                 Console.WriteLine( "Written matches: " + counter + " of " + matchReferences.Count() );
             }
-            Console.WriteLine("Wrote all missing games to db");
+            AddMessageToConsole( "Wrote all new games to db" );
+            Console.WriteLine("Wrote all new games to db");
         }
 
         private async void removeNewChampionAsync()
