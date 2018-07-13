@@ -14,6 +14,7 @@ namespace LoLStats.Models
                 Key = value.Key,
                 Name = value.Name,
                 Title = value.Title,
+                Icon = value.Image.Full
             };
         }
 
@@ -24,6 +25,8 @@ namespace LoLStats.Models
         [Column("name")][Unique] public string Name { get; set; }
 
         [Column("title")] public string Title { get; set; }
+
+        [Column("icon" )] public string Icon{ get; set; }
     }
 
     [Table( "staticItem" )]

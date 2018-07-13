@@ -156,6 +156,12 @@ namespace LoLStats.Controllers
             await Main();
         }
 
+        [HttpGet( "GetChampionIconStringByIDAsync/{id}" )]
+        public async Task<IActionResult> GetChampionIconStringByIDAsync([FromRoute] int id)
+        {
+            var result = await dbReader.GetChampionIconStringByIDAsync(id);
+            return this.Ok(result);
+        }
 
         private void writeAllMissingGamesToDB(List<MatchReference> matchReferences, Grades grades)
         {
@@ -199,9 +205,12 @@ namespace LoLStats.Controllers
             }
         }
 
-        private async void updateStaticChampionData()
+        [HttpGet( "UpdateStaticChampionData" )]
+        public void UpdateStaticChampionData()
         {
+            AddMessageToConsole( "updating static champion data..." );
             dbWriter.WriteStaticChampionData( riotApiRequester.GetStaticChampionDataAsync() );
+            AddMessageToConsole( "updating static champion data done!" );
         }
 
         private async Task validateDatabase()

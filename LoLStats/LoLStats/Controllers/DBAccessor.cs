@@ -56,6 +56,12 @@ namespace LoLStats.Controllers
             return matches[0].Name;
         }
 
+        public async Task<string> GetChampionIconStringByIDAsync( int championId )
+        {
+            var matches = await DB.QueryAsync<DBStaticChampion>( "select * from staticChampion where id =?", championId );
+            return matches[ 0 ].Icon;
+        }
+
         public async Task<int> GetGameCountAsChampionAsync(string champion)
         {
             var query = "select * from match where title LIKE '%" + champion.Replace( "'", "''" ) + "%'";

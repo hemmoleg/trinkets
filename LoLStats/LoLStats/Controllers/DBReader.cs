@@ -157,19 +157,17 @@ namespace LoLStats.Controllers
         private class ChampionName
         {
             // ReSharper disable once InconsistentNaming
-            public string championName
-            {
-                get; set;
-            }
+            public string championName { get; set; }
+            public long GameId { get; set; }
         }
 
         public async Task<List<DBStaticChampion>> GetAllPlayedChampions(string userName)
         {
-            var roughList = await DB.QueryAsync<ChampionName>("select distinct championName from participant where name = '" + userName + "'");
+            var roughList = await DB.QueryAsync<ChampionName>("select championName, gameId from participant where name = '" + userName + "'" + " group by championName order by GameId desc" );
             var champions = new List<DBStaticChampion>();
             foreach (var championName in roughList)
             {
-                champions.Add( DB.QueryAsync<DBStaticChampion>( "select * from staticChampion where name = \"" + championName.championName + "\"" ).Result[0]);
+                champions.Add( DB.QueryAsync<DBStaticChampion>( "select * from staticChampion where name = \"" + championName.championName + "\""  ).Result[0]);
             }
 
             return champions;

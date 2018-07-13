@@ -107,7 +107,7 @@ namespace LoLStats.Controllers
         {
             var champs = task.Result;
             foreach(var kvp in champs.Data)
-            {
+            {//kvp.Value.Image.Full
                 var champion = DBStaticChampion.CreateFromApi(kvp.Value);
                 Console.WriteLine("Write db: " + DB.InsertAsync(champion).Result + " inserted " + champion.Name);
             }

@@ -213,7 +213,7 @@ namespace LoLStats.Controllers
 
         public async Task<StaticChampionList> GetStaticChampionDataAsync()
         {
-            return await riotClient.GetStaticChampionsAsync(Locale.en_US, null, true);
+            return await riotClient.GetStaticChampionsAsync(Locale.en_US, null, true, new [] {"image"});
         }
 
         public async Task<StaticItemList> GetStaticItemDataAsync()
