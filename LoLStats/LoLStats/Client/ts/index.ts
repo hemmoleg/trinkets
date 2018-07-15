@@ -42,6 +42,7 @@ import { Requester } from "./Requester";
 
 var btnUpdateDB: JQuery<HTMLElement>;
 var inputApiKey: JQuery<HTMLElement>;
+var ddChampion: JQuery<HTMLElement>
 
 var requesterWinrate: Requester;
 var requesterUpdateDB: Requester;
@@ -69,6 +70,7 @@ function onLoad()
 
     btnUpdateDB = $("#btnUpdateDB");
     inputApiKey = $("#inputApiKey");
+    ddChampion = $("#ddChampion");
 
     btnUpdateDB.click(onClickBtnUpdateDB)
         .toggleClass("AnimUpdateDB")
@@ -83,12 +85,10 @@ function onLoad()
             inputApiKey.css("zIndex", -1);
     });
 
-    document.getElementById("ddChampion").onchange = onDdChampionSelect;
+    ddChampion.on("change",  onDdChampionSelect);
 
     requesterWinrate = new Requester("https://localhost:5001/Main/GetWinrateByChampID/");
     requesterWinrate.requester.onreadystatechange = setWinrateInfo;
-    requesterWinrate.parameter = "202";
-    requesterWinrate.send();
 
     requesterUpdateDB = new Requester("https://localhost:5001/Main/GetAllPlayedChampions");
     requesterUpdateDB.requester.onreadystatechange = setAllPlayedChampions;
@@ -191,12 +191,14 @@ function onDdChampionSelect(e: Event)
 {
     var select = document.getElementById("ddChampion") as HTMLSelectElement;
     requesterWinrate.parameter = select.options[select.selectedIndex].value.toString();
-    requesterWinrate.send();
 
     requesterChampionIconString = new Requester("https://localhost:5001/Main/GetChampionIconStringByIDAsync/");
     requesterChampionIconString.parameter = select.options[select.selectedIndex].value.toString();
     requesterChampionIconString.requester.onreadystatechange = setIconString;
+
     requesterChampionIconString.send();
+
+    requesterWinrate.send();
 }
 
 function setWinrateInfo(e: Event)
@@ -233,7 +235,16 @@ function setIconString()
     if (requesterChampionIconString.requester.readyState === 4)
     {
         var response = requesterChampionIconString.requester.responseText;
-        console.log(response);
+
+        $("#iconChampion").attr("src", "https://ddragon.leagueoflegends.com/cdn/7.10.1/img/champion/" + response);
+        $("#iconChampion").addClass("gray");
+        $("#iconChampion").on("load", function()
+        {
+            $("#iconChampion").removeClass("gray");
+        });
+
+
+        console.log("icon address: " + "https://ddragon.leagueoflegends.com/cdn/7.10.1/img/champion/" + response);
     }
 }
 
@@ -246,11 +257,13 @@ function setAllPlayedChampions(e: Event)
 
         response.forEach((champion: any) =>
         {
-            var newoption = document.createElement("option");
-            newoption.text = champion.name;
-            newoption.value = champion.id;
-            document.getElementById("ddChampion").appendChild(newoption);
+            $.each(response, function (i, item)
+            {
+                ddChampion.append( $('<option>', { value: item.id, text: item.name}) );
+            });
         });
+
+        onDdChampionSelect(new Event(null));
     }
 }
 

@@ -98,6 +98,9 @@ body {
 		background-position: 0% 50%
 	}*/
 }
+.gray {
+  filter: grayscale(100%);
+}
 .flexContainer {
   display: flex;
   background: white;
