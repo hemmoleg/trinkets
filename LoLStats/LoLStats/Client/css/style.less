@@ -3,7 +3,8 @@ body {
     padding: 0;
     overflow: hidden;
     font-family: @font_family_1;
-    background: #213957;
+    height: 100%;
+     //#213957;
 }
 
 #veil {
@@ -50,16 +51,23 @@ body {
     padding-left: 1%;
 }
 
-.sitewrapper {
+#sitewrapper {
     position: fixed;
     overflow-x: hidden;
-
     height: 100%;
     overflow-y: hidden;
-    
-    
-    margin: 3vw;
+    padding: 3vw;
     width: 94vw;
+    //background-image: url('https://ddragon.leagueoflegends.com/cdn/img/champion/splash/Jhin_0.jpg');
+    
+}
+
+#imgBG {
+    position:absolute;
+    height: 100%;
+    background-position: center;
+    background-repeat: no-repeat;
+    background-size: cover;
 }
 
 #topContainer {
@@ -124,6 +132,10 @@ body {
     background: white;
     width: 100%;
     height: 50vmin;
+}
+
+.iconChampion{
+    margin: 3px;
 }
 
 .card {

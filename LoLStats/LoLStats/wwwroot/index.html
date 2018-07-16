@@ -35,58 +35,59 @@
         SystemJS.import('../js/index.js');
     </script>-->
     
-    <div class="sitewrapper">
-        <div id="topContainer">
-            <button id="btnUpdateDB">Update Database</button>
-            <input id="inputApiKey" type="text" placeholder="Enter new api key here" />
-        </div>
-        
-        <div class="flexContainer">
-            
-            <img id="iconChampion" src="https://ddragon.leagueoflegends.com/cdn/7.10.1/img/champion/Annie.png"/>
-            
-            <div class="card">
-                <select id="ddChampion"></select>
-
-                <h4>Last two weeks</h4>
-                <label>Winrate:</label>
-                <label id="lblWinRate2Weeks">--%</label> <br/>
-                <label>GamesPlayed:</label>
-                <label id="lblGamesPlayed2Weeks">--</label><br/>
-                <label>avg. Gametime:</label>
-                <label id="lblAvgGameTime2Weeks">--:--</label>
-
-            </div>
-            <div class="card">
-                <h4>Last three months</h4>
-                <label>Winrate:</label>
-                <label id="lblWinRate3Months">--%</label> <br/>
-                <label>GamesPlayed:</label>
-                <label id="lblGamesPlayed3Months">--</label><br/>
-                <label>avg. Gametime:</label>
-                <label id="lblAvgGameTime3Months">--:--</label>
-            </div>
-            <div class="card">
-                <h4>Overall</h4>
-                <label>Winrate:</label>
-                <label id="lblWinRate">--%</label> <br/>
-                <label>GamesPlayed:</label>
-                <label id="lblGamesPlayed">--</label><br/>
-                <label>avg. Gametime:</label>
-                <label id="lblAvgGameTime">--:--</label>
-            </div>
-        </div>
-        
-        <button id="btnUpdateStaticChampionData">Update static champion data</button>
-
+<img id="imgBG"/>
+<div id="sitewrapper">
+    <div id="topContainer">
+        <button id="btnUpdateDB">Update Database</button>
+        <input id="inputApiKey" type="text" placeholder="Enter new api key here"/>
     </div>
-<div id="veil">
+
+    <div class="flexContainer">
+
+        <!--<img id="iconChampion" src="https://ddragon.leagueoflegends.com/cdn/7.10.1/img/champion/Annie.png"/>-->
+
+        <div class="card">
+            <select id="ddChampion"></select>
+
+            <h4>Last two weeks</h4>
+            <label>Winrate:</label>
+            <label id="lblWinRate2Weeks">--%</label> <br />
+            <label>GamesPlayed:</label>
+            <label id="lblGamesPlayed2Weeks">--</label><br />
+            <label>avg. Gametime:</label>
+            <label id="lblAvgGameTime2Weeks">--:--</label>
+
+        </div>
+        <div class="card">
+            <h4>Last three months</h4>
+            <label>Winrate:</label>
+            <label id="lblWinRate3Months">--%</label> <br />
+            <label>GamesPlayed:</label>
+            <label id="lblGamesPlayed3Months">--</label><br />
+            <label>avg. Gametime:</label>
+            <label id="lblAvgGameTime3Months">--:--</label>
+        </div>
+        <div class="card">
+            <h4>Overall</h4>
+            <label>Winrate:</label>
+            <label id="lblWinRate">--%</label> <br />
+            <label>GamesPlayed:</label>
+            <label id="lblGamesPlayed">--</label><br />
+            <label>avg. Gametime:</label>
+            <label id="lblAvgGameTime">--:--</label>
+        </div>
+    </div>
+
+    <button id="btnUpdateStaticChampionData">Update static champion data</button>
+
 </div>
+
+<div id="veil"></div>
 <div id="consoleContainer">
     <div id="updates"></div>
     <!--<button id="btnAddMessage">add message</button>-->
 </div>
-    <!--<div id="vignette"></div>-->
+
 
 </body>
 
