@@ -183,6 +183,12 @@ namespace LoLStats.Controllers
                 AddMessageToConsole( "Getting next match from Riot...");
                 var match = riotApiRequester.GetMatchByIDAsync(matchReference.GameId).Result;
 
+                if( match.GameDuration < new TimeSpan( 0, 14, 59 ) )
+                {
+                    AddMessageToConsole( "Skipping match because it was a remake" );
+                    continue;
+                }
+
                 dbWriter.WriteMatchToDB(matchReference, match, grade);
                 counter++;
                 
@@ -364,12 +370,12 @@ namespace LoLStats.Controllers
             foreach (MatchList matchList in riotApiMatches)
             {
                 Console.WriteLine($"Checking queueType {matchList.Matches[0].Queue}");
-                foreach (var match in matchList.Matches)
+                foreach (var matchReference in matchList.Matches)
                 {
-                    var matchFound = await dbReader.IsMatchFoundAsync(match.GameId);
+                    var matchFound = await dbReader.IsMatchFoundAsync(matchReference.GameId);
                     if (matchFound) continue;
-                    Console.WriteLine($"Match {match.GameId} not found in DB!");
-                    matchRefsNotFound.Add(match);
+                    Console.WriteLine($"Match {matchReference.GameId} not found in DB!");
+                    matchRefsNotFound.Add(matchReference);
                 }
             }
 

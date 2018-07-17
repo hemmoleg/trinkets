@@ -1,9 +1,9 @@
 body {
   margin: 0;
   padding: 0;
-  overflow: hidden;
   font-family: 'Mina', sans-serif;
-  height: 100%;
+  height: 100vh;
+  width: 100%;
 }
 #veil {
   display: none;
@@ -47,16 +47,14 @@ body {
   position: fixed;
   overflow-x: hidden;
   height: 100%;
-  overflow-y: hidden;
   padding: 3vw;
   width: 94vw;
 }
 #imgBG {
   position: absolute;
   height: 100%;
-  background-position: center;
-  background-repeat: no-repeat;
-  background-size: cover;
+  width: 100%;
+  object-fit: cover;
 }
 #topContainer {
   height: 11vmin;
@@ -110,15 +108,33 @@ body {
 }
 .flexContainer {
   display: flex;
+  flex-wrap: wrap;
   background: white;
   width: 100%;
-  height: 50vmin;
+  justify-content: space-between;
+  align-items: center;
+}
+#containerChampionIcons {
+  padding: 1vmin;
+  margin: 1vmin 1vmin 0 1vmin;
+  line-height: 5vmin;
+  height: 20vmin;
+  overflow-y: scroll;
+  overflow-x: hidden;
 }
 .iconChampion {
   margin: 3px;
+  display: block;
+  width: 8vmin;
+  padding: 4px;
+}
+.iconChampion:hover {
+  filter: saturate(150%) contrast(120%);
+  border: 2px solid #0051c6;
+  padding: 2px;
 }
 .card {
-  width: 45vw;
+  width: 25vw;
   height: 40vh;
   box-shadow: 0 1.5em 0.5em -1em rgba(0, 0, 0, 0.6);
   margin: 3vmin;

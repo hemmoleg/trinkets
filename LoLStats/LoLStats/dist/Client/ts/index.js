@@ -44,6 +44,7 @@ var requesterUpdateDB;
 var requesterChampionIconString;
 var channelServerMsg;
 var flexContainer;
+var containerChampionIcons;
 if (module.hot) {
     module.hot.accept(); /*[],
         function()
@@ -60,6 +61,7 @@ function onLoad() {
     inputApiKey = $("#inputApiKey");
     ddChampion = $("#ddChampion");
     flexContainer = document.getElementsByClassName("flexContainer")[0];
+    containerChampionIcons = document.getElementById("containerChampionIcons");
     btnUpdateDB.click(onClickBtnUpdateDB)
         .toggleClass("AnimUpdateDB")
         .text("looking for new games...")
@@ -133,6 +135,7 @@ function addMessageToConsole(message) {
     $("#updates").append('<label>' + message + '</label><br/>');
     var scrollPos = $("#updates > label:last").height() * $("#updates").children().length / 2;
     $("#updates").animate({ scrollTop: scrollPos }, 0, "", function () { });
+    console.log(message);
 }
 var i;
 function onBtnAddMessageClick() {
@@ -142,10 +145,6 @@ function onBtnAddMessageClick() {
 function onDdChampionSelect(e) {
     var select = document.getElementById("ddChampion");
     requesterWinrate.parameter = select.options[select.selectedIndex].value.toString();
-    //requesterChampionIconString = new Requester("https://localhost:5001/Main/GetChampionIconStringByIDAsync/");
-    //requesterChampionIconString.parameter = select.options[select.selectedIndex].value.toString();
-    //requesterChampionIconString.requester.onreadystatechange = setIconString;
-    //requesterChampionIconString.send();
     requesterWinrate.send();
     setBackgroundString();
 }
@@ -172,14 +171,24 @@ function setWinrateInfo(e) {
     }
 }
 function setIconString() {
-    if (requesterChampionIconString.requester.readyState === 4) {
-        var response = requesterChampionIconString.requester.responseText;
-        $("#iconChampion").attr("src", "https://ddragon.leagueoflegends.com/cdn/7.10.1/img/champion/" + response);
+    if (this.readyState === 4) {
+        //var response = requesterChampionIconString.requester.responseText;
+        var iconsChampion = document.getElementsByClassName("iconChampion");
+        for (var i = 0; i < iconsChampion.length; i++) {
+            if (iconsChampion[i].alt === this.response.match(/([A-Z])\w+/)[0]) {
+                iconsChampion[i].src = "https://ddragon.leagueoflegends.com/cdn/7.10.1/img/champion/" + this.response;
+            }
+        }
+        /*$("#iconChampion").attr("src", "https://ddragon.leagueoflegends.com/cdn/7.10.1/img/champion/" + response);
         $("#iconChampion").addClass("gray");
-        $("#iconChampion").on("load", function () {
+        $("#iconChampion").on("load", function()
+        {
             $("#iconChampion").removeClass("gray");
         });
+
+
         console.log("icon address: " + "https://ddragon.leagueoflegends.com/cdn/7.10.1/img/champion/" + response);
+        */
     }
 }
 function setBackgroundString() {
@@ -192,16 +201,26 @@ function setBackgroundString() {
 }
 function setAllPlayedChampions(e) {
     if (requesterUpdateDB.requester.readyState === 4) {
-        var response_1 = JSON.parse(requesterUpdateDB.requester.responseText);
-        console.log(response_1);
-        response_1.forEach(function (champion) {
-            $.each(response_1, function (i, item) {
-                var img = document.createElement("img");
-                img.src = "https://ddragon.leagueoflegends.com/cdn/7.10.1/img/champion/" + item.name + ".png";
-                console.log("https://ddragon.leagueoflegends.com/cdn/7.10.1/img/champion/" + item.name);
-                flexContainer.appendChild(img);
-                ddChampion.append($('<option>', { value: item.id, text: item.name }));
-            });
+        var response = JSON.parse(requesterUpdateDB.requester.responseText);
+        console.log(response);
+        //debg limit for asking for champion Icons
+        i = 0;
+        response.forEach(function (champion) {
+            ddChampion.append($('<option>', { value: champion.id, text: champion.name }));
+            var img = document.createElement("img");
+            img.alt = champion.name;
+            img.classList.add("iconChampion");
+            //img.src = "https://ddragon.leagueoflegends.com/cdn/7.10.1/img/champion/" + champion.name + ".png";
+            //console.log("https://ddragon.leagueoflegends.com/cdn/7.10.1/img/champion/" + champion.name);
+            containerChampionIcons.appendChild(img);
+            if (i < 14) {
+                requesterChampionIconString =
+                    new Requester("https://localhost:5001/Main/GetChampionIconStringByIDAsync/");
+                requesterChampionIconString.parameter = champion.id.toString();
+                requesterChampionIconString.requester.onreadystatechange = setIconString;
+                requesterChampionIconString.send();
+            }
+            i++;
         });
         onDdChampionSelect(new Event(null));
     }
