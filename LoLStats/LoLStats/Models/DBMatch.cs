@@ -86,8 +86,14 @@ namespace LoLStats.Models
                 WinningTeam = match.Teams[ 0 ].Win ? 1 : 2,
                 Uploaded = false,
                 ReplayName = "no_replay",
-                Grade = "C",
+                Grade = "",
             };
         }
+    }
+
+    [Table( "remakes" )]
+    public class DBRemake : DBMatch
+    {
+
     }
 }

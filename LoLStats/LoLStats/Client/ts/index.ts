@@ -99,7 +99,7 @@ function onLoad()
         (user, message) =>
         {
             const msg = message.replace(/&/g, "&amp;").replace(/</g, "&lt;").replace(/>/g, "&gt;");
-            const encodedMsg = user + " says " + msg;
+            const encodedMsg = user + " " + msg;
             const li = document.createElement("li");
             li.textContent = encodedMsg;
             console.log(encodedMsg);
@@ -285,6 +285,9 @@ function setAllPlayedChampions(e: Event)
 
 function onIconChampionClicked()
 {
+    $(".iconChampion").removeClass("activeIconChampion");
+    $(this).addClass("activeIconChampion");
+
     console.log("icon clicked: " + this.getAttribute("championID"));
     requesterWinrate.parameter = this.getAttribute("championID");
 

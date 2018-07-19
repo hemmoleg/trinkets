@@ -16,10 +16,12 @@ using RiotNet.Models;
 
 namespace LoLStats.Controllers
 {
-//IMAGES
-//https://discussion.developer.riotgames.com/questions/1556/is-there-a-way-to-get-champions-icon-image.html
+    //IMAGES
+    //https://discussion.developer.riotgames.com/questions/1556/is-there-a-way-to-get-champions-icon-image.html
+    //NEW STATIC DATA API
+    //https://discussion.developer.riotgames.com/articles/5719/removal-of-the-lol-static-data-v3-api.html
 
-//C:\Users\yakuz\Documents\LoLReplay2
+    //C:\Users\yakuz\Documents\LoLReplay2
     [Route("Main")]
     public class MainController : Controller
     {
@@ -88,10 +90,11 @@ namespace LoLStats.Controllers
 
         private async Task<int> checkForNewGames()
         {
+            SendClientMessage("Requesting matches from Riot...");
             var riotApiMatches = await riotApiRequester.GetAllMatchesAsync();
-            var matchesFromDB = await dbReader.GetAllMatchesAsync();
+            SendClientMessage( "Got matches from Riot..." );
             missingMatchGrades = await getRecentGameGrades();
-            missingMatchReferences = await compareGamesApiAgainstDB( riotApiMatches, matchesFromDB );
+            missingMatchReferences = await compareGamesApiAgainstDB( riotApiMatches );
             return missingMatchReferences.Count;
         }
 
@@ -183,13 +186,8 @@ namespace LoLStats.Controllers
                 AddMessageToConsole( "Getting next match from Riot...");
                 var match = riotApiRequester.GetMatchByIDAsync(matchReference.GameId).Result;
 
-                if( match.GameDuration < new TimeSpan( 0, 14, 59 ) )
-                {
-                    AddMessageToConsole( "Skipping match because it was a remake" );
-                    continue;
-                }
-
-                dbWriter.WriteMatchToDB(matchReference, match, grade);
+                //check for remake
+                dbWriter.WriteMatchToDB(matchReference, match, grade, match.GameDuration < new TimeSpan(0, 14, 59));
                 counter++;
                 
                 AddMessageToConsole( "Written matches: " + counter + " of " + matchReferences.Count() );
@@ -243,7 +241,10 @@ namespace LoLStats.Controllers
                 dbWriter.CreateTable<DBParticipant>();
             }
 
-
+            if( !await dbReader.IsTablePresent( "remakes" ) )
+            {
+                dbWriter.CreateTable<DBRemake>();
+            }
 
             await dbReader.IsDatabaseValidAsync();
         }
@@ -364,10 +365,10 @@ namespace LoLStats.Controllers
             return JsonConvert.DeserializeObject<Grades>(streamResult);
         }
 
-        private async Task<List<MatchReference>> compareGamesApiAgainstDB(List<MatchList> riotApiMatches, List<DBMatch> dbMatchList)
+        private async Task<List<MatchReference>> compareGamesApiAgainstDB(List<MatchList> riotApiMatches)
         {
             var matchRefsNotFound = new List<MatchReference>();
-            foreach (MatchList matchList in riotApiMatches)
+            foreach (var matchList in riotApiMatches)
             {
                 Console.WriteLine($"Checking queueType {matchList.Matches[0].Queue}");
                 foreach (var matchReference in matchList.Matches)

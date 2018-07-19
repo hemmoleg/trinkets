@@ -2,6 +2,7 @@ using System;
 using System.Threading.Tasks;
 using LoLStats.Models;
 using Microsoft.AspNetCore.SignalR;
+using Newtonsoft.Json;
 using RiotNet.Models;
 
 namespace LoLStats.Controllers
@@ -10,9 +11,20 @@ namespace LoLStats.Controllers
     {
         public IHubContext<ChatHub> hub { get; set; }
 
-        public void WriteMatchToDB(MatchReference matchRef, Match match, string grade)
+        public void WriteMatchToDB(MatchReference matchRef, Match match, string grade, bool isRemake = false)
         {
-            var dbMatch = DBMatch.CreateFromApi(matchRef, match);
+            DBMatch dbMatch;
+            if( isRemake )
+            {
+                var parentInstance = DBMatch.CreateFromApi( matchRef, match );
+                var serializedParent = JsonConvert.SerializeObject( parentInstance );
+                dbMatch = JsonConvert.DeserializeObject<DBRemake>( serializedParent );
+            }
+            else
+            {
+                dbMatch = DBMatch.CreateFromApi(matchRef, match);
+            }
+
             dbMatch.UserIndex = getUserIndex(match) + 1;
             dbMatch.Outcome = match.Participants[getUserIndex(match)].Stats.Win ? 1 : 2;
             dbMatch.Team1Bans = getBannedChampsAsString(match, 0);
@@ -24,6 +36,7 @@ namespace LoLStats.Controllers
             try
             {
                 DB.InsertAsync(dbMatch);
+                
                 addMessageToConsole("Writing match " + dbMatch.Title + " Grade: " + dbMatch.Grade + " id: " + match.GameId);
                 Console.WriteLine( "Writing match " + dbMatch.Title + " id: " + dbMatch.ID );
             }

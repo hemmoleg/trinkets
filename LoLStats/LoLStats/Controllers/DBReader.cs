@@ -32,15 +32,21 @@ namespace LoLStats.Controllers
             //var queryQueueType = await db.QueryAsync<DBMatch> ("select season from match where season IN ('SEASON2017', 'PRESEASON2017')");
             //var queryQueueType2 = await db.QueryAsync<DBMatch> ("select season from match where season IN ('SEASON2017')");
 
-            var test = await DB.QueryAsync<DBMatch>(
-                "select * from match where queueType IN('TEAM_BUILDER_DRAFT_UNRANKED_5x5', 'TEAM_BUILDER_DRAFT_RANKED_5x5', 'RANKED_TEAM_5x5', 'RANKED_SOLO_5x5', 'RANKED_FLEX_SR')");
+            var dbMatches = await DB.QueryAsync<DBMatch>(
+                "select * from match where queueType IN('TEAM_BUILDER_RANKED_SOLO', 'TEAM_BUILDER_DRAFT_UNRANKED_5x5', 'TEAM_BUILDER_DRAFT_RANKED_5x5', 'RANKED_TEAM_5x5', 'RANKED_SOLO_5x5', 'RANKED_FLEX_SR')" );
+            var dbRemakes = await DB.QueryAsync<DBRemake>(
+                "select * from remakes where queueType IN('TEAM_BUILDER_RANKED_SOLO', 'TEAM_BUILDER_DRAFT_UNRANKED_5x5', 'TEAM_BUILDER_DRAFT_RANKED_5x5', 'RANKED_TEAM_5x5', 'RANKED_SOLO_5x5', 'RANKED_FLEX_SR')" );
+
             return
-                test; // db.QueryAsync<DBMatch> ("select * from match where queueType IN('TEAM_BUILDER_DRAFT_UNRANKED_5x5', 'TEAM_BUILDER_DRAFT_RANKED_5x5', 'RANKED_TEAM_5x5', 'RANKED_SOLO_5x5', 'RANKED_FLEX_SR')");
+                dbMatches.Concat( dbRemakes ).ToList();
+             // db.QueryAsync<DBMatch> ("select * from match where queueType IN('TEAM_BUILDER_DRAFT_UNRANKED_5x5', 'TEAM_BUILDER_DRAFT_RANKED_5x5', 'RANKED_TEAM_5x5', 'RANKED_SOLO_5x5', 'RANKED_FLEX_SR')");
         }
 
         public async Task<bool> IsMatchFoundAsync(long matchId)
         {
             var matches = await DB.QueryAsync<DBMatch>("select * from match where gameId =?", matchId);
+            if (matches.Count > 0) return true;
+            matches = await DB.QueryAsync<DBMatch>( "select * from remakes where gameId =?", matchId );
             return matches.Count > 0 ? true : false;
         }
 

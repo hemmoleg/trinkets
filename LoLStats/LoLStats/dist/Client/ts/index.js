@@ -38,7 +38,6 @@ import { Requester } from "./Requester";
 }*/
 var btnUpdateDB;
 var inputApiKey;
-var ddChampion;
 var requesterWinrate;
 var requesterUpdateDB;
 var requesterChampionIconString;
@@ -59,7 +58,6 @@ function onLoad() {
         .build();
     btnUpdateDB = $("#btnUpdateDB");
     inputApiKey = $("#inputApiKey");
-    ddChampion = $("#ddChampion");
     flexContainer = document.getElementsByClassName("flexContainer")[0];
     containerChampionIcons = document.getElementById("containerChampionIcons");
     btnUpdateDB.click(onClickBtnUpdateDB)
@@ -72,7 +70,6 @@ function onLoad() {
         else
             inputApiKey.css("zIndex", -1);
     });
-    ddChampion.on("change", onDdChampionSelect);
     requesterWinrate = new Requester("https://localhost:5001/Main/GetWinrateByChampID/");
     requesterWinrate.requester.onreadystatechange = setWinrateInfo;
     requesterUpdateDB = new Requester("https://localhost:5001/Main/GetAllPlayedChampions");
@@ -142,12 +139,6 @@ function onBtnAddMessageClick() {
     addMessageToConsole("test " + i);
     i++;
 }
-function onDdChampionSelect(e) {
-    var select = document.getElementById("ddChampion");
-    requesterWinrate.parameter = select.options[select.selectedIndex].value.toString();
-    requesterWinrate.send();
-    setBackgroundString();
-}
 function setWinrateInfo(e) {
     if (requesterWinrate.requester.readyState === 4) {
         var response = JSON.parse(requesterWinrate.requester.responseText);
@@ -179,25 +170,14 @@ function setIconString() {
                 iconsChampion[i].src = "https://ddragon.leagueoflegends.com/cdn/7.10.1/img/champion/" + this.response;
             }
         }
-        /*$("#iconChampion").attr("src", "https://ddragon.leagueoflegends.com/cdn/7.10.1/img/champion/" + response);
-        $("#iconChampion").addClass("gray");
-        $("#iconChampion").on("load", function()
-        {
-            $("#iconChampion").removeClass("gray");
-        });
-
-
-        console.log("icon address: " + "https://ddragon.leagueoflegends.com/cdn/7.10.1/img/champion/" + response);
-        */
     }
 }
-function setBackgroundString() {
-    var t = document.getElementById("ddChampion");
+function setBackgroundString(championName) {
     var bg = document.getElementById("imgBG");
-    bg.src = "https://ddragon.leagueoflegends.com/cdn/img/champion/splash/" + t.selectedOptions[0].text + "_0.jpg";
+    bg.src = "https://ddragon.leagueoflegends.com/cdn/img/champion/splash/" + championName + "_0.jpg";
     bg.classList.add("gray");
     bg.onload = function () { bg.classList.remove("gray"); };
-    console.log("bg address: " + "https://ddragon.leagueoflegends.com/cdn/img/champion/splash/" + t.selectedOptions[0].text + "_0.jpg");
+    console.log("bg address: " + "https://ddragon.leagueoflegends.com/cdn/img/champion/splash/" + championName + "_0.jpg");
 }
 function setAllPlayedChampions(e) {
     if (requesterUpdateDB.requester.readyState === 4) {
@@ -206,12 +186,12 @@ function setAllPlayedChampions(e) {
         //debg limit for asking for champion Icons
         i = 0;
         response.forEach(function (champion) {
-            ddChampion.append($('<option>', { value: champion.id, text: champion.name }));
             var img = document.createElement("img");
             img.alt = champion.name;
             img.classList.add("iconChampion");
-            //img.src = "https://ddragon.leagueoflegends.com/cdn/7.10.1/img/champion/" + champion.name + ".png";
-            //console.log("https://ddragon.leagueoflegends.com/cdn/7.10.1/img/champion/" + champion.name);
+            img.setAttribute("championID", champion.id);
+            img.setAttribute("championName", champion.name);
+            img.onclick = onIconChampionClicked;
             containerChampionIcons.appendChild(img);
             if (i < 14) {
                 requesterChampionIconString =
@@ -222,8 +202,16 @@ function setAllPlayedChampions(e) {
             }
             i++;
         });
-        onDdChampionSelect(new Event(null));
+        $("#containerChampionIcons img:first-child").click();
     }
+}
+function onIconChampionClicked() {
+    $(".iconChampion").removeClass("activeIconChampion");
+    $(this).addClass("activeIconChampion");
+    console.log("icon clicked: " + this.getAttribute("championID"));
+    requesterWinrate.parameter = this.getAttribute("championID");
+    requesterWinrate.send();
+    setBackgroundString(this.getAttribute("championName"));
 }
 function onClickBtnUpdateDB() {
     //channelServerMsg.invoke("SendMessage", "onClickUpdateDB", "onClickUpdateDBMsg").catch(err => console.error(err.toString()));
