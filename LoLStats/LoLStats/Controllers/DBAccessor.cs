@@ -1,4 +1,5 @@
 using System;
+using System.Collections.Generic;
 using System.IO;
 using System.Threading.Tasks;
 using LoLStats.Models;
@@ -56,10 +57,17 @@ namespace LoLStats.Controllers
             return matches[0].Name;
         }
 
-        public async Task<string> GetChampionIconStringByIDAsync( int championId )
+        public async Task<List<string>> GetChampionIconStringsByIDAsync( List<int> championIDs )
         {
-            var matches = await DB.QueryAsync<DBStaticChampion>( "select * from staticChampion where id =?", championId );
-            return matches[ 0 ].Icon;
+            var matches = new List<string>();
+            foreach (var championID in championIDs)
+            {
+                matches.Add(await DB.ExecuteScalarAsync<string>("select Icon from staticChampion where id =?", championID));
+            }
+
+            return matches;
+            //var matches = await DB.QueryAsync<DBStaticChampion>( "select * from staticChampion where id =?", championId );
+            //return matches[ 0 ].Icon;
         }
 
         public async Task<int> GetGameCountAsChampionAsync(string champion)

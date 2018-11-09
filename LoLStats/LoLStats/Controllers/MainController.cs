@@ -159,10 +159,11 @@ namespace LoLStats.Controllers
             await Main();
         }
 
-        [HttpGet( "GetChampionIconStringByIDAsync/{id}" )]
-        public async Task<IActionResult> GetChampionIconStringByIDAsync([FromRoute] int id)
+        [HttpPost( "GetChampionIconStringsByIDAsync" )]
+        public async Task<IActionResult> GetChampionIconStringsByIDAsync([FromBody]List<int> championIDs)
         {
-            var result = await dbReader.GetChampionIconStringByIDAsync(id);
+            SendClientMessage("GetChampionIconStrings");
+            var result = await dbReader.GetChampionIconStringsByIDAsync(championIDs);
             return this.Ok(result);
         }
 
@@ -217,6 +218,7 @@ namespace LoLStats.Controllers
             AddMessageToConsole( "updating static champion data done!" );
         }
 
+        //check if all tables are present and set up properly
         private async Task validateDatabase()
         {
             if( ! await dbReader.IsTablePresent("staticChampion") )

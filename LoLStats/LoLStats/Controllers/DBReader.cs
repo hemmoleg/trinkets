@@ -6,6 +6,7 @@ using LoLStats.Models;
 using Microsoft.AspNetCore.Routing.Tree;
 using Newtonsoft.Json.Linq;
 using RiotNet.Models;
+using Match = System.Text.RegularExpressions.Match;
 
 namespace LoLStats.Controllers
 {
@@ -90,22 +91,43 @@ namespace LoLStats.Controllers
             }
         }
 
+        /*
+         * The DBMatch type only has some very basic stats. For more in depth stats we have
+         * to get the DBParticipant for each match which represents me and my stats in that match. 
+        */
+        private async Task<List<DBParticipant>> getMeInMatches(List<DBMatch> matches)
+        {
+            //the participant is always me
+            var participants = new List<DBParticipant>();
+            foreach (var match in matches)
+            {
+                var query = "select * from participant where GameId =" + match.GameId + " AND ParticipantId = " + match.UserIndex;
+                var tempParticipant = await DB.QueryAsync<DBParticipant>(query);
+                participants.Add(tempParticipant[0]);
+            }
+
+            return participants;
+        }
+
         public async Task<JObject> GetWinrateByChampID(int id)
         {
             var championName = GetChampionNameByIdAsync(id).Result;
             var query = "select * from match where title LIKE '%" + championName.Replace( "'", "''" ) + "%'";
             var matches = await DB.QueryAsync<DBMatch>( query );
+            var meInMatches = await getMeInMatches(matches);
 
             //data total
             var wins = matches.Count(match => match.Outcome == 1);
             float winrate = ( (float) wins / matches.Count) * 100;
             var avgGameTime = matches.Average(match => match.Duration);
+            var avgCS = meInMatches.Average(me => me.MinionsKilled);
 
             dynamic jsonObj = new JObject();
             jsonObj.Wins = wins;
             jsonObj.WinRate = Math.Round(winrate, 2);
             jsonObj.GameCount = matches.Count;
             jsonObj.AvgGameTime = Math.Round( avgGameTime, 0);
+            jsonObj.AvgCS = Math.Round(avgCS, 2);
 
 
             //data last 3 Months
@@ -119,14 +141,18 @@ namespace LoLStats.Controllers
                 }
             }
 
+            meInMatches = await getMeInMatches(matchesLast3Months);
+
             wins = matchesLast3Months.Count( match => match.Outcome == 1 );
             winrate = ( (float) wins / matchesLast3Months.Count ) * 100;
             avgGameTime = matchesLast3Months.Count > 0 ? matchesLast3Months.Average( match => match.Duration ) : 0;
+            avgCS = matchesLast3Months.Count > 0 ? meInMatches.Average(me => me.MinionsKilled) : 0;
 
             jsonObj.Wins3Months = wins;
             jsonObj.WinRate3Months = Math.Round( winrate, 2 );
             jsonObj.GameCount3Months = matchesLast3Months.Count;
             jsonObj.AvgGameTime3Months = Math.Round( avgGameTime, 0 );
+            jsonObj.AvgCS3Months = Math.Round(avgCS, 2);
 
             //data last 14 Days
             var matchesLast14Days = new List<DBMatch>();
@@ -139,14 +165,18 @@ namespace LoLStats.Controllers
                 }
             }
 
+            meInMatches = await getMeInMatches(matchesLast14Days);
+
             wins = matchesLast14Days.Count( match => match.Outcome == 1 );
             winrate = ( (float) wins / matchesLast14Days.Count ) * 100;
             avgGameTime = matchesLast14Days.Count > 0 ? matchesLast14Days.Average( match => match.Duration ) : 0;
+            avgCS = matchesLast14Days.Count > 0 ? meInMatches.Average(me => me.MinionsKilled) : 0;
 
             jsonObj.Wins2Weeks = wins;
             jsonObj.WinRate2Weeks = Math.Round( winrate, 2 );
             jsonObj.GameCount2Weeks = matchesLast14Days.Count;
             jsonObj.AvgGameTime2Weeks = Math.Round( avgGameTime, 0 );
+            jsonObj.AvgCS2Weeks = Math.Round(avgCS, 2);
 
             return jsonObj;
         }

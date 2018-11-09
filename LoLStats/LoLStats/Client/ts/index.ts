@@ -75,7 +75,7 @@ function onLoad()
     containerChampionIcons = document.getElementById("containerChampionIcons") as HTMLDivElement;
 
     btnUpdateDB.click(onClickBtnUpdateDB)
-        .toggleClass("AnimUpdateDB")
+        .addClass("AnimUpdateDB")
         .text("looking for new games...")
         .prop("disabled", true);
 
@@ -117,13 +117,15 @@ function onLoad()
 
             if (message === "No new Matches")
             {
-                btnUpdateDB.text("No new Matches");
-                btnUpdateDB.prop("disabled", true);
+                btnUpdateDB.text("No new Matches")
+                    .prop("disabled", true)
+                    .removeClass("AnimUpdateDB");
             }
             if (message === "No connection to Riot Servers")
             {
-                btnUpdateDB.text(message);
-                btnUpdateDB.prop("disabled", true);
+                btnUpdateDB.text(message)
+                    .prop("disabled", true)
+                    .removeClass("AnimUpdateDB");
                 $("#topContainer").addClass("topContainerOnNoRiotConnection");
                 inputApiKey.on("keypress", onKeypressInputApiKey);
             }
@@ -196,42 +198,35 @@ function setWinrateInfo(e: Event)
         console.log(response);
 
         //check NaN's
-        if (response.WinRate2Weeks.toString() === "NaN")
+        if(response.WinRate2Weeks.toString() === "NaN")
             response.WinRate2Weeks = "-";
 
-        if (response.WinRate3Months.toString() === "NaN")
+        if(response.WinRate3Months.toString() === "NaN")
             response.WinRate3Months = "-";
 
-        if (response.WinRate.toString() === "NaN")
+        if(response.WinRate.toString() === "NaN")
             response.WinRate = "-";
+
+        if (response.AvgCS3Months.toString() === "0")
+            response.AvgCS3Months = "--";
+
+        if (response.AvgCS2Weeks.toString() === "0")
+            response.AvgCS2Weeks = "-";
 
         document.getElementById("lblWinRate2Weeks").innerText = response.WinRate2Weeks.toString() + "%";
         document.getElementById("lblGamesPlayed2Weeks").innerText = response.GameCount2Weeks.toString();
         document.getElementById("lblAvgGameTime2Weeks").innerText = convertSecondsToTime( response.AvgGameTime2Weeks );
+        document.getElementById("lblAvgCS2Weeks").innerText = response.AvgCS2Weeks.toString();
+
         document.getElementById("lblWinRate3Months").innerText = response.WinRate3Months.toString() + "%";
         document.getElementById("lblGamesPlayed3Months").innerText = response.GameCount3Months.toString();
         document.getElementById("lblAvgGameTime3Months").innerText = convertSecondsToTime( response.AvgGameTime3Months );
+        document.getElementById("lblAvgCS3Months").innerText = response.AvgCS3Months.toString();
+
         document.getElementById("lblWinRate").innerText = response.WinRate.toString() + "%";
         document.getElementById("lblGamesPlayed").innerText = response.GameCount.toString();
         document.getElementById("lblAvgGameTime").innerText = convertSecondsToTime( response.AvgGameTime );
-    }
-}
-
-function setIconString()
-{
-    if (this.readyState === 4)
-    {
-        //var response = requesterChampionIconString.requester.responseText;
-        
-        var iconsChampion = document.getElementsByClassName("iconChampion") as HTMLCollectionOf<HTMLImageElement>;
-
-        for (var i = 0; i < iconsChampion.length; i++)
-        {
-            if (iconsChampion[i].alt === this.response.match(/([A-Z])\w+/)[0])
-            {
-                iconsChampion[i].src = "https://ddragon.leagueoflegends.com/cdn/7.10.1/img/champion/" + this.response;
-            }
-        }
+        document.getElementById("lblAvgCS").innerText = response.AvgCS.toString();
     }
 }
 
@@ -256,6 +251,8 @@ function setAllPlayedChampions(e: Event)
         //debg limit for asking for champion Icons
         i = 0;
 
+        var championIDs: number[] = [];
+
         response.forEach((champion: any) =>
         {
             var img = document.createElement("img") as HTMLImageElement;
@@ -267,19 +264,59 @@ function setAllPlayedChampions(e: Event)
             
             containerChampionIcons.appendChild(img);
 
-            if (i < 14)
-            {
-                requesterChampionIconString =
-                    new Requester("https://localhost:5001/Main/GetChampionIconStringByIDAsync/");
-                requesterChampionIconString.parameter = champion.id.toString();
-                requesterChampionIconString.requester.onreadystatechange = setIconString;
+            championIDs.push(champion.id);
 
-                requesterChampionIconString.send();
-            }
-            i++;
+            //if (i < 14)
+            //{//22 81
+            //    requesterChampionIconString =
+            //        new Requester("https://localhost:5001/Main/GetChampionIconStringByIDAsync/");
+            //    requesterChampionIconString.parameter = champion.id.toString();
+            //    requesterChampionIconString.requester.onreadystatechange = setIconString;
+
+            //    requesterChampionIconString.send();
+            //}
+            //i++;
         });
 
+        //json parameter test
+        requesterChampionIconString =
+            new Requester("https://localhost:5001/Main/GetChampionIconStringsByIDAsync/");
+        requesterChampionIconString.array = championIDs;
+        requesterChampionIconString.requester.onreadystatechange = setIconString;
+        requesterChampionIconString.post();
+
+
         $("#containerChampionIcons img:first-child").click();
+    }
+}
+
+function setIconString()
+{   
+    if (this.readyState === 4)
+    {
+        console.log("setIconString " + requesterChampionIconString.requester.responseText);
+        var response = requesterChampionIconString.requester.responseText;
+        var re = /\"/g;
+        response = response.replace("[", "");
+        response = response.replace("]", "");
+        response = response.replace(re, "");
+        var iconNames = response.split(",");
+        console.log(iconNames);
+
+        var iconsChampion = document.getElementsByClassName("iconChampion") as HTMLCollectionOf<HTMLImageElement>;
+
+        for (var i = 0; i < iconNames.length; i++)
+        {
+            console.log(iconNames[i]);
+            for (var j = 0; j < iconsChampion.length; j++)
+            {
+                if (iconsChampion[j].alt === iconNames[i].match(/([A-Z])\w+/)[0])
+                {
+                    iconsChampion[j].src =
+                        "https://ddragon.leagueoflegends.com/cdn/7.10.1/img/champion/" + iconNames[i];
+                }
+            }
+        }
     }
 }
 
