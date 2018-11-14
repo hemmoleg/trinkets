@@ -26,7 +26,7 @@ namespace LoLStats
         {
             return WebHost.CreateDefaultBuilder( args )
                 //.UseElectron(args)
-                //.UseUrls( "http://localhost:5001/" )
+                .UseUrls( "https://localhost:5001/" )
                 //.UseUrls( "http://localhost:44350/" )
                 .UseStartup<Startup>()
                 .Build();

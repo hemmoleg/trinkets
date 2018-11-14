@@ -47,6 +47,12 @@ namespace LoLStats
             services.AddSingleton( s => new DBReader() );
             services.AddSingleton( s => new DBWriter() );
             services.AddSingleton( s => new RiotApiRequester() );
+
+            services.AddHttpsRedirection(options =>
+            {
+                options.RedirectStatusCode = StatusCodes.Status307TemporaryRedirect;
+                options.HttpsPort = 5001;
+            });
         }
 
         // This method gets called by the runtime. Use this method to configure the HTTP request pipeline.
@@ -67,6 +73,7 @@ namespace LoLStats
             {
                 routes.MapHub<ChatHub>( "/chathub" );
             } );
+            app.UseHttpsRedirection();
             
             //var main = new MainController( (DBReader) app.ApplicationServices.GetService( typeof( DBReader ) ),
               //  (DBWriter) app.ApplicationServices.GetService( typeof( DBWriter ) ),

@@ -51,7 +51,6 @@ namespace LoLStats.Controllers
         {
             await validateDatabase();
 
-
             if( riotApiRequester.Enabled )
             {
                 var missingGamesCount = await checkForNewGames();
