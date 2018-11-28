@@ -14,9 +14,6 @@
 
   <ItemGroup>
     <Content Include="Client\css\style.less" />
-    <Content Include="Client\ts\index.ts" />
-    <Content Include="Client\ts\jquery.d.ts" />
-    <Content Include="Client\ts\Requester.ts" />
   </ItemGroup>
 
   <ItemGroup>

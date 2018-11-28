@@ -254,7 +254,8 @@ function setWinrateInfo(e: Event)
 function setBackgroundString(championName: string)
 {
     var bg = document.getElementById("imgBG") as HTMLImageElement;
-   
+    championName = championName.replace(" ", "");
+
     bg.src = "https://ddragon.leagueoflegends.com/cdn/img/champion/splash/" + championName + "_0.jpg";
     bg.classList.add("gray");
     bg.onload = () => { bg.classList.remove("gray"); };
@@ -331,7 +332,7 @@ function setIconString()
             console.log(iconNames[i]);
             for (var j = 0; j < iconsChampion.length; j++)
             {
-                if (iconsChampion[j].alt === iconNames[i].match(/([A-Z])\w+/)[0])
+                if (iconsChampion[j].alt.replace(" ", "").replace(".", "") === iconNames[i].match(/([A-Z])\w+/)[0])
                 {
                     iconsChampion[j].src =
                         "https://ddragon.leagueoflegends.com/cdn/7.10.1/img/champion/" + iconNames[i];
@@ -355,11 +356,14 @@ function onIconChampionClicked()
 
 }
 
+////////////////////////////////  Update DB  ///////////////////////////////////
+
 function onClickBtnUpdateDB()
 {
     //channelServerMsg.invoke("SendMessage", "onClickUpdateDB", "onClickUpdateDBMsg").catch(err => console.error(err.toString()));
 
     requesterUpdateDB = new Requester("https://localhost:5001/Main/UpdateDB/0");
+    $("#veil").css("display", "block");
     requesterUpdateDB.send();
 }
 
@@ -373,7 +377,7 @@ function handleLoggedInMessage(message: string)
         requesterUpdateDB.requester.onload = onUpdateDBSuccess;
 
         btnUpdateDB.addClass("AnimUpdateDB");
-        $("#veil").css("display", "block");
+        //$("#veil").css("display", "block");
         $("#consoleContainer").addClass("scale1");
     }
 }
@@ -387,7 +391,7 @@ function onYesNoPopupBtnOkClick()
     requesterUpdateDB.requester.onload = onUpdateDBSuccess;
 
     btnUpdateDB.addClass("AnimUpdateDB");
-    $("#veil").css("display", "block");
+    //$("#veil").css("display", "block");
     $("#consoleContainer").addClass("scale1");
 }
 
@@ -400,6 +404,9 @@ function onUpdateDBSuccess()
     btnUpdateDB.prop("disabled", true);
     btnUpdateDB.removeClass("AnimUpdateDB");
 }
+
+////////////////////////////////////////////////////////////////////////////////////////
+
 
 function convertSecondsToTime(seconds : number)
 {

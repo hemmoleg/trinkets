@@ -21,7 +21,7 @@ body {
   height: 50%;
   max-height: 18em;
   padding: 2%;
-  border-radius: 2vmin;
+  border-radius: 1vmin;
   transform: scale(0);
   opacity: 0;
   transition: all ease-in-out 0.3s;
@@ -108,8 +108,8 @@ body {
 }
 .flexContainer {
   display: flex;
+  /*display:none;*/
   flex-wrap: wrap;
-  background: white;
   width: 100%;
   justify-content: space-between;
   align-items: center;
@@ -118,13 +118,14 @@ body {
   padding: 1vmin;
   margin: 1vmin 1vmin 0 1vmin;
   line-height: 5vmin;
-  height: 20vmin;
+  height: 26vmin;
   overflow-y: scroll;
   overflow-x: hidden;
 }
 .iconChampion {
   display: block;
   width: 12vmin;
+  max-width: 85px;
   padding: 4px;
 }
 .iconChampion:hover {
@@ -142,9 +143,9 @@ body {
   height: 40vh;
   box-shadow: 0 1.5em 0.5em -1em rgba(0, 0, 0, 0.6);
   margin: 3vmin;
-  background: white;
-  border: 1px solid black;
+  border: 1px solid #62583D;
   text-align: center;
+  color: #A09B8C;
   overflow-y: scroll;
 }
 webkit-scrollbar-button {
@@ -170,7 +171,7 @@ webkit-scrollbar-button {
   position: fixed;
   width: 100%;
   height: 100%;
-  box-shadow: 0 0 150px rgba(0, 0, 0, 0.9) inset;
+  background: linear-gradient(to right, rgba(1, 10, 19, 0.9) 0%, rgba(1, 10, 19, 0.8) 31%, rgba(1, 10, 19, 0.8) 69%, rgba(1, 10, 19, 0.9) 100%);
   pointer-events: none;
 }
 h3 {
