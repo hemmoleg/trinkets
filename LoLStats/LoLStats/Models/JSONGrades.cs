@@ -44,5 +44,10 @@ namespace LoLStats.Models
         public IList<Delta> Deltas { get; set; }
         public int? OriginalAccountId { get; set; }
         public string OriginalPlatformId { get; set; }
+
+        public bool IsEmpty()
+        {
+            return Deltas.Count == 0 ? true : false;
+        }
     }
 }

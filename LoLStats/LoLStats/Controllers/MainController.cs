@@ -12,6 +12,7 @@ using Microsoft.AspNetCore.Mvc;
 using Microsoft.AspNetCore.SignalR;
 using Microsoft.Extensions.DependencyInjection;
 using Newtonsoft.Json;
+using Newtonsoft.Json.Linq;
 using RiotNet.Models;
 
 namespace LoLStats.Controllers
@@ -92,7 +93,7 @@ namespace LoLStats.Controllers
             SendClientMessage("Requesting matches from Riot...");
             var riotApiMatches = await riotApiRequester.GetAllMatchesAsync();
             SendClientMessage( "Got matches from Riot..." );
-            missingMatchGrades = await getRecentGameGrades();
+            
             missingMatchReferences = await compareGamesApiAgainstDB( riotApiMatches );
             return missingMatchReferences.Count;
         }
@@ -115,11 +116,29 @@ namespace LoLStats.Controllers
             hub.Clients.All.SendAsync( "AddMessageToConsole", "MainController", message );
         }
 
-        [HttpGet("UpdateDB")]
-        public StatusCodeResult UpdateDBAsync(  )
+        public void SendLolClientLoggedIn(string message)
         {
+            var hub = (IHubContext<ChatHub>)this.HttpContext.RequestServices.GetService<IHubContext<ChatHub>>();
+            hub.Clients.All.SendAsync("SendLolClientLoggedIn", "MainController", message);
+        }
+
+        [HttpGet("UpdateDB/{force}")]
+        public async Task<IActionResult> UpdateDBAsync([FromRoute] int force)
+        {
+            dynamic jsonObj = new JObject();
+            missingMatchGrades = await getRecentGameGrades();
+
+            if (force == 0 && missingMatchGrades.IsEmpty())
+            {
+                jsonObj.LolClientRunning = false;
+                SendLolClientLoggedIn("0");
+                return this.Ok(jsonObj);
+            }
+
+            jsonObj.LolClientRunning = true;
+            SendLolClientLoggedIn("1");
             writeAllMissingGamesToDB(missingMatchReferences, missingMatchGrades);
-            return this.StatusCode(200);
+            return this.Ok(jsonObj);
         }
 
         [HttpGet("GetMatchByID/{id}")]

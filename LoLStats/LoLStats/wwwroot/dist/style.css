@@ -12,7 +12,7 @@ body {
   position: absolute;
   background-color: rgba(120, 120, 120, 0.3);
 }
-#consoleContainer {
+.popup {
   position: absolute;
   top: 25%;
   left: 25%;

@@ -3,6 +3,7 @@
 import '../css/style.less';
 import { HubConnectionBuilder } from "@aspnet/signalr";
 import { Requester } from "./Requester";
+import { YesNoPopUp } from "./YesNoPopUp";
 //import { module } from "../../webpack.config";
 /*function testQuery()
 {
@@ -44,6 +45,7 @@ var requesterChampionIconString;
 var channelServerMsg;
 var flexContainer;
 var containerChampionIcons;
+var yesNoPopup;
 if (module.hot) {
     module.hot.accept(); /*[],
         function()
@@ -51,11 +53,19 @@ if (module.hot) {
             console.log('Accepting the updated printMe module!');
         });*/
 }
+//const foo = window.onload;
+//window.onload = (this, ev) =>
+//{
+//    if (foo) foo(null);
+//    onLoad(ev);
+//}
 window.onload = onLoad;
 function onLoad() {
     channelServerMsg = new HubConnectionBuilder()
         .withUrl("/chatHub")
         .build();
+    yesNoPopup = new YesNoPopUp();
+    yesNoPopup.OnOkClick(onYesNoPopupBtnOkClick);
     btnUpdateDB = $("#btnUpdateDB");
     inputApiKey = $("#inputApiKey");
     flexContainer = document.getElementsByClassName("flexContainer")[0];
@@ -107,6 +117,9 @@ function onLoad() {
     channelServerMsg.on("AddMessageToConsole", function (user, message) {
         addMessageToConsole(message);
         console.log(user, message);
+    });
+    channelServerMsg.on("SendLolClientLoggedIn", function (user, message) {
+        handleLoggedInMessage(message);
     });
     channelServerMsg.start().catch(function (err) { return console.error(err.toString()); });
     $("#btnTest").click(function () {
@@ -216,17 +229,21 @@ function setIconString() {
     if (this.readyState === 4) {
         console.log("setIconString " + requesterChampionIconString.requester.responseText);
         var response = requesterChampionIconString.requester.responseText;
+        var re = /\"/g;
+        response = response.replace("[", "");
+        response = response.replace("]", "");
+        response = response.replace(re, "");
+        var iconNames = response.split(",");
+        console.log(iconNames);
         var iconsChampion = document.getElementsByClassName("iconChampion");
-        for (var i = 0; i < response.length; i++) {
-            console.log(response[i]);
-            //for (var j = 0; j < iconsChampion.length; j++)
-            //{
-            //    if (iconsChampion[j].alt === this.response[i].match(/([A-Z])\w+/)[0])
-            //    {
-            //        iconsChampion[j].src =
-            //            "https://ddragon.leagueoflegends.com/cdn/7.10.1/img/champion/" + this.response;
-            //    }
-            //}
+        for (var i = 0; i < iconNames.length; i++) {
+            console.log(iconNames[i]);
+            for (var j = 0; j < iconsChampion.length; j++) {
+                if (iconsChampion[j].alt === iconNames[i].match(/([A-Z])\w+/)[0]) {
+                    iconsChampion[j].src =
+                        "https://ddragon.leagueoflegends.com/cdn/7.10.1/img/champion/" + iconNames[i];
+                }
+            }
         }
     }
 }
@@ -240,20 +257,36 @@ function onIconChampionClicked() {
 }
 function onClickBtnUpdateDB() {
     //channelServerMsg.invoke("SendMessage", "onClickUpdateDB", "onClickUpdateDBMsg").catch(err => console.error(err.toString()));
-    requesterUpdateDB = new Requester("https://localhost:5001/Main/UpdateDB");
+    requesterUpdateDB = new Requester("https://localhost:5001/Main/UpdateDB/0");
+    requesterUpdateDB.send();
+}
+function handleLoggedInMessage(message) {
+    if (message == "0") {
+        yesNoPopup.Show();
+    }
+    else if (message == "1") {
+        requesterUpdateDB.requester.onload = onUpdateDBSuccess;
+        btnUpdateDB.addClass("AnimUpdateDB");
+        $("#veil").css("display", "block");
+        $("#consoleContainer").addClass("scale1");
+    }
+}
+function onYesNoPopupBtnOkClick() {
+    yesNoPopup.Hide();
+    requesterUpdateDB = new Requester("https://localhost:5001/Main/UpdateDB/1");
     requesterUpdateDB.send();
     requesterUpdateDB.requester.onload = onUpdateDBSuccess;
-    btnUpdateDB.toggleClass("AnimUpdateDB");
+    btnUpdateDB.addClass("AnimUpdateDB");
     $("#veil").css("display", "block");
-    $("#consoleContainer").toggleClass("scale1");
+    $("#consoleContainer").addClass("scale1");
 }
 function onUpdateDBSuccess() {
     console.log("UpdateDB done");
     $("#veil").css("display", "none");
-    $("#consoleContainer").toggleClass("scale1");
+    $("#consoleContainer").removeClass("scale1");
     btnUpdateDB.text("DB is up to date");
     btnUpdateDB.prop("disabled", true);
-    btnUpdateDB.toggleClass("AnimUpdateDB");
+    btnUpdateDB.removeClass("AnimUpdateDB");
 }
 function convertSecondsToTime(seconds) {
     if (seconds === 0)

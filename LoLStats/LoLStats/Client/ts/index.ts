@@ -4,6 +4,8 @@
 import '../css/style.less';
 import { HubConnectionBuilder, HubConnection } from "@aspnet/signalr";
 import { Requester } from "./Requester";
+import { YesNoPopUp } from "./YesNoPopUp";
+
 //import { module } from "../../webpack.config";
 
 /*function testQuery()
@@ -50,6 +52,8 @@ var channelServerMsg: HubConnection;
 var flexContainer: HTMLDivElement;
 var containerChampionIcons: HTMLDivElement;
 
+var yesNoPopup: YesNoPopUp;
+
 if (module.hot)
 {
     module.hot.accept();/*[],
@@ -58,6 +62,12 @@ if (module.hot)
             console.log('Accepting the updated printMe module!');
         });*/
 }
+//const foo = window.onload;
+//window.onload = (this, ev) =>
+//{
+//    if (foo) foo(null);
+//    onLoad(ev);
+//}
 
 window.onload = onLoad;
 
@@ -68,6 +78,9 @@ function onLoad()
     channelServerMsg = new HubConnectionBuilder()
         .withUrl("/chatHub")
         .build();
+
+    yesNoPopup = new YesNoPopUp();
+    yesNoPopup.OnOkClick(onYesNoPopupBtnOkClick);
 
     btnUpdateDB = $("#btnUpdateDB");
     inputApiKey = $("#inputApiKey");
@@ -143,6 +156,14 @@ function onLoad()
             console.log(user, message);
         }
     );
+
+    channelServerMsg.on("SendLolClientLoggedIn",
+        (user, message) => {
+            handleLoggedInMessage(message);
+        }
+    );
+
+
 
     channelServerMsg.start().catch(err => console.error(err.toString()));
 
@@ -338,24 +359,46 @@ function onClickBtnUpdateDB()
 {
     //channelServerMsg.invoke("SendMessage", "onClickUpdateDB", "onClickUpdateDBMsg").catch(err => console.error(err.toString()));
 
-    requesterUpdateDB = new Requester("https://localhost:5001/Main/UpdateDB");
+    requesterUpdateDB = new Requester("https://localhost:5001/Main/UpdateDB/0");
+    requesterUpdateDB.send();
+}
+
+function handleLoggedInMessage(message: string)
+{
+    if (message == "0") {
+        yesNoPopup.Show();
+    }
+    else if (message == "1")
+    {
+        requesterUpdateDB.requester.onload = onUpdateDBSuccess;
+
+        btnUpdateDB.addClass("AnimUpdateDB");
+        $("#veil").css("display", "block");
+        $("#consoleContainer").addClass("scale1");
+    }
+}
+
+function onYesNoPopupBtnOkClick()
+{
+    yesNoPopup.Hide();
+    requesterUpdateDB = new Requester("https://localhost:5001/Main/UpdateDB/1");
     requesterUpdateDB.send();
 
     requesterUpdateDB.requester.onload = onUpdateDBSuccess;
 
-    btnUpdateDB.toggleClass("AnimUpdateDB");
+    btnUpdateDB.addClass("AnimUpdateDB");
     $("#veil").css("display", "block");
-    $("#consoleContainer").toggleClass("scale1");
+    $("#consoleContainer").addClass("scale1");
 }
 
 function onUpdateDBSuccess()
 {
     console.log("UpdateDB done");
     $("#veil").css("display", "none");
-    $("#consoleContainer").toggleClass("scale1");
+    $("#consoleContainer").removeClass("scale1");
     btnUpdateDB.text("DB is up to date");
     btnUpdateDB.prop("disabled", true);
-    btnUpdateDB.toggleClass("AnimUpdateDB");
+    btnUpdateDB.removeClass("AnimUpdateDB");
 }
 
 function convertSecondsToTime(seconds : number)
